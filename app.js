@@ -8,7 +8,7 @@
   const TABS = [
     ['cash','現金花費','💵'],['credit','信用卡記錄','💳'],['cardFees','卡費記錄','🧾'],
     ['home','家的支出','🏠'],['installments','分期','💸'],['mortgage','貸款','🏦'],
-    ['taxInvest','稅費、投資','📈'],['lunch','午餐花費','🥗'],['settings','設定','⚙️']
+    ['tax','稅費','🧮'],['investment','投資','📈'],['lunch','午餐花費','🥗'],['settings','設定','⚙️']
   ];
   const CURRENT_SCHEMA = 6;
   const THEMES = [
@@ -34,6 +34,7 @@
   let state = loadState();
   let pendingImport = null;
   const ui = {tab: location.hash.slice(1) || 'cash', search:{}, page:{}, activeCard:0, dateFilters:{}, showAddCard:false, deleteCardIndex:null};
+  if (ui.tab === 'taxInvest') ui.tab = 'tax';
   if (!TABS.some(t => t[0] === ui.tab)) ui.tab = 'cash';
 
   const nav = document.getElementById('nav');
@@ -250,7 +251,8 @@
       home:`${homeBooks.length} 個年度／${sum(homeBooks,b=>(b.items||[]).length)} 個支出項目`,
       installments:`${(s.installments||[]).length} 筆進行中／${(s.installmentHistory||[]).length} 筆歷史`,
       mortgage:`${(s.mortgage?.accounts||[]).length} 組貸款／${(s.mortgage?.payments||[]).length} 筆還款`,
-      taxInvest:`${(s.taxesInvestments?.taxes||[]).length} 筆稅費／${(s.taxesInvestments?.investments||[]).length} 項投資／${investmentTransactions} 筆投資紀錄`,
+      tax:`${(s.taxesInvestments?.taxes||[]).length} 筆稅費`,
+      investment:`${(s.taxesInvestments?.investments||[]).length} 項投資／${investmentTransactions} 筆投資紀錄`,
       lunch:`${(s.lunch?.products||[]).length} 個品項／${(s.lunch?.rows||[]).length} 筆紀錄`
     };
   }
@@ -262,7 +264,7 @@
   function showImportPreview(){
     if(!pendingImport||!importDialog||!importPreview)return;
     const p=pendingImport,v=p.validation,cur=backupSummary(state),inc=backupSummary(p.normalized);
-    const rows=[['現金花費','cash'],['信用卡記錄','credit'],['卡費記錄','cardFees'],['家的支出','home'],['分期','installments'],['貸款','mortgage'],['稅費、投資','taxInvest'],['午餐花費','lunch']];
+    const rows=[['現金花費','cash'],['信用卡記錄','credit'],['卡費記錄','cardFees'],['家的支出','home'],['分期','installments'],['貸款','mortgage'],['稅費','tax'],['投資','investment'],['午餐花費','lunch']];
     const sourceVersion=v.sourceSchema===null?'未標示':String(v.sourceSchema);
     let statusClass='ok',statusText=`版本相容：可匯入至目前版本 ${CURRENT_SCHEMA}。`;
     if(v.sourceSchema===null){statusClass='warn';statusText=`舊版備份未標示版本，將先轉換為目前資料格式 ${CURRENT_SCHEMA}。`; }
@@ -462,7 +464,7 @@
     searchInput.value=ui.search[ui.tab]||'';
     searchInput.disabled=ui.tab==='settings';
     searchInput.placeholder='搜尋目前分頁';
-    const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,taxInvest:renderTaxInvest,lunch:renderLunch,settings:renderSettings};
+    const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,tax:renderTax,investment:renderInvestment,lunch:renderLunch,settings:renderSettings};
     const content=renderers[ui.tab]();
     main.innerHTML=ui.tab==='settings'?content:`<section class="page-search-panel no-print"><div id="pageSearchSlot"></div></section>${content}`;
     placeGlobalControls();
@@ -665,15 +667,23 @@
     </div>`;
   }
 
-  function renderTaxInvest(){
+  function renderTax(){
     const currentYearValue=currentYear();
-    const taxes=state.taxesInvestments.taxes; const taxRows=taxes.map((item,index)=>({item,index})).filter(({item})=>gregorianYear(item.year)===currentYearValue);
-    const currentTaxes=taxRows.map(x=>x.item);
+    const q=ui.search.tax||'';
+    const taxes=state.taxesInvestments.taxes;
+    const allCurrentRows=taxes.map((item,index)=>({item,index})).filter(({item})=>gregorianYear(item.year)===currentYearValue);
+    const taxRows=allCurrentRows.filter(({item})=>!q||includesText(item,q));
+    const currentTaxes=allCurrentRows.map(x=>x.item);
     const tt={houseTax:sum(currentTaxes,x=>x.houseTax),insurance:sum(currentTaxes,x=>x.insurance),incomeTax:sum(currentTaxes,x=>x.incomeTax),landTax:sum(currentTaxes,x=>x.landTax)};
-    const investFilter='investments';
-    return `<div class="page-stack"><section class="card"><div class="section-head"><div><h2>${currentYearValue} 年稅費</h2><p>只顯示設定中的目前年度；切換年份即可查看其他年度。</p></div><button data-action="add-tax">新增本年度資料</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th><th class="numeric">房屋稅</th><th class="numeric">火災地震險</th><th class="numeric">綜所稅</th><th class="numeric">地價稅</th><th></th></tr></thead><tbody>${taxRows.length?taxRows.map(({item:r,index:i})=>`<tr><td>${input(`taxesInvestments.taxes.${i}.year`,r.year)}</td><td>${input(`taxesInvestments.taxes.${i}.houseTax`,r.houseTax,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.insurance`,r.insurance,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.incomeTax`,r.incomeTax,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.landTax`,r.landTax,'number')}</td><td><button class="small danger" data-action="delete" data-array="taxesInvestments.taxes" data-index="${i}">刪除</button></td></tr>`).join(''):empty(6,`${currentYearValue} 年尚無稅費資料`)}<tr class="total-row"><td>${currentYearValue} 年總計</td><td class="numeric">${money(tt.houseTax)}</td><td class="numeric">${money(tt.insurance)}</td><td class="numeric">${money(tt.incomeTax)}</td><td class="numeric">${money(tt.landTax)}</td><td></td></tr></tbody></table></div></section>
-      <section class="card"><div class="section-head"><div><h2>${currentYearValue} 年投資配息</h2><p>明細只顯示目前年度；每個標的仍保留歷年總計。</p></div><div class="chips"><button data-action="add-asset">新增標的</button>${dateFilterBar(investFilter)}</div></div><div class="asset-grid">${state.taxesInvestments.investments.map((a,i)=>{const rows=filteredDataRows(a.transactions,'',investFilter).filter(({item})=>yearMatch(item.date,currentYearValue));const histories=yearTotals(a.transactions);const currentTotal=sum(a.transactions.filter(t=>txYear(t.date)===currentYearValue),t=>t.amount);return `<article class="asset-card"><div class="section-head"><div>${input(`taxesInvestments.investments.${i}.name`,a.name)}</div><button class="small danger" data-action="delete" data-array="taxesInvestments.investments" data-index="${i}">刪除標的</button></div><div class="asset-totals"><div><span>${currentYearValue} 年總計</span><strong>${money(currentTotal)}</strong></div><details><summary>歷年總計</summary><table class="mini-history">${histories.length?histories.map(([y,v])=>`<tr><td>${y}</td><td>${money(v)}</td></tr>`).join(''):`<tr><td>尚無日期資料</td></tr>`}</table></details></div><div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th class="numeric">金額</th><th></th></tr></thead><tbody>${rows.length?rows.map(({item:t,index:j})=>`<tr><td>${input(`taxesInvestments.investments.${i}.transactions.${j}.date`,t.date,'date')}</td><td>${input(`taxesInvestments.investments.${i}.transactions.${j}.amount`,t.amount,'number')}</td><td><button class="small danger" data-action="delete" data-array="taxesInvestments.investments.${i}.transactions" data-index="${j}">×</button></td></tr>`).join(''):empty(3,`${currentYearValue} 年沒有配息資料`)}<tr class="total-row"><td>${currentYearValue} 年總計</td><td class="numeric">${money(currentTotal)}</td><td></td></tr></tbody></table></div><button class="small" data-action="add-invest-tx" data-index="${i}">＋新增配息</button></article>`}).join('')}</div></section>
-    </div>`;
+    return `<div class="page-stack"><section class="card"><div class="section-head"><div><h2>${currentYearValue} 年稅費</h2><p>只顯示設定中的目前年度；切換年份即可查看其他年度。</p></div><button data-action="add-tax">新增本年度資料</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th><th class="numeric">房屋稅</th><th class="numeric">火災地震險</th><th class="numeric">綜所稅</th><th class="numeric">地價稅</th><th></th></tr></thead><tbody>${taxRows.length?taxRows.map(({item:r,index:i})=>`<tr><td>${input(`taxesInvestments.taxes.${i}.year`,r.year)}</td><td>${input(`taxesInvestments.taxes.${i}.houseTax`,r.houseTax,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.insurance`,r.insurance,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.incomeTax`,r.incomeTax,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.landTax`,r.landTax,'number')}</td><td><button class="small danger" data-action="delete" data-array="taxesInvestments.taxes" data-index="${i}">刪除</button></td></tr>`).join(''):empty(6,q?'目前搜尋條件沒有符合的稅費資料':`${currentYearValue} 年尚無稅費資料`)}<tr class="total-row"><td>${currentYearValue} 年總計</td><td class="numeric">${money(tt.houseTax)}</td><td class="numeric">${money(tt.insurance)}</td><td class="numeric">${money(tt.incomeTax)}</td><td class="numeric">${money(tt.landTax)}</td><td></td></tr></tbody></table></div></section></div>`;
+  }
+
+  function renderInvestment(){
+    const currentYearValue=currentYear();
+    const investFilter='investment';
+    const q=ui.search.investment||'';
+    const assets=state.taxesInvestments.investments.map((asset,index)=>({asset,index})).filter(({asset})=>!q||includesText(asset,q));
+    return `<div class="page-stack"><section class="card"><div class="section-head"><div><h2>${currentYearValue} 年投資配息</h2><p>明細只顯示目前年度；每個標的仍保留歷年總計。</p></div><div class="chips"><button data-action="add-asset">新增標的</button>${dateFilterBar(investFilter)}</div></div>${assets.length?`<div class="asset-grid">${assets.map(({asset:a,index:i})=>{const assetNameMatches=q&&String(a.name||'').toLowerCase().includes(q.toLowerCase());const rows=filteredDataRows(a.transactions,assetNameMatches?'':q,investFilter).filter(({item})=>yearMatch(item.date,currentYearValue));const histories=yearTotals(a.transactions);const currentTotal=sum(a.transactions.filter(t=>txYear(t.date)===currentYearValue),t=>t.amount);return `<article class="asset-card"><div class="section-head"><div>${input(`taxesInvestments.investments.${i}.name`,a.name)}</div><button class="small danger" data-action="delete" data-array="taxesInvestments.investments" data-index="${i}">刪除標的</button></div><div class="asset-totals"><div><span>${currentYearValue} 年總計</span><strong>${money(currentTotal)}</strong></div><details><summary>歷年總計</summary><table class="mini-history">${histories.length?histories.map(([y,v])=>`<tr><td>${y}</td><td>${money(v)}</td></tr>`).join(''):`<tr><td>尚無日期資料</td></tr>`}</table></details></div><div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th class="numeric">金額</th><th></th></tr></thead><tbody>${rows.length?rows.map(({item:t,index:j})=>`<tr><td>${input(`taxesInvestments.investments.${i}.transactions.${j}.date`,t.date,'date')}</td><td>${input(`taxesInvestments.investments.${i}.transactions.${j}.amount`,t.amount,'number')}</td><td><button class="small danger" data-action="delete" data-array="taxesInvestments.investments.${i}.transactions" data-index="${j}">×</button></td></tr>`).join(''):empty(3,`${currentYearValue} 年沒有符合條件的配息資料`)}<tr class="total-row"><td>${currentYearValue} 年總計</td><td class="numeric">${money(currentTotal)}</td><td></td></tr></tbody></table></div><button class="small" data-action="add-invest-tx" data-index="${i}">＋新增配息</button></article>`}).join('')}</div>`:`<div class="empty">${q?'目前搜尋條件沒有符合的投資標的':'尚未建立投資標的'}</div>`}</section></div>`;
   }
 
   function workdays(start,end){

@@ -902,3 +902,67 @@ html.sidebar-open,body.sidebar-open{overscroll-behavior:none}
   .form-grid>.field,.form-grid>button{min-width:0 !important}
   .field input,.field select,.field textarea,.row-color-select{min-width:0 !important;max-width:100% !important}
 }
+
+
+/* v26: cash mobile form width repair + split tax/invest pages */
+@media(max-width:760px){
+  form.form-grid[data-form="cash"]{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow:visible !important;
+  }
+  form.form-grid[data-form="cash"]>.field,
+  form.form-grid[data-form="cash"]>.field.wide,
+  form.form-grid[data-form="cash"]>button{
+    grid-column:1 !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+  form.form-grid[data-form="cash"] input,
+  form.form-grid[data-form="cash"] select,
+  form.form-grid[data-form="cash"] textarea,
+  form.form-grid[data-form="cash"] input[type="date"]{
+    display:block !important;
+    inline-size:100% !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    min-inline-size:0 !important;
+    box-sizing:border-box !important;
+  }
+}
+@media (orientation:landscape) and (max-height:600px){
+  form.form-grid[data-form="cash"]{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    gap:8px !important;
+  }
+  form.form-grid[data-form="cash"]>.field,
+  form.form-grid[data-form="cash"]>.field.wide,
+  form.form-grid[data-form="cash"]>button{
+    grid-column:1 !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+  }
+  form.form-grid[data-form="cash"] input,
+  form.form-grid[data-form="cash"] select,
+  form.form-grid[data-form="cash"] textarea,
+  form.form-grid[data-form="cash"] input[type="date"]{
+    display:block !important;
+    inline-size:100% !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    min-inline-size:0 !important;
+    box-sizing:border-box !important;
+  }
+}
