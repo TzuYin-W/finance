@@ -722,3 +722,113 @@ body.modal-open{overflow:hidden}
     left:0 !important;
   }
 }
+
+
+/* v24: settings hero cleanup + responsive lunch/monthly tables */
+:root[data-theme="pikmin"] .settings-hero,
+:root[data-theme="pokemon"] .settings-hero{
+  background-image:none !important;
+  background-repeat:no-repeat !important;
+  overflow:hidden !important;
+}
+:root[data-theme="pikmin"] .settings-hero{
+  background:linear-gradient(135deg,rgba(255,240,165,.36),rgba(238,249,236,.96) 36%,rgba(255,255,255,.94)) !important;
+}
+:root[data-theme="pokemon"] .settings-hero{
+  background:linear-gradient(135deg,rgba(216,237,255,.96),rgba(244,248,255,.98) 52%,rgba(255,255,255,.96)) !important;
+}
+:root[data-theme="pikmin"] .settings-hero::before,
+:root[data-theme="pikmin"] .settings-hero::after,
+:root[data-theme="pokemon"] .settings-hero::before,
+:root[data-theme="pokemon"] .settings-hero::after{
+  content:none !important;
+  display:none !important;
+  background:none !important;
+}
+
+/* 午餐花費：完整縮進視窗，不使用水平拖移 */
+.lunch-wrap{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden !important;
+}
+.lunch-table{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  table-layout:fixed !important;
+  font-size:clamp(9px,.72vw,12px);
+}
+.lunch-table th,
+.lunch-table td{
+  min-width:0 !important;
+  padding:5px 3px !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.lunch-table th:first-child,
+.lunch-table td:first-child{width:92px !important;}
+.lunch-table th:nth-child(2),
+.lunch-table td:nth-child(2){width:48px !important;}
+.lunch-table th:nth-last-child(2),
+.lunch-table td:nth-last-child(2){width:72px !important;}
+.lunch-table th:last-child,
+.lunch-table td:last-child{width:44px !important;}
+.lunch-table input,
+.lunch-table select,
+.lunch-table button{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  padding:4px 2px !important;
+  font-size:inherit !important;
+}
+.lunch-table input[type="date"]{font-size:10px !important;}
+.lunch-table button{padding:4px 1px !important;}
+
+/* 每月開銷：月份之外，現金／轉帳至喜樂薪水六欄平均分配 */
+.monthly-expense-wrap{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden !important;
+}
+.monthly-expense-table{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  table-layout:fixed !important;
+}
+.monthly-expense-table th,
+.monthly-expense-table td{
+  min-width:0 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere;
+  box-sizing:border-box;
+}
+.monthly-expense-table th:first-child,
+.monthly-expense-table td:first-child{
+  width:12% !important;
+  position:static !important;
+}
+.monthly-expense-table th:nth-child(n+2),
+.monthly-expense-table td:nth-child(n+2){width:14.6666667% !important;}
+.monthly-expense-table input{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  box-sizing:border-box !important;
+}
+@media(max-width:760px){
+  .lunch-table{font-size:8px;}
+  .lunch-table th,.lunch-table td{padding:4px 2px !important;}
+  .lunch-table th:first-child,.lunch-table td:first-child{width:74px !important;}
+  .lunch-table th:nth-child(2),.lunch-table td:nth-child(2){width:38px !important;}
+  .lunch-table th:nth-last-child(2),.lunch-table td:nth-last-child(2){width:58px !important;}
+  .lunch-table th:last-child,.lunch-table td:last-child{width:34px !important;}
+  .monthly-expense-table{font-size:10px;}
+  .monthly-expense-table th,.monthly-expense-table td{padding:5px 3px !important;}
+  .monthly-expense-table th:first-child,.monthly-expense-table td:first-child{width:10% !important;}
+  .monthly-expense-table th:nth-child(n+2),.monthly-expense-table td:nth-child(n+2){width:15% !important;}
+}

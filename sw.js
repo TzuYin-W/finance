@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-v23-default-google-client';
+const CACHE='finance-tracker-v24-table-layout';
 const ASSETS=['./','./index.html','./styles.css','./initial-data.js','./app.js','./cloud-sync.js','./manifest.webmanifest','./icon.svg','./theme-pikmin-sidebar.png','./theme-pikmin-right.png','./theme-pikmin-corner.png','./theme-pokemon-right.png','./theme-pokemon-corner.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
