@@ -633,3 +633,92 @@ body.modal-open{overflow:hidden}
     padding:10px !important;
   }
 }
+
+
+/* v21: definitive desktop grid repair */
+@media(min-width:761px){
+  :root[data-theme="pikmin"] .app-shell,
+  :root[data-theme="pokemon"] .app-shell{
+    display:grid !important;
+    grid-template-columns:230px minmax(0,1fr) !important;
+    grid-template-areas:"sidebar workspace" !important;
+    width:100% !important;
+    min-width:0 !important;
+  }
+  :root[data-theme="pikmin"] .sidebar,
+  :root[data-theme="pokemon"] .sidebar{
+    grid-area:sidebar !important;
+    position:sticky !important;
+    left:auto !important;
+    top:0 !important;
+    width:230px !important;
+    height:100vh !important;
+    min-width:230px !important;
+    align-self:start !important;
+    box-sizing:border-box !important;
+  }
+  :root[data-theme="pikmin"] .workspace,
+  :root[data-theme="pokemon"] .workspace{
+    grid-area:workspace !important;
+    grid-column:2 !important;
+    min-width:0 !important;
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+  }
+  :root[data-theme="pikmin"] .workspace>main,
+  :root[data-theme="pokemon"] .workspace>main{
+    width:100% !important;
+    max-width:1800px !important;
+    min-width:0 !important;
+    margin:0 auto !important;
+    padding:24px !important;
+    box-sizing:border-box !important;
+  }
+  :root[data-theme="pikmin"] .workspace>.topbar,
+  :root[data-theme="pokemon"] .workspace>.topbar{
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+}
+@media(min-width:761px) and (max-width:1100px){
+  :root[data-theme="pikmin"] .app-shell,
+  :root[data-theme="pokemon"] .app-shell{
+    grid-template-columns:190px minmax(0,1fr) !important;
+  }
+  :root[data-theme="pikmin"] .sidebar,
+  :root[data-theme="pokemon"] .sidebar{
+    width:190px !important;
+    min-width:190px !important;
+  }
+}
+@media(max-width:760px), (orientation:landscape) and (max-height:600px){
+  :root[data-theme="pikmin"] .app-shell,
+  :root[data-theme="pokemon"] .app-shell{
+    display:block !important;
+    width:100% !important;
+  }
+  :root[data-theme="pikmin"] .workspace,
+  :root[data-theme="pokemon"] .workspace{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+  :root[data-theme="pikmin"] .sidebar,
+  :root[data-theme="pokemon"] .sidebar{
+    position:fixed !important;
+    left:-250px !important;
+    top:0 !important;
+    width:230px !important;
+    min-width:230px !important;
+    height:100vh !important;
+  }
+  :root[data-theme="pikmin"] .sidebar.open,
+  :root[data-theme="pokemon"] .sidebar.open{
+    left:0 !important;
+  }
+}
