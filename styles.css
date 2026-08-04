@@ -138,3 +138,151 @@ body.modal-open{overflow:hidden}
 :root[data-theme="pikmin"] .card{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2080%2060%27%3E%0A%3Cpath%20d%3D%27M12%2045C25%2022%2044%2010%2067%208%27%20stroke%3D%27%2371b35a%27%20stroke-width%3D%274%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M67%208C74%2018%2073%2031%2063%2040C46%2044%2028%2039%2017%2028C26%2015%2046%208%2067%208Z%27%20fill%3D%27%23b9ef9a%27%20stroke%3D%27%2371b35a%27%20stroke-width%3D%273%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M33%2031C43%2027%2054%2020%2062%2011%27%20stroke%3D%27%238ecf73%27%20stroke-width%3D%272%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E"),radial-gradient(circle at 100% 0,rgba(255,225,120,.16),transparent 24%),radial-gradient(circle at 0 100%,rgba(140,217,115,.10),transparent 26%);background-size:44px 32px,auto,auto;background-repeat:no-repeat,no-repeat,no-repeat;background-position:right 14px bottom 10px,0 0,0 0}
 :root[data-theme="pikmin"] .settings-hero{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2716%27%20fill%3D%27%23f0c63d%27%2F%3E%0A%3Cellipse%20cx%3D%2750%27%20cy%3D%2718%27%20rx%3D%2716%27%20ry%3D%2724%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2750%27%20cy%3D%2782%27%20rx%3D%2716%27%20ry%3D%2724%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2718%27%20cy%3D%2750%27%20rx%3D%2724%27%20ry%3D%2716%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2782%27%20cy%3D%2750%27%20rx%3D%2724%27%20ry%3D%2716%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2727%27%20cy%3D%2727%27%20rx%3D%2718%27%20ry%3D%2712%27%20transform%3D%27rotate%28-45%2027%2027%29%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2773%27%20cy%3D%2727%27%20rx%3D%2718%27%20ry%3D%2712%27%20transform%3D%27rotate%2845%2073%2027%29%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2727%27%20cy%3D%2773%27%20rx%3D%2718%27%20ry%3D%2712%27%20transform%3D%27rotate%2845%2027%2073%29%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2773%27%20cy%3D%2773%27%20rx%3D%2718%27%20ry%3D%2712%27%20transform%3D%27rotate%28-45%2073%2073%29%27%20fill%3D%27white%27%2F%3E%0A%3C%2Fsvg%3E"),url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2080%2060%27%3E%0A%3Cpath%20d%3D%27M12%2045C25%2022%2044%2010%2067%208%27%20stroke%3D%27%2371b35a%27%20stroke-width%3D%274%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M67%208C74%2018%2073%2031%2063%2040C46%2044%2028%2039%2017%2028C26%2015%2046%208%2067%208Z%27%20fill%3D%27%23b9ef9a%27%20stroke%3D%27%2371b35a%27%20stroke-width%3D%273%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M33%2031C43%2027%2054%2020%2062%2011%27%20stroke%3D%27%238ecf73%27%20stroke-width%3D%272%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E"),linear-gradient(135deg,rgba(255,240,165,.36),rgba(238,249,236,.96) 36%,rgba(255,255,255,.94));background-size:76px 76px,66px 48px,auto;background-repeat:no-repeat,no-repeat,no-repeat;background-position:right 24px top 14px,left 24px bottom 16px,0 0}
 @media(max-width:760px){:root[data-theme="pikmin"] body{background-size:58px 58px,68px 50px,auto,auto,auto,auto;background-position:7% 92%,94% 20%,0 0,0 0,0 0,0 0}:root[data-theme="pikmin"] .sidebar::after{width:60px;height:60px;left:8px;bottom:10px}:root[data-theme="pikmin"] .topbar::before{display:none}:root[data-theme="pikmin"] .settings-hero{background-size:54px 54px,auto,auto;background-position:right 14px top 12px,left 14px bottom 12px,0 0}}
+
+/* v14: restore Pikmin sidebar/topbar positioning */
+:root[data-theme="pikmin"] .sidebar{
+  position:sticky;
+  top:0;
+  left:auto;
+  height:100vh;
+}
+:root[data-theme="pikmin"] .topbar{
+  position:sticky;
+  top:0;
+}
+@media(max-width:760px){
+  :root[data-theme="pikmin"] .sidebar{
+    position:fixed;
+    top:0;
+    left:-250px;
+    width:230px;
+    height:100vh;
+  }
+  :root[data-theme="pikmin"] .sidebar.open{left:0}
+}
+@media (orientation:landscape) and (max-height:600px){
+  :root[data-theme="pikmin"] .sidebar{
+    position:fixed;
+    top:0;
+    left:-250px;
+    width:230px;
+    height:100vh;
+  }
+  :root[data-theme="pikmin"] .sidebar.open{left:0}
+}
+
+
+
+/* v15: keep Pikmin decorations visibly above cards */
+:root[data-theme="pikmin"] .workspace::before,
+:root[data-theme="pikmin"] .workspace::after{
+  position:fixed;
+  pointer-events:none;
+  z-index:18;
+  opacity:.92;
+  background-repeat:no-repeat;
+  background-size:contain;
+}
+:root[data-theme="pikmin"] .workspace::before{
+  width:90px;
+  height:134px;
+  right:-12px;
+  top:118px;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20180%27%3E%0A%3Cpath%20d%3D%27M60%2056C57%2031%2070%2019%2077%207%27%20stroke%3D%27%234b8d34%27%20stroke-width%3D%276%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M77%207C84%202%2096%202%20102%2010C100%2023%2088%2030%2074%2027C69%2018%2072%2011%2077%207Z%27%20fill%3D%27%23f7ffff%27%20stroke%3D%27%235da8d3%27%20stroke-width%3D%272.5%27%2F%3E%0A%3Cpath%20d%3D%27M77%2010C82%205%2092%205%2096%2011C92%2016%2084%2016%2079%2012Z%27%20fill%3D%27%238bd15a%27%20stroke%3D%27%234b8d34%27%20stroke-width%3D%272%27%2F%3E%0A%3Cellipse%20cx%3D%2760%27%20cy%3D%27109%27%20rx%3D%2727%27%20ry%3D%2745%27%20fill%3D%27%2365b7f8%27%2F%3E%0A%3Ccircle%20cx%3D%2749%27%20cy%3D%2799%27%20r%3D%277%27%20fill%3D%27%23fff%27%2F%3E%3Ccircle%20cx%3D%2771%27%20cy%3D%2799%27%20r%3D%277%27%20fill%3D%27%23fff%27%2F%3E%0A%3Ccircle%20cx%3D%2749%27%20cy%3D%2799%27%20r%3D%272.7%27%20fill%3D%27%23111%27%2F%3E%3Ccircle%20cx%3D%2771%27%20cy%3D%2799%27%20r%3D%272.7%27%20fill%3D%27%23111%27%2F%3E%0A%3Cpath%20d%3D%27M48%20126Q60%20133%2072%20126%27%20stroke%3D%27%23458fcb%27%20stroke-width%3D%274%27%20stroke-linecap%3D%27round%27%20fill%3D%27none%27%2F%3E%0A%3Cellipse%20cx%3D%2742%27%20cy%3D%27149%27%20rx%3D%278%27%20ry%3D%2719%27%20fill%3D%27%2365b7f8%27%20transform%3D%27rotate%2820%2042%20149%29%27%2F%3E%0A%3Cellipse%20cx%3D%2778%27%20cy%3D%27149%27%20rx%3D%278%27%20ry%3D%2719%27%20fill%3D%27%2365b7f8%27%20transform%3D%27rotate%28-20%2078%20149%29%27%2F%3E%0A%3C%2Fsvg%3E");
+  filter:drop-shadow(0 10px 18px rgba(69,143,203,.20));
+}
+:root[data-theme="pikmin"] .workspace::after{
+  width:98px;
+  height:142px;
+  right:-10px;
+  bottom:18px;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20180%27%3E%0A%3Cpath%20d%3D%27M60%2058C56%2032%2066%2020%2069%208%27%20stroke%3D%27%234b8d34%27%20stroke-width%3D%276%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M69%208C72%203%2080%203%2084%207C84%2016%2077%2020%2070%2019C67%2015%2066%2011%2069%208Z%27%20fill%3D%27%23ff86b1%27%20stroke%3D%27%23c45a86%27%20stroke-width%3D%272%27%2F%3E%0A%3Cpath%20d%3D%27M69%208C72%203%2080%203%2084%207C84%2016%2077%2020%2070%2019C67%2015%2066%2011%2069%208Z%27%20fill%3D%27none%27%20stroke%3D%27%23c45a86%27%20stroke-width%3D%272%27%2F%3E%0A%3Ccircle%20cx%3D%2777%27%20cy%3D%275%27%20r%3D%274%27%20fill%3D%27%23ff86b1%27%2F%3E%3Ccircle%20cx%3D%2784%27%20cy%3D%2710%27%20r%3D%274%27%20fill%3D%27%23ffd26d%27%2F%3E%3Ccircle%20cx%3D%2769%27%20cy%3D%2710%27%20r%3D%274%27%20fill%3D%27%23ffd26d%27%2F%3E%0A%3Cellipse%20cx%3D%2760%27%20cy%3D%27109%27%20rx%3D%2729%27%20ry%3D%2744%27%20fill%3D%27%23ffd447%27%2F%3E%0A%3Ccircle%20cx%3D%2747%27%20cy%3D%2798%27%20r%3D%277%27%20fill%3D%27%23fff%27%2F%3E%3Ccircle%20cx%3D%2773%27%20cy%3D%2798%27%20r%3D%277%27%20fill%3D%27%23fff%27%2F%3E%0A%3Ccircle%20cx%3D%2747%27%20cy%3D%2798%27%20r%3D%272.7%27%20fill%3D%27%23111%27%2F%3E%3Ccircle%20cx%3D%2773%27%20cy%3D%2798%27%20r%3D%272.7%27%20fill%3D%27%23111%27%2F%3E%0A%3Cpath%20d%3D%27M46%20125Q60%20132%2074%20125%27%20stroke%3D%27%23d6a728%27%20stroke-width%3D%274%27%20stroke-linecap%3D%27round%27%20fill%3D%27none%27%2F%3E%0A%3Cpath%20d%3D%27M34%2089L18%2074L34%2066%27%20stroke%3D%27%23ffd447%27%20stroke-width%3D%279%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M86%2089L102%2074L86%2066%27%20stroke%3D%27%23ffd447%27%20stroke-width%3D%279%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+  filter:drop-shadow(0 10px 18px rgba(214,167,40,.20));
+}
+:root[data-theme="pikmin"] main::before,
+:root[data-theme="pikmin"] main::after{
+  content:"";
+  position:fixed;
+  pointer-events:none;
+  z-index:17;
+  background-repeat:no-repeat;
+  background-size:contain;
+  opacity:.82;
+}
+:root[data-theme="pikmin"] main::before{
+  width:68px;
+  height:68px;
+  left:238px;
+  bottom:18px;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2716%27%20fill%3D%27%23f0c63d%27%2F%3E%0A%3Cellipse%20cx%3D%2750%27%20cy%3D%2718%27%20rx%3D%2716%27%20ry%3D%2724%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2750%27%20cy%3D%2782%27%20rx%3D%2716%27%20ry%3D%2724%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2718%27%20cy%3D%2750%27%20rx%3D%2724%27%20ry%3D%2716%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2782%27%20cy%3D%2750%27%20rx%3D%2724%27%20ry%3D%2716%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2727%27%20cy%3D%2727%27%20rx%3D%2718%27%20ry%3D%2712%27%20transform%3D%27rotate%28-45%2027%2027%29%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2773%27%20cy%3D%2727%27%20rx%3D%2718%27%20ry%3D%2712%27%20transform%3D%27rotate%2845%2073%2027%29%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2727%27%20cy%3D%2773%27%20rx%3D%2718%27%20ry%3D%2712%27%20transform%3D%27rotate%2845%2027%2073%29%27%20fill%3D%27white%27%2F%3E%0A%3Cellipse%20cx%3D%2773%27%20cy%3D%2773%27%20rx%3D%2718%27%20ry%3D%2712%27%20transform%3D%27rotate%28-45%2073%2073%29%27%20fill%3D%27white%27%2F%3E%0A%3C%2Fsvg%3E");
+  filter:drop-shadow(0 6px 12px rgba(99,92,70,.12));
+}
+:root[data-theme="pikmin"] main::after{
+  width:76px;
+  height:58px;
+  left:276px;
+  bottom:6px;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2080%2060%27%3E%0A%3Cpath%20d%3D%27M12%2045C25%2022%2044%2010%2067%208%27%20stroke%3D%27%2371b35a%27%20stroke-width%3D%274%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M67%208C74%2018%2073%2031%2063%2040C46%2044%2028%2039%2017%2028C26%2015%2046%208%2067%208Z%27%20fill%3D%27%23b9ef9a%27%20stroke%3D%27%2371b35a%27%20stroke-width%3D%273%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M33%2031C43%2027%2054%2020%2062%2011%27%20stroke%3D%27%238ecf73%27%20stroke-width%3D%272%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+  transform:rotate(-12deg);
+  filter:drop-shadow(0 6px 12px rgba(89,126,73,.12));
+}
+@media(max-width:1100px){
+  :root[data-theme="pikmin"] main::before{left:198px}
+  :root[data-theme="pikmin"] main::after{left:232px}
+}
+@media(max-width:760px){
+  :root[data-theme="pikmin"] .workspace::before{
+    width:62px;height:92px;right:-9px;top:156px;opacity:.9;
+  }
+  :root[data-theme="pikmin"] .workspace::after{
+    width:68px;height:100px;right:-8px;bottom:10px;opacity:.9;
+  }
+  :root[data-theme="pikmin"] main::before{
+    width:48px;height:48px;left:4px;bottom:12px;opacity:.72;
+  }
+  :root[data-theme="pikmin"] main::after{
+    width:54px;height:42px;left:30px;bottom:2px;opacity:.72;
+  }
+}
+@media (orientation:landscape) and (max-height:600px){
+  :root[data-theme="pikmin"] .workspace::before{width:58px;height:86px;top:72px;right:-8px}
+  :root[data-theme="pikmin"] .workspace::after{width:62px;height:92px;bottom:4px;right:-8px}
+  :root[data-theme="pikmin"] main::before{width:42px;height:42px;left:4px;bottom:6px}
+  :root[data-theme="pikmin"] main::after{width:48px;height:36px;left:28px;bottom:0}
+}
+
+
+/* v16: pokemon theme */
+:root[data-theme="pokemon"]{--green:#4aa8ff;--green-dark:#2f71cf;--green-soft:#eef4ff;--mint:#eaf7ff;--blue:#dcebff;--yellow:#fff2aa;--pink:#ffe0ea;--ink:#273449;--muted:#6a778b;--line:#d6dfec;--paper:#ffffff;--bg:#eef5ff;--control:#ffffff;--row:#ffffff;--row-alt:#f7fbff;--computed:#eef5ff;--sidebar:#2e4f9f;--sidebar-active:#ffd95a;--sidebar-text:#ffffff;--sidebar-nav:#eef4ff;--sidebar-muted:#bfd0ff;--sidebar-line:#5573be;--topbar-bg:rgba(238,245,255,.96);--shadow:0 14px 30px rgba(50,81,160,.14)}
+:root[data-theme="pokemon"] body{background-image:radial-gradient(circle at 50% 0,rgba(110,193,255,.42),transparent 22%),linear-gradient(180deg,#dff0ff 0,#eef6ff 34%,#fff7e8 100%);}
+:root[data-theme="pokemon"] .workspace,:root[data-theme="pokemon"] .sidebar,:root[data-theme="pokemon"] .topbar,:root[data-theme="pokemon"] .card,:root[data-theme="pokemon"] main{position:relative}
+:root[data-theme="pokemon"] .sidebar{background:linear-gradient(180deg,#3459ac,#2a468b 100%);overflow:hidden}
+:root[data-theme="pokemon"] .brand small{color:var(--sidebar-muted)}
+:root[data-theme="pokemon"] .nav-btn{color:var(--sidebar-nav);font-weight:600}
+:root[data-theme="pokemon"] .nav-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+:root[data-theme="pokemon"] .nav-btn.active{background:linear-gradient(135deg,#ffe37d,#ffd04f);color:#473615;box-shadow:0 10px 18px rgba(17,24,39,.18)}
+:root[data-theme="pokemon"] .privacy-note{color:var(--sidebar-muted);border-top-color:var(--sidebar-line)}
+:root[data-theme="pokemon"] .workspace::before,:root[data-theme="pokemon"] .workspace::after,:root[data-theme="pokemon"] .sidebar::before,:root[data-theme="pokemon"] .sidebar::after,:root[data-theme="pokemon"] .topbar::before,:root[data-theme="pokemon"] .topbar::after,:root[data-theme="pokemon"] main::before,:root[data-theme="pokemon"] main::after{content:"";position:fixed;pointer-events:none;z-index:17;background-repeat:no-repeat;background-size:contain;opacity:.96}
+:root[data-theme="pokemon"] .workspace::before{width:158px;height:158px;right:-24px;top:112px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20180%20180%27%3E%0A%3Cpath%20d%3D%27M33%2099C39%2063%2062%2043%20103%2040C127%2039%20146%2052%20150%2079C154%20104%20139%20124%20116%20126L110%20144H90L95%20126H73L67%20144H48L53%20122C39%20119%2030%20111%2033%2099Z%27%20fill%3D%27%2345c7ea%27%2F%3E%0A%3Cpath%20d%3D%27M76%2046C84%2026%20103%2017%20123%2020C111%2031%20109%2041%20110%2056Z%27%20fill%3D%27%232f9dcb%27%2F%3E%0A%3Cpath%20d%3D%27M63%2052C49%2046%2039%2049%2031%2058C42%2061%2050%2066%2055%2075Z%27%20fill%3D%27%232f9dcb%27%2F%3E%0A%3Cellipse%20cx%3D%27108%27%20cy%3D%2783%27%20rx%3D%2722%27%20ry%3D%2736%27%20fill%3D%27%23f1dfa2%27%2F%3E%0A%3Ccircle%20cx%3D%27122%27%20cy%3D%2773%27%20r%3D%276%27%20fill%3D%27%23fff%27%2F%3E%3Ccircle%20cx%3D%27123%27%20cy%3D%2774%27%20r%3D%272.5%27%20fill%3D%27%2320466b%27%2F%3E%0A%3Cpath%20d%3D%27M117%2089Q125%2095%20132%2088%27%20stroke%3D%27%233a6d87%27%20stroke-width%3D%273.5%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M43%2081C22%2090%2014%20109%2022%20127C35%20119%2047%20112%2055%2098Z%27%20fill%3D%27%2343b6d3%27%2F%3E%3Cpath%20d%3D%27M145%2084C164%2096%20170%20112%20162%20127C148%20119%20138%20110%20131%2099Z%27%20fill%3D%27%2343b6d3%27%2F%3E%0A%3C%2Fsvg%3E");filter:drop-shadow(0 14px 28px rgba(41,129,181,.18))}
+:root[data-theme="pokemon"] .workspace::after{width:142px;height:142px;right:-10px;bottom:16px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20160%27%3E%0A%3Cpath%20d%3D%27M81%2018C110%2023%20128%2047%20127%2074C126%20103%20110%20128%2081%20137C52%20129%2035%20103%2034%2074C33%2047%2051%2023%2081%2018Z%27%20fill%3D%27%23f7d650%27%2F%3E%0A%3Cpath%20d%3D%27M58%2056%2078%2037%20102%2037%20123%2057%20106%2076%2056%2076Z%27%20fill%3D%27%23fff6dc%27%2F%3E%0A%3Cpath%20d%3D%27M45%2078C56%2095%2067%20106%2081%20116C95%20106%20106%2095%20117%2078C95%2075%2067%2075%2045%2078Z%27%20fill%3D%27%23fff6dc%27%2F%3E%0A%3Ccircle%20cx%3D%2769%27%20cy%3D%2777%27%20r%3D%275%27%20fill%3D%27%23715843%27%2F%3E%3Ccircle%20cx%3D%2793%27%20cy%3D%2777%27%20r%3D%275%27%20fill%3D%27%23715843%27%2F%3E%3Cpath%20d%3D%27M74%2091Q81%2097%2088%2091%27%20stroke%3D%27%23715843%27%20stroke-width%3D%273.5%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%0A%3Cpath%20d%3D%27M77%2020%2092%203%20103%2026Z%27%20fill%3D%27%23e45439%27%2F%3E%3Cpath%20d%3D%27M33%2073%2049%2056%2053%2082Z%27%20fill%3D%27%23e45439%27%2F%3E%3Cpath%20d%3D%27M127%2073%20111%2056%20107%2082Z%27%20fill%3D%27%23e45439%27%2F%3E%0A%3C%2Fsvg%3E");filter:drop-shadow(0 14px 28px rgba(194,145,34,.18))}
+:root[data-theme="pokemon"] .sidebar::before{width:76px;height:76px;left:12px;bottom:18px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3CclipPath%20id%3D%27c%27%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%2F%3E%3C%2FclipPath%3E%0A%3Cg%20clip-path%3D%27url%28%23c%29%27%3E%0A%3Crect%20x%3D%274%27%20y%3D%274%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27%23ef4b4d%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2750%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27white%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2744%27%20width%3D%2792%27%20height%3D%2712%27%20fill%3D%27%23222%27%2F%3E%0A%3C%2Fg%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%20fill%3D%27none%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2714%27%20fill%3D%27white%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%275%27%20fill%3D%27%23dfe5ec%27%2F%3E%0A%3C%2Fsvg%3E");opacity:.9}
+:root[data-theme="pokemon"] .sidebar::after{width:62px;height:62px;right:10px;top:18px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3Cpath%20d%3D%27M50%209%2061%2038%2092%2038%2067%2056%2076%2088%2050%2069%2024%2088%2033%2056%208%2038%2039%2038Z%27%20fill%3D%27%23ffd24a%27%20stroke%3D%27%23e0a72c%27%20stroke-width%3D%274%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");opacity:.9}
+:root[data-theme="pokemon"] .topbar::after{width:74px;height:74px;right:26px;top:8px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3CclipPath%20id%3D%27c%27%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%2F%3E%3C%2FclipPath%3E%0A%3Cg%20clip-path%3D%27url%28%23c%29%27%3E%0A%3Crect%20x%3D%274%27%20y%3D%274%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27%23ef4b4d%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2750%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27white%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2744%27%20width%3D%2792%27%20height%3D%2712%27%20fill%3D%27%23222%27%2F%3E%0A%3C%2Fg%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%20fill%3D%27none%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2714%27%20fill%3D%27white%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%275%27%20fill%3D%27%23dfe5ec%27%2F%3E%0A%3C%2Fsvg%3E");opacity:.78}
+:root[data-theme="pokemon"] .topbar::before{width:56px;height:56px;right:108px;top:18px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3Cpath%20d%3D%27M50%209%2061%2038%2092%2038%2067%2056%2076%2088%2050%2069%2024%2088%2033%2056%208%2038%2039%2038Z%27%20fill%3D%27%23ffd24a%27%20stroke%3D%27%23e0a72c%27%20stroke-width%3D%274%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");opacity:.84}
+:root[data-theme="pokemon"] main::before{width:146px;height:146px;left:250px;bottom:8px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20160%27%3E%0A%3Cellipse%20cx%3D%2780%27%20cy%3D%2786%27%20rx%3D%2746%27%20ry%3D%2740%27%20fill%3D%27%23f8a6bf%27%2F%3E%0A%3Cellipse%20cx%3D%2780%27%20cy%3D%2789%27%20rx%3D%2734%27%20ry%3D%2728%27%20fill%3D%27%23f9ec9e%27%20opacity%3D%27.9%27%2F%3E%0A%3Cpath%20d%3D%27M53%2057C42%2042%2032%2034%2018%2030C28%2052%2034%2066%2051%2073Z%27%20fill%3D%27%23cc7d9a%27%2F%3E%3Cpath%20d%3D%27M107%2057C118%2042%20128%2034%20142%2030C132%2052%20126%2066%20109%2073Z%27%20fill%3D%27%23cc7d9a%27%2F%3E%0A%3Cpath%20d%3D%27M54%2046%2039%2026%2065%2028Z%27%20fill%3D%27%237f5260%27%2F%3E%3Cpath%20d%3D%27M106%2046%20121%2026%2095%2028Z%27%20fill%3D%27%237f5260%27%2F%3E%0A%3Cpath%20d%3D%27M59%2031C58%2018%2072%2012%2080%2018C89%2011%20103%2018%20102%2031C92%2040%2068%2040%2059%2031Z%27%20fill%3D%27%23f6b8cb%27%2F%3E%0A%3Ccircle%20cx%3D%2765%27%20cy%3D%2783%27%20r%3D%279%27%20fill%3D%27%23fff%27%2F%3E%3Ccircle%20cx%3D%2795%27%20cy%3D%2783%27%20r%3D%279%27%20fill%3D%27%23fff%27%2F%3E%0A%3Ccircle%20cx%3D%2767%27%20cy%3D%2784%27%20r%3D%273%27%20fill%3D%27%233d4f96%27%2F%3E%3Ccircle%20cx%3D%2793%27%20cy%3D%2784%27%20r%3D%273%27%20fill%3D%27%233d4f96%27%2F%3E%0A%3Cpath%20d%3D%27M73%20105Q80%20111%2087%20105%27%20stroke%3D%27%23542f30%27%20stroke-width%3D%274%27%20stroke-linecap%3D%27round%27%20fill%3D%27none%27%2F%3E%0A%3Cpath%20d%3D%27M74%20111Q80%20116%2086%20111%27%20stroke%3D%27%23542f30%27%20stroke-width%3D%274%27%20stroke-linecap%3D%27round%27%20fill%3D%27none%27%2F%3E%0A%3C%2Fsvg%3E");filter:drop-shadow(0 14px 24px rgba(163,90,118,.16))}
+:root[data-theme="pokemon"] main::after{width:70px;height:70px;left:368px;bottom:10px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3CclipPath%20id%3D%27c%27%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%2F%3E%3C%2FclipPath%3E%0A%3Cg%20clip-path%3D%27url%28%23c%29%27%3E%0A%3Crect%20x%3D%274%27%20y%3D%274%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27%23ef4b4d%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2750%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27white%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2744%27%20width%3D%2792%27%20height%3D%2712%27%20fill%3D%27%23222%27%2F%3E%0A%3C%2Fg%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%20fill%3D%27none%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2714%27%20fill%3D%27white%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%275%27%20fill%3D%27%23dfe5ec%27%2F%3E%0A%3C%2Fsvg%3E");opacity:.85}
+:root[data-theme="pokemon"] .brand-mark{background:linear-gradient(135deg,#5cb6ff,#3f91ff);box-shadow:0 10px 20px rgba(62,137,255,.26)}
+:root[data-theme="pokemon"] .topbar{background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0)),radial-gradient(circle at 88% 42%,rgba(255,224,116,.26),transparent 22%),linear-gradient(90deg,rgba(222,237,255,.56),transparent 40%);}
+:root[data-theme="pokemon"] .card{background-image:radial-gradient(circle at 100% 0,rgba(255,224,116,.16),transparent 22%),radial-gradient(circle at 0 100%,rgba(112,184,255,.12),transparent 24%);border-color:#d9e3f2}
+:root[data-theme="pokemon"] .data-table th{background:linear-gradient(135deg,#4aa8ff,#3f8cff)}
+:root[data-theme="pokemon"] input:focus,:root[data-theme="pokemon"] select:focus,:root[data-theme="pokemon"] textarea:focus{box-shadow:0 0 0 3px rgba(74,168,255,.18)}
+:root[data-theme="pokemon"] button,:root[data-theme="pokemon"] .button{border-color:#d7e1ef;background:#fff}
+:root[data-theme="pokemon"] button.primary,:root[data-theme="pokemon"] .chip.active{position:relative;background-image:linear-gradient(135deg,#ef4b4d 0 49%,#ffffff 49% 51%,#f5f7fb 51% 100%);border-color:#c63a3d;color:#233040;box-shadow:0 10px 18px rgba(198,58,61,.18)}
+:root[data-theme="pokemon"] button.primary{padding-right:36px}
+:root[data-theme="pokemon"] button.primary::after{content:"";position:absolute;right:8px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3CclipPath%20id%3D%27c%27%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%2F%3E%3C%2FclipPath%3E%0A%3Cg%20clip-path%3D%27url%28%23c%29%27%3E%0A%3Crect%20x%3D%274%27%20y%3D%274%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27%23ef4b4d%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2750%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27white%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2744%27%20width%3D%2792%27%20height%3D%2712%27%20fill%3D%27%23222%27%2F%3E%0A%3C%2Fg%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%20fill%3D%27none%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2714%27%20fill%3D%27white%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%275%27%20fill%3D%27%23dfe5ec%27%2F%3E%0A%3C%2Fsvg%3E") center/contain no-repeat}
+:root[data-theme="pokemon"] .theme-option.active{box-shadow:0 0 0 3px rgba(74,168,255,.2)}
+:root[data-theme="pokemon"] .settings-hero{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3CclipPath%20id%3D%27c%27%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%2F%3E%3C%2FclipPath%3E%0A%3Cg%20clip-path%3D%27url%28%23c%29%27%3E%0A%3Crect%20x%3D%274%27%20y%3D%274%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27%23ef4b4d%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2750%27%20width%3D%2792%27%20height%3D%2746%27%20fill%3D%27white%27%2F%3E%0A%3Crect%20x%3D%274%27%20y%3D%2744%27%20width%3D%2792%27%20height%3D%2712%27%20fill%3D%27%23222%27%2F%3E%0A%3C%2Fg%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2746%27%20fill%3D%27none%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2714%27%20fill%3D%27white%27%20stroke%3D%27%23222%27%20stroke-width%3D%276%27%2F%3E%0A%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%275%27%20fill%3D%27%23dfe5ec%27%2F%3E%0A%3C%2Fsvg%3E"),url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%3Cpath%20d%3D%27M50%209%2061%2038%2092%2038%2067%2056%2076%2088%2050%2069%2024%2088%2033%2056%208%2038%2039%2038Z%27%20fill%3D%27%23ffd24a%27%20stroke%3D%27%23e0a72c%27%20stroke-width%3D%274%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E"),linear-gradient(135deg,rgba(255,221,110,.34),rgba(227,240,255,.98) 40%,rgba(255,255,255,.96));background-size:84px 84px,60px 60px,auto;background-repeat:no-repeat,no-repeat,no-repeat;background-position:right 22px top 12px,left 28px bottom 20px,0 0;overflow:hidden}
+:root[data-theme="pokemon"] .settings-hero p{max-width:650px}
+@media(max-width:1100px){:root[data-theme="pokemon"] main::before{left:206px;width:118px;height:118px}:root[data-theme="pokemon"] main::after{left:304px}}
+@media(max-width:760px){:root[data-theme="pokemon"] .workspace::before{width:88px;height:88px;right:-20px;top:164px;opacity:.9}:root[data-theme="pokemon"] .workspace::after{width:82px;height:82px;right:-16px;bottom:8px;opacity:.9}:root[data-theme="pokemon"] .sidebar::before{width:54px;height:54px;left:8px;bottom:12px}:root[data-theme="pokemon"] .sidebar::after{width:44px;height:44px;right:8px;top:12px}:root[data-theme="pokemon"] .topbar::before{display:none}:root[data-theme="pokemon"] .topbar::after{width:52px;height:52px;right:12px;top:54px}:root[data-theme="pokemon"] main::before{width:82px;height:82px;left:2px;bottom:10px;opacity:.86}:root[data-theme="pokemon"] main::after{width:44px;height:44px;left:70px;bottom:10px;opacity:.82}:root[data-theme="pokemon"] .settings-hero{background-size:58px 58px,42px 42px,auto;background-position:right 14px top 14px,left 14px bottom 12px,0 0}}
+@media (orientation:landscape) and (max-height:600px){:root[data-theme="pokemon"] .workspace::before{width:76px;height:76px;top:82px}:root[data-theme="pokemon"] .workspace::after{width:74px;height:74px;bottom:2px}:root[data-theme="pokemon"] .topbar::after{width:44px;height:44px;top:44px}:root[data-theme="pokemon"] main::before{width:72px;height:72px;left:2px;bottom:6px}:root[data-theme="pokemon"] main::after{width:38px;height:38px;left:62px;bottom:8px}}

@@ -17,7 +17,8 @@
     {id:'charcoal',name:'黑灰色調',colors:['#4a4f55','#e8eaed','#f1f2f3']},
     {id:'cream',name:'奶油色調',colors:['#b99a63','#f5ead6','#fbf7ef']},
     {id:'white',name:'全白色調',colors:['#5f6b74','#f2f4f5','#ffffff']},
-    {id:'pikmin',name:'皮克敏風格',colors:['#34d27a','#fff6dc','#d9e4ea']}
+    {id:'pikmin',name:'皮克敏風格',colors:['#34d27a','#fff6dc','#d9e4ea']},
+    {id:'pokemon',name:'寶可夢風格',colors:['#4aa8ff','#ef4b4d','#ffd24a']}
   ];
   const ROW_COLORS = [
     {id:'',name:'無'},
