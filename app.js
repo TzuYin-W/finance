@@ -1,0 +1,890 @@
+(() => {
+  'use strict';
+
+  const APP_CONFIG = window.FINANCE_APP_CONFIG || {};
+  const STORAGE_KEY = APP_CONFIG.storageKey || 'finance-tracker-2026-v1';
+  const IMPORT_ROLLBACK_KEY = `${STORAGE_KEY}-pre-import-backup`;
+  const CLOUD_ROLLBACK_KEY = `${STORAGE_KEY}-pre-cloud-sync-backup`;
+  const TABS = [
+    ['cash','現金花費','💵'],['credit','信用卡記錄','💳'],['cardFees','卡費記錄','🧾'],
+    ['home','家的支出','🏠'],['installments','分期','◫'],['mortgage','房貸','🏦'],
+    ['taxInvest','稅費、投資','📈'],['lunch','午餐花費','🥗'],['settings','設定','⚙️']
+  ];
+  const CURRENT_SCHEMA = 5;
+  const THEMES = [
+    {id:'olive',name:'橄欖綠色調',colors:['#7b963f','#eaf2d7','#f5f7f4']},
+    {id:'pink',name:'粉色調',colors:['#c97891','#f9e7ed','#fff7fa']},
+    {id:'charcoal',name:'黑灰色調',colors:['#4a4f55','#e8eaed','#f1f2f3']},
+    {id:'cream',name:'奶油色調',colors:['#b99a63','#f5ead6','#fbf7ef']},
+    {id:'white',name:'全白色調',colors:['#5f6b74','#f2f4f5','#ffffff']}
+  ];
+  const ROW_COLORS = [
+    {id:'',name:'無'},
+    {id:'pink',name:'粉紅'},
+    {id:'yellow',name:'淡黃'},
+    {id:'blue',name:'淡藍'},
+    {id:'green',name:'淡綠'},
+    {id:'cream',name:'奶油'},
+    {id:'gray',name:'淺灰'}
+  ];
+  const clone = obj => JSON.parse(JSON.stringify(obj));
+  const initial = migrateState(clone(window.INITIAL_FINANCE_DATA));
+  let state = loadState();
+  let pendingImport = null;
+  const ui = {tab: location.hash.slice(1) || 'cash', search:{}, page:{}, activeCard:0, dateFilters:{}, showAddCard:false, deleteCardIndex:null};
+  if (!TABS.some(t => t[0] === ui.tab)) ui.tab = 'cash';
+
+  const nav = document.getElementById('nav');
+  const main = document.getElementById('main');
+  const pageTitle = document.getElementById('pageTitle');
+  const searchInput = document.getElementById('globalSearch');
+  const saveStatus = document.getElementById('saveStatus');
+  const toastEl = document.getElementById('toast');
+  const importDialog = document.getElementById('importDialog');
+  const importPreview = document.getElementById('importPreview');
+  const confirmImportBtn = document.getElementById('confirmImportBtn');
+  const restoreImportBtn = document.getElementById('restoreImportBtn');
+  const resetButton = document.querySelector('[data-global-action="reset"]');
+  if(resetButton)resetButton.textContent=APP_CONFIG.resetLabel||'還原原始 Excel';
+  let saveTimer;
+
+  function migrateState(source){
+    const s = source && typeof source === 'object' ? source : {};
+    s.meta = s.meta || {};
+    const baseYear = normalizeYear(s.meta.currentYear || s.meta.year) || new Date().getFullYear();
+    s.meta.currentYear = baseYear;
+    s.meta.year = baseYear;
+    s.meta.schemaVersion = CURRENT_SCHEMA;
+    if(!s.meta.updatedAt || Number.isNaN(Date.parse(s.meta.updatedAt))) s.meta.updatedAt = new Date().toISOString();
+    s.meta.theme = THEMES.some(t=>t.id===s.meta.theme) ? s.meta.theme : 'olive';
+    s.meta.months = Array.isArray(s.meta.months) && s.meta.months.length === 12 ? s.meta.months : ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
+    s.cash = s.cash || {accounts:[],transactions:[]};
+    s.cash.accounts = Array.isArray(s.cash.accounts) ? s.cash.accounts : [];
+    s.cash.transactions = Array.isArray(s.cash.transactions) ? s.cash.transactions : [];
+    s.cash.templates = Array.isArray(s.cash.templates) ? s.cash.templates : [];
+    s.cash.accounts.forEach(a => {
+      a.initialByYear = a.initialByYear && typeof a.initialByYear === 'object' ? a.initialByYear : {};
+      if(a.initialByYear[String(baseYear)] === undefined) a.initialByYear[String(baseYear)] = Number(a.initial) || 0;
+    });
+    s.cash.transactions.forEach(t => {
+      t.monthlyFlow = t.monthlyFlow === 'neutral' ? 'neutral' : 'auto';
+      t.rowColor = validRowColor(t.rowColor);
+      if(t.date) t.reportMonth = Number(String(t.date).slice(5,7)) || t.reportMonth || 1;
+    });
+    s.cash.templates.forEach(t => { t.reportMode = t.reportMode === 'neutral' ? 'neutral' : 'auto'; });
+
+    s.creditCards = Array.isArray(s.creditCards) ? s.creditCards : [];
+    s.creditCards.forEach(card => {
+      card.transactions = Array.isArray(card.transactions) ? card.transactions : [];
+      card.templates = Array.isArray(card.templates) ? card.templates : [];
+      card.transactions.forEach(t => { if(typeof t.paid !== 'boolean') t.paid = false; t.rowColor = validRowColor(t.rowColor); });
+    });
+
+    s.cardFees = s.cardFees || {};
+    s.cardFees.banks = Array.isArray(s.cardFees.banks) ? s.cardFees.banks : [];
+    s.cardFees.history = Array.isArray(s.cardFees.history) ? s.cardFees.history : [];
+    s.cardFees.monthlyInputs = normalizeMonthlyInputs(s.cardFees.monthlyInputs);
+    s.cardFees.yearBooks = s.cardFees.yearBooks && typeof s.cardFees.yearBooks === 'object' ? s.cardFees.yearBooks : {};
+    if(!s.cardFees.yearBooks[String(baseYear)]) s.cardFees.yearBooks[String(baseYear)] = {banks:clone(s.cardFees.banks),monthlyInputs:clone(s.cardFees.monthlyInputs)};
+    Object.values(s.cardFees.yearBooks).forEach(book => {
+      book.banks = Array.isArray(book.banks) ? book.banks : [];
+      book.monthlyInputs = normalizeMonthlyInputs(book.monthlyInputs);
+    });
+    s.cardFees.history.forEach((row,idx) => {
+      const y=normalizeYear(row.year); if(!y || s.cardFees.yearBooks[String(y)]) return;
+      s.cardFees.yearBooks[String(y)]={banks:[{id:`history-bank-${y}-${idx}`,bank:'歷史總計',months:normalizeMonths(row.months)}],monthlyInputs:normalizeMonthlyInputs([])};
+    });
+
+    s.homeExpenses = s.homeExpenses || {};
+    s.homeExpenses.items = Array.isArray(s.homeExpenses.items) ? s.homeExpenses.items : [];
+    s.homeExpenses.history = Array.isArray(s.homeExpenses.history) ? s.homeExpenses.history : [];
+    s.homeExpenses.yearBooks = s.homeExpenses.yearBooks && typeof s.homeExpenses.yearBooks === 'object' ? s.homeExpenses.yearBooks : {};
+    if(!s.homeExpenses.yearBooks[String(baseYear)]) s.homeExpenses.yearBooks[String(baseYear)]={items:clone(s.homeExpenses.items)};
+    Object.values(s.homeExpenses.yearBooks).forEach(book=>{book.items=Array.isArray(book.items)?book.items:[];book.items.forEach(x=>x.months=normalizeMonths(x.months));});
+    s.homeExpenses.history.forEach((row,idx)=>{
+      const y=normalizeYear(row.year); if(!y || s.homeExpenses.yearBooks[String(y)]) return;
+      s.homeExpenses.yearBooks[String(y)]={items:[{id:`history-home-${y}-${idx}`,item:'歷史總計',months:normalizeMonths(row.months)}]};
+    });
+
+    s.installments = Array.isArray(s.installments) ? s.installments : [];
+    s.installmentHistory = Array.isArray(s.installmentHistory) ? s.installmentHistory : [];
+    s.installments.forEach(it=>{if(!normalizeYear(it.year))it.year=baseYear;});
+
+    s.mortgage = s.mortgage || {accounts:[],payments:[]};
+    s.mortgage.accounts = Array.isArray(s.mortgage.accounts) ? s.mortgage.accounts : [];
+    s.mortgage.payments = Array.isArray(s.mortgage.payments) ? s.mortgage.payments : [];
+    s.taxesInvestments = s.taxesInvestments || {taxes:[],investments:[]};
+    s.taxesInvestments.taxes = Array.isArray(s.taxesInvestments.taxes) ? s.taxesInvestments.taxes : [];
+    s.taxesInvestments.investments = Array.isArray(s.taxesInvestments.investments) ? s.taxesInvestments.investments : [];
+    s.lunch = s.lunch || {products:[],rows:[]};
+    s.lunch.products = Array.isArray(s.lunch.products) ? s.lunch.products : [];
+    s.lunch.rows = Array.isArray(s.lunch.rows) ? s.lunch.rows : [];
+
+    const years = new Set((Array.isArray(s.meta.years)?s.meta.years:[]).map(normalizeYear).filter(Boolean));
+    years.add(baseYear);
+    s.cash.transactions.forEach(x=>{const y=txYear(x.date);if(y)years.add(y);});
+    s.creditCards.forEach(c=>c.transactions.forEach(x=>{const y=txYear(x.date);if(y)years.add(y);}));
+    s.mortgage.payments.forEach(x=>{const y=txYear(x.date);if(y)years.add(y);});
+    s.installmentHistory.forEach(x=>{const y=txYear(x.completedAt);if(y)years.add(y);});
+    s.taxesInvestments.taxes.forEach(x=>{const y=normalizeYear(x.year);if(y)years.add(y);});
+    s.taxesInvestments.investments.forEach(a=>a.transactions?.forEach(x=>{const y=txYear(x.date);if(y)years.add(y);}));
+    s.lunch.rows.forEach(x=>{const y=txYear(x.date);if(y)years.add(y);});
+    Object.keys(s.cardFees.yearBooks).forEach(y=>years.add(Number(y)));
+    Object.keys(s.homeExpenses.yearBooks).forEach(y=>years.add(Number(y)));
+    s.meta.years=[...years].filter(y=>y>=1900&&y<=2200).sort((a,b)=>b-a);
+    return s;
+  }
+  function loadState(){
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      return migrateState(saved || clone(initial));
+    } catch (_) { return migrateState(clone(initial)); }
+  }
+  function scheduleSave(){
+    saveStatus.textContent = '儲存中…';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        state.meta.updatedAt = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        saveStatus.textContent = '已自動儲存於本機';
+        window.dispatchEvent(new CustomEvent('finance-tracker-local-saved',{detail:{updatedAt:state.meta.updatedAt}}));
+      } catch (err) {
+        saveStatus.textContent = '儲存失敗：瀏覽器空間不足';
+      }
+    }, 220);
+  }
+  function esc(v){ return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function n(v){ const x = Number(v); return Number.isFinite(x) ? x : 0; }
+  function money(v, digits=0){
+    return new Intl.NumberFormat('zh-TW',{style:'currency',currency:'TWD',maximumFractionDigits:digits,minimumFractionDigits:digits}).format(n(v));
+  }
+  function plain(v,digits=0){ return new Intl.NumberFormat('zh-TW',{maximumFractionDigits:digits}).format(n(v)); }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function fileStamp(){
+    const d=new Date(),pad=v=>String(v).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+  }
+  function uid(prefix='id'){ return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`; }
+  function getPath(path){ return path.split('.').reduce((o,k)=>o?.[k], state); }
+  function setPath(path,value){
+    const parts=path.split('.'); let o=state;
+    for(let i=0;i<parts.length-1;i++) o=o[parts[i]];
+    o[parts.at(-1)] = value;
+  }
+  function input(path,value,type='text',extra=''){
+    const val = value ?? '';
+    return `<input type="${type}" data-path="${esc(path)}" value="${esc(val)}" ${type==='number'?'step="any"':''} ${extra}>`;
+  }
+  function textarea(path,value){ return `<textarea data-path="${esc(path)}">${esc(value)}</textarea>`; }
+  function select(path,value,options,extra=''){
+    return `<select data-path="${esc(path)}" ${extra}>${options.map(o=>{
+      const pair=Array.isArray(o)?o:[o,o]; return `<option value="${esc(pair[0])}" ${String(pair[0])===String(value)?'selected':''}>${esc(pair[1])}</option>`;
+    }).join('')}</select>`;
+  }
+  function validRowColor(value){ return ROW_COLORS.some(c=>c.id===String(value||'')) ? String(value||'') : ''; }
+  function rowColorOptions(value=''){
+    const selected=validRowColor(value);
+    return ROW_COLORS.map(c=>`<option value="${esc(c.id)}" ${c.id===selected?'selected':''}>${esc(c.name)}</option>`).join('');
+  }
+  function rowColorSelect(path,value){ return `<select class="row-color-select" data-path="${esc(path)}" aria-label="標記顏色">${rowColorOptions(value)}</select>`; }
+  function rowColorForm(name,value=''){ return `<select class="row-color-select" name="${esc(name)}" aria-label="標記顏色">${rowColorOptions(value)}</select>`; }
+
+  function toast(msg){
+    toastEl.textContent=msg; toastEl.classList.add('show');
+    setTimeout(()=>toastEl.classList.remove('show'),1700);
+  }
+  function downloadJson(data,filename){
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),0);
+  }
+  function formatBytes(bytes){
+    const value=Number(bytes)||0;if(value<1024)return `${value} B`;
+    if(value<1024*1024)return `${(value/1024).toFixed(1)} KB`;
+    return `${(value/1024/1024).toFixed(1)} MB`;
+  }
+  function backupValidation(raw){
+    const errors=[];
+    if(!raw||typeof raw!=='object'||Array.isArray(raw))errors.push('檔案內容不是有效的資料物件。');
+    if(!raw?.meta||typeof raw.meta!=='object'||Array.isArray(raw.meta))errors.push('缺少備份版本與年度資訊（meta）。');
+    if(!raw?.cash||typeof raw.cash!=='object'||Array.isArray(raw.cash))errors.push('缺少現金花費資料結構（cash）。');
+    if(raw?.cash?.accounts!==undefined&&!Array.isArray(raw.cash.accounts))errors.push('現金帳戶格式不正確。');
+    if(raw?.cash?.transactions!==undefined&&!Array.isArray(raw.cash.transactions))errors.push('現金交易格式不正確。');
+    if(raw?.creditCards!==undefined&&!Array.isArray(raw.creditCards))errors.push('信用卡資料格式不正確。');
+    if(raw?.installments!==undefined&&!Array.isArray(raw.installments))errors.push('分期資料格式不正確。');
+    const known=['creditCards','cardFees','homeExpenses','installments','mortgage','taxesInvestments','lunch'];
+    if(raw&&typeof raw==='object'&&!known.some(k=>Object.prototype.hasOwnProperty.call(raw,k)))errors.push('內容不像財務追蹤 App 的完整備份。');
+    const schemaRaw=Number(raw?.meta?.schemaVersion);
+    const sourceSchema=Number.isFinite(schemaRaw)?schemaRaw:null;
+    const newer=sourceSchema!==null&&sourceSchema>CURRENT_SCHEMA;
+    if(newer)errors.push(`此備份版本為 ${sourceSchema}，高於目前 App 支援的版本 ${CURRENT_SCHEMA}。請先使用較新的 App。`);
+    return {errors,sourceSchema,newer,compatible:errors.length===0};
+  }
+  function backupSummary(s){
+    const cardTransactions=sum(s.creditCards||[],c=>(c.transactions||[]).length);
+    const cardTemplates=sum(s.creditCards||[],c=>(c.templates||[]).length);
+    const cardFeeBooks=Object.values(s.cardFees?.yearBooks||{});
+    const homeBooks=Object.values(s.homeExpenses?.yearBooks||{});
+    const investmentTransactions=sum(s.taxesInvestments?.investments||[],a=>(a.transactions||[]).length);
+    return {
+      cash:`${(s.cash?.accounts||[]).length} 個帳戶／${(s.cash?.transactions||[]).length} 筆交易／${(s.cash?.templates||[]).length} 個模板`,
+      credit:`${(s.creditCards||[]).length} 個卡別／${cardTransactions} 筆交易／${cardTemplates} 個模板`,
+      cardFees:`${cardFeeBooks.length} 個年度／${sum(cardFeeBooks,b=>(b.banks||[]).length)} 個卡費項目`,
+      home:`${homeBooks.length} 個年度／${sum(homeBooks,b=>(b.items||[]).length)} 個支出項目`,
+      installments:`${(s.installments||[]).length} 筆進行中／${(s.installmentHistory||[]).length} 筆歷史`,
+      mortgage:`${(s.mortgage?.accounts||[]).length} 組房貸／${(s.mortgage?.payments||[]).length} 筆還款`,
+      taxInvest:`${(s.taxesInvestments?.taxes||[]).length} 筆稅費／${(s.taxesInvestments?.investments||[]).length} 項投資／${investmentTransactions} 筆投資紀錄`,
+      lunch:`${(s.lunch?.products||[]).length} 個品項／${(s.lunch?.rows||[]).length} 筆紀錄`
+    };
+  }
+  function closeImportDialog(clear=true){
+    if(importDialog)importDialog.hidden=true;
+    document.body.classList.remove('modal-open');
+    if(clear)pendingImport=null;
+  }
+  function showImportPreview(){
+    if(!pendingImport||!importDialog||!importPreview)return;
+    const p=pendingImport,v=p.validation,cur=backupSummary(state),inc=backupSummary(p.normalized);
+    const rows=[['現金花費','cash'],['信用卡記錄','credit'],['卡費記錄','cardFees'],['家的支出','home'],['分期','installments'],['房貸','mortgage'],['稅費、投資','taxInvest'],['午餐花費','lunch']];
+    const sourceVersion=v.sourceSchema===null?'未標示':String(v.sourceSchema);
+    let statusClass='ok',statusText=`版本相容：可匯入至目前版本 ${CURRENT_SCHEMA}。`;
+    if(v.sourceSchema===null){statusClass='warn';statusText=`舊版備份未標示版本，將先轉換為目前資料格式 ${CURRENT_SCHEMA}。`; }
+    else if(v.sourceSchema<CURRENT_SCHEMA){statusClass='warn';statusText=`將由資料版本 ${v.sourceSchema} 升級為 ${CURRENT_SCHEMA}。`; }
+    if(!v.compatible){statusClass='block';statusText='此檔案目前不能安全匯入。';}
+    importPreview.innerHTML=`
+      <div class="import-file-meta">
+        <div><span>檔案</span><strong>${esc(p.fileName)}</strong></div>
+        <div><span>資料版本</span><strong>${esc(sourceVersion)} → ${CURRENT_SCHEMA}</strong></div>
+        <div><span>匯入年份</span><strong>${esc((p.normalized.meta?.years||[]).join('、')||'未辨識')}</strong></div>
+      </div>
+      <div class="import-status ${statusClass}">${esc(statusText)}${v.errors.length?`<ul class="import-error-list">${v.errors.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</div>
+      <div class="import-notice"><strong>這是覆蓋匯入，不是合併。</strong>確認後會先下載目前帳本的「匯入前自動備份」，並在瀏覽器保留一份可由「復原匯入前」取回的快照；在確認之前，現有資料不會被改動。</div>
+      <div class="table-wrap"><table class="import-compare"><thead><tr><th>分頁</th><th>目前帳本</th><th>匯入檔</th></tr></thead><tbody>${rows.map(([label,key])=>`<tr><td>${label}</td><td>${esc(cur[key])}</td><td>${esc(inc[key])}</td></tr>`).join('')}</tbody></table></div>
+      <p class="note">檔案大小：${esc(formatBytes(p.fileSize))}；備份來源：${esc(p.normalized.meta?.source||'未標示')}；匯入後目前年度：${esc(p.normalized.meta?.currentYear||p.normalized.meta?.year||'未辨識')}。</p>`;
+    confirmImportBtn.disabled=!v.compatible;
+    confirmImportBtn.textContent=v.compatible?'先備份目前資料並覆蓋':'版本不相容，無法匯入';
+    importDialog.hidden=false;document.body.classList.add('modal-open');
+    setTimeout(()=>v.compatible?confirmImportBtn.focus():importDialog.querySelector('[data-import-action="cancel"]')?.focus(),0);
+  }
+  function performSafeImport(){
+    if(!pendingImport?.validation?.compatible)return;
+    const before=clone(state);
+    const rollback={createdAt:new Date().toISOString(),sourceFile:pendingImport.fileName,data:before};
+    try{
+      localStorage.setItem(IMPORT_ROLLBACK_KEY,JSON.stringify(rollback));
+    }catch(err){
+      alert('無法建立匯入前快照，為避免資料風險，本次匯入已取消。請先下載備份並清理瀏覽器儲存空間。');
+      return;
+    }
+    downloadJson(before,`財務追蹤_匯入前自動備份_${fileStamp()}.json`);
+    try{
+      const incoming=migrateState(clone(pendingImport.raw));
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(incoming));
+      state=incoming;ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
+      closeImportDialog();render();saveStatus.textContent='安全匯入完成並已儲存';toast('安全匯入完成，可復原匯入前資料');
+    }catch(err){
+      state=before;
+      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(before));}catch(_){}
+      alert('匯入過程發生錯誤，原資料已保留，未套用匯入檔。');
+    }
+  }
+  function restorePreImport(){
+    let snapshot;
+    try{snapshot=JSON.parse(localStorage.getItem(IMPORT_ROLLBACK_KEY)||'null');}catch(_){snapshot=null;}
+    if(!snapshot?.data){alert('找不到可復原的匯入前資料。');return;}
+    const when=snapshot.createdAt?new Date(snapshot.createdAt).toLocaleString('zh-TW'):'先前';
+    if(!confirm(`要復原到 ${when} 的匯入前狀態嗎？目前資料會先自動下載一份備份。`))return;
+    const current=clone(state);downloadJson(current,`財務追蹤_復原前自動備份_${fileStamp()}.json`);
+    try{
+      const restored=migrateState(clone(snapshot.data));
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));
+      state=restored;localStorage.removeItem(IMPORT_ROLLBACK_KEY);
+      ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
+      render();saveStatus.textContent='已復原匯入前資料';toast('已復原匯入前資料');
+    }catch(err){
+      state=current;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(current));}catch(_){}
+      alert('復原失敗，目前資料未變更。');
+    }
+  }
+  function sum(arr,fn=x=>x){ return arr.reduce((a,x)=>a+n(fn(x)),0); }
+  function includesText(item, q){ return JSON.stringify(item).toLowerCase().includes(q.toLowerCase()); }
+  function dataRows(items,q){ return items.map((item,index)=>({item,index})).filter(x=>!q || includesText(x.item,q)); }
+  function paged(rows,key,per=60){
+    const max=Math.max(1,Math.ceil(rows.length/per)); const page=Math.min(Math.max(1,ui.page[key]||1),max); ui.page[key]=page;
+    return {rows:rows.slice((page-1)*per,page*per),page,max,total:rows.length};
+  }
+  function pager(key,p){
+    if(p.max<=1) return '';
+    return `<div class="pager no-print"><button class="small" data-action="page" data-key="${esc(key)}" data-page="${p.page-1}" ${p.page<=1?'disabled':''}>上一頁</button><span>${p.page} / ${p.max}（${p.total} 筆）</span><button class="small" data-action="page" data-key="${esc(key)}" data-page="${p.page+1}" ${p.page>=p.max?'disabled':''}>下一頁</button></div>`;
+  }
+  function empty(cols,msg='目前沒有資料'){ return `<tr><td colspan="${cols}" class="empty">${esc(msg)}</td></tr>`; }
+
+  function checkbox(path,checked,label=''){
+    return `<label class="check-label"><input type="checkbox" data-path="${esc(path)}" ${checked?'checked':''}>${label?`<span>${esc(label)}</span>`:''}</label>`;
+  }
+  function cashFlow(t){
+    if(t.monthlyFlow === 'neutral') return 'neutral';
+    return n(t.amount) > 0 ? 'expense' : n(t.amount) < 0 ? 'income' : 'neutral';
+  }
+  function dateInRange(date,from,to){
+    if(!date) return !from && !to;
+    return (!from || date >= from) && (!to || date <= to);
+  }
+  function filteredDataRows(items,q,key,dateFn=x=>x.date){
+    const f=ui.dateFilters[key]||{};
+    return dataRows(items,q).filter(({item})=>dateInRange(dateFn(item),f.from,f.to));
+  }
+  function dateFilterBar(key){
+    const f=ui.dateFilters[key]||{};
+    return `<div class="filter-bar no-print"><strong>日期篩選</strong><label>起日<input type="date" data-filter-key="${esc(key)}" data-filter-side="from" value="${esc(f.from||'')}"></label><label>迄日<input type="date" data-filter-key="${esc(key)}" data-filter-side="to" value="${esc(f.to||'')}"></label><button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button></div>`;
+  }
+  function fillForm(formName,values){
+    const form=main.querySelector(`form[data-form="${formName}"]`); if(!form)return;
+    Object.entries(values).forEach(([name,value])=>{const el=form.elements.namedItem(name);if(el)el.value=value??'';});
+    form.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  function copyText(text){
+    if(navigator.clipboard?.writeText) return navigator.clipboard.writeText(text).then(()=>toast('已複製'));
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已複製');
+  }
+  function normalizeYear(value){
+    const raw=String(value??'').trim(); const digits=Number((raw.match(/\d{3,4}/)||[])[0]);
+    if(!Number.isFinite(digits))return NaN; return digits < 1911 ? digits + 1911 : digits;
+  }
+  function gregorianYear(value){ return normalizeYear(value); }
+  function txYear(date){ const y=Number(String(date||'').slice(0,4)); return Number.isFinite(y)?y:NaN; }
+  function normalizeMonths(months){return Array.from({length:12},(_,i)=>Number(months?.[i])||0);}
+  function normalizeMonthlyInputs(rows){
+    return Array.from({length:12},(_,i)=>{
+      const r=Array.isArray(rows)?(rows.find(x=>Number(x?.month)===i+1)||rows[i]||{}):{};
+      return {month:i+1,salary:Number(r.salary)||0,musicSalary:Number(r.musicSalary)||0};
+    });
+  }
+  function currentYear(){return normalizeYear(state?.meta?.currentYear||state?.meta?.year)||new Date().getFullYear();}
+  function yearMatch(date,year=currentYear()){return txYear(date)===Number(year);}
+  function defaultDateForYear(){const y=currentYear(),now=today();return txYear(now)===y?now:`${y}-01-01`;}
+  function yearTotals(transactions){
+    const map={}; transactions.forEach(t=>{const y=txYear(t.date);if(Number.isFinite(y))map[y]=(map[y]||0)+n(t.amount);});
+    return Object.entries(map).sort((a,b)=>Number(b[0])-Number(a[0]));
+  }
+  function ensureYearStructure(year=currentYear()){
+    const y=normalizeYear(year); if(!y)return;
+    state.meta.years=Array.from(new Set([...(state.meta.years||[]),y])).sort((a,b)=>b-a);
+    state.cardFees.yearBooks=state.cardFees.yearBooks||{};
+    if(!state.cardFees.yearBooks[String(y)]){
+      const source=state.cardFees.yearBooks[String(currentYear())]||Object.values(state.cardFees.yearBooks)[0]||{banks:[],monthlyInputs:[]};
+      state.cardFees.yearBooks[String(y)]={banks:(source.banks||[]).map((b,i)=>({id:uid(`bank${y}${i}`),bank:b.bank,months:Array(12).fill(0)})),monthlyInputs:normalizeMonthlyInputs([])};
+    }
+    state.homeExpenses.yearBooks=state.homeExpenses.yearBooks||{};
+    if(!state.homeExpenses.yearBooks[String(y)]){
+      const source=state.homeExpenses.yearBooks[String(currentYear())]||Object.values(state.homeExpenses.yearBooks)[0]||{items:[]};
+      state.homeExpenses.yearBooks[String(y)]={items:(source.items||[]).map((x,i)=>({id:uid(`home${y}${i}`),item:x.item,months:Array(12).fill(0)}))};
+    }
+    state.cash.accounts.forEach(a=>{
+      a.initialByYear=a.initialByYear||{};
+      if(a.initialByYear[String(y)]!==undefined)return;
+      const prev=y-1;
+      if(a.initialByYear[String(prev)]!==undefined){
+        const movement=sum(state.cash.transactions.filter(t=>t.account===a.name&&yearMatch(t.date,prev)),t=>t.amount);
+        a.initialByYear[String(y)]=n(a.initialByYear[String(prev)])-movement;
+      } else a.initialByYear[String(y)]=0;
+    });
+  }
+  function currentCardFeeBook(){ensureYearStructure();return state.cardFees.yearBooks[String(currentYear())];}
+  function currentHomeBook(){ensureYearStructure();return state.homeExpenses.yearBooks[String(currentYear())];}
+  function availableYears(){return Array.from(new Set([...(state.meta.years||[]),currentYear()])).sort((a,b)=>b-a);}
+  function currentYearRows(items,dateFn=x=>x.date){return items.map((item,index)=>({item,index})).filter(({item})=>yearMatch(dateFn(item)));}
+
+  function applyTheme(){
+    const theme=THEMES.some(t=>t.id===state.meta.theme)?state.meta.theme:'olive';
+    document.documentElement.dataset.theme=theme;
+    const meta=document.querySelector('meta[name="theme-color"]');
+    const themeInfo=THEMES.find(t=>t.id===theme)||THEMES[0];
+    if(meta)meta.setAttribute('content',themeInfo.colors[0]);
+  }
+  function creditCardCreateForm(){
+    return `<section class="card no-print card-manager-card">
+      <div class="section-head"><div><h2>新增卡別</h2><p>輸入銀行、顯示名稱與額度後建立；不使用瀏覽器彈出視窗。</p></div><button type="button" data-action="cancel-add-card">取消</button></div>
+      <form class="form-grid" data-form="credit-card">
+        <div class="field"><label>銀行</label><input name="bank" placeholder="例如：國泰" required autofocus></div>
+        <div class="field wide"><label>顯示名稱</label><input name="title" placeholder="例如：國泰 CUBE（每月 3 日結帳）" required></div>
+        <div class="field"><label>額度</label><input name="limit" type="number" step="any" value="0"></div>
+        <button class="primary" type="submit">建立卡別</button>
+      </form>
+    </section>`;
+  }
+
+  function renderNav(){
+    nav.innerHTML=TABS.map(([id,label,icon])=>`<button class="nav-btn ${ui.tab===id?'active':''}" data-tab="${id}"><span>${icon}</span>${label}</button>`).join('');
+  }
+  function render(){
+    applyTheme();
+    if(restoreImportBtn)restoreImportBtn.hidden=!localStorage.getItem(IMPORT_ROLLBACK_KEY);
+    renderNav();
+    const tab=TABS.find(t=>t[0]===ui.tab);
+    const year=currentYear();
+    pageTitle.textContent=ui.tab==='settings'?'設定':`${year}｜${tab[1]}`;
+    document.title=`${year} 財務追蹤`;
+    const brandYear=document.getElementById('brandYear');if(brandYear)brandYear.textContent=`目前年度：${year}`;
+    searchInput.value=ui.search[ui.tab]||'';
+    searchInput.disabled=ui.tab==='settings';
+    searchInput.placeholder=ui.tab==='settings'?'設定頁不需搜尋':'搜尋目前分頁';
+    const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,taxInvest:renderTaxInvest,lunch:renderLunch,settings:renderSettings};
+    main.innerHTML=renderers[ui.tab]();
+    location.hash=ui.tab;
+  }
+
+  function accountStats(){
+    const y=currentYear();
+    return state.cash.accounts.map((a,i)=>{
+      const movement=sum(state.cash.transactions.filter(t=>t.account===a.name&&yearMatch(t.date,y)),t=>t.amount);
+      const opening=n(a.initialByYear?.[String(y)]);
+      return {a,i,opening,movement,balance:opening-movement};
+    });
+  }
+  function renderCash(){
+    const y=currentYear(); const stats=accountStats();
+    const yearTx=state.cash.transactions.filter(t=>yearMatch(t.date,y));
+    const totalTwd=sum(stats.filter(x=>x.a.includeInTwdTotal),x=>x.balance);
+    const incomes=yearTx.filter(t=>cashFlow(t)==='income');
+    const expenses=yearTx.filter(t=>cashFlow(t)==='expense');
+    const income=sum(incomes,t=>Math.abs(n(t.amount))), expense=sum(expenses,t=>n(t.amount));
+    const q=ui.search.cash||''; const p=paged(filteredDataRows(state.cash.transactions,q,'cash').filter(({item})=>yearMatch(item.date,y)),'cash',70);
+    const accountOpts=state.cash.accounts.map(a=>a.name);
+    return `<div class="page-stack">
+      <section class="kpis">
+        <div class="kpi accent"><span>${y} 年納入台幣總額的帳戶餘額</span><strong>${money(totalTwd)}</strong></div>
+        <div class="kpi positive"><span>${y} 年收入（負值）</span><strong>${money(income)}</strong></div>
+        <div class="kpi negative"><span>${y} 年支出（正值）</span><strong>${money(expense)}</strong></div>
+        <div class="kpi"><span>${y} 年交易筆數</span><strong>${plain(yearTx.length)}</strong></div>
+      </section>
+      <section class="card">
+        <div class="section-head"><div><h2>${y} 年帳戶摘要</h2><p>餘額＝本年度期初現金－本年度交易金額。正值為支出、負值為收入。</p></div><button data-action="add-account">新增帳戶</button></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>帳戶</th><th class="numeric">${y} 年期初現金</th><th class="numeric">本年交易總和</th><th class="numeric">本年期末餘額</th><th>納入台幣總額</th><th>備註</th><th></th></tr></thead><tbody>
+          ${stats.map(({a,i,opening,movement,balance})=>`<tr><td>${input(`cash.accounts.${i}.name`,a.name)}</td><td>${input(`cash.accounts.${i}.initialByYear.${y}`,opening,'number')}</td><td class="numeric computed">${money(movement,2)}</td><td class="numeric computed">${money(balance,2)}</td><td>${select(`cash.accounts.${i}.includeInTwdTotal`,String(a.includeInTwdTotal),[['true','是'],['false','否']])}</td><td>${input(`cash.accounts.${i}.note`,a.note)}</td><td><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}">刪除</button></td></tr>`).join('')}
+        </tbody></table></div>
+      </section>
+      <section class="card no-print">
+        <div class="section-head"><div><h2>固定現金項目</h2><p>固定項目跨年度共用；「帶入」會填入下方 ${y} 年新增欄。</p></div><button data-action="add-cash-template">新增固定項目</button></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th>月報處理</th><th></th></tr></thead><tbody>
+          ${state.cash.templates.length?state.cash.templates.map((t,i)=>`<tr><td>${input(`cash.templates.${i}.category`,t.category)}</td><td>${input(`cash.templates.${i}.description`,t.description)}</td><td>${input(`cash.templates.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.templates.${i}.account`,t.account,accountOpts)}</td><td>${select(`cash.templates.${i}.reportMode`,t.reportMode,[['auto','依正負號'],['neutral','不列入月報']])}</td><td class="nowrap"><button class="small primary" data-action="use-cash-template" data-index="${i}">帶入</button> <button class="small" data-action="copy-cash-template" data-index="${i}">複製</button> <button class="small danger" data-action="delete" data-array="cash.templates" data-index="${i}">刪除</button></td></tr>`).join(''):empty(6,'尚未建立固定現金項目')}
+        </tbody></table></div>
+      </section>
+      <section class="card no-print">
+        <div class="section-head"><div><h2>新增 ${y} 年現金交易</h2><p>金額正負號決定收支；轉存、卡費等不應重複列入月報的項目選「不列入月報」。</p></div></div>
+        <form class="form-grid" data-form="cash">
+          <div class="field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div>
+          <div class="field"><label>科目</label><input name="category" required></div>
+          <div class="field wide"><label>描述</label><input name="description"></div>
+          <div class="field"><label>金額（正支出／負收入）</label><input name="amount" type="number" step="any" required></div>
+          <div class="field"><label>帳戶</label><select name="account" required>${accountOpts.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
+          <div class="field"><label>月報處理</label><select name="reportMode"><option value="auto">依正負號</option><option value="neutral">不列入月報</option></select></div>
+          <div class="field"><label>標記顏色</label>${rowColorForm('rowColor')}</div>
+          <button class="primary" type="submit">新增交易</button>
+        </form>
+      </section>
+      <section class="card">
+        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；只顯示設定中的目前年度。</p></div>${dateFilterBar('cash')}</div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th>收支判定</th><th>月報處理</th><th>月報月份</th><th class="row-color-cell">顏色</th><th></th></tr></thead><tbody>
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const flow=cashFlow(t),rowColor=validRowColor(t.rowColor);return `<tr data-row-color="${esc(rowColor)}"><td>${input(`cash.transactions.${i}.date`,t.date,'date')}</td><td>${input(`cash.transactions.${i}.category`,t.category)}</td><td>${input(`cash.transactions.${i}.description`,t.description)}</td><td>${input(`cash.transactions.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.transactions.${i}.account`,t.account,accountOpts)}</td><td class="${flow==='income'?'income':flow==='expense'?'expense':'muted'}">${flow==='income'?'收入':flow==='expense'?'支出':'中性'}</td><td>${select(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow,[['auto','依正負號'],['neutral','不列入月報']])}</td><td class="computed">${esc(state.meta.months[(Number(String(t.date||'').slice(5,7))||1)-1]||'—')}</td><td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}">刪除</button></td></tr>`}).join(''):empty(10,`${y} 年目前沒有交易`)}
+        </tbody></table></div>${pager('cash',p)}
+      </section>
+    </div>`;
+  }
+
+  function cardTotals(card,year=currentYear()){
+    const tx=card.transactions.filter(t=>yearMatch(t.date,year));
+    const amount=sum(tx,t=>t.amount), fee=sum(tx,t=>t.fee);
+    const paid=sum(tx.filter(t=>t.paid),t=>n(t.amount)+n(t.fee));
+    const outstanding=sum(tx.filter(t=>!t.paid),t=>n(t.amount)+n(t.fee));
+    return {amount,fee,paid,outstanding,count:tx.length};
+  }
+  function renderCredit(){
+    const y=currentYear();
+    ui.activeCard=Math.min(ui.activeCard,state.creditCards.length-1); if(ui.activeCard<0)ui.activeCard=0;
+    const card=state.creditCards[ui.activeCard];
+    if(!card) return `<div class="page-stack"><section class="card empty">目前沒有信用卡資料。<button type="button" data-action="add-card">新增卡別</button></section>${ui.showAddCard?creditCardCreateForm():''}</div>`;
+    const totals=cardTotals(card,y); let run=0; const balances={};
+    card.transactions.forEach((t,i)=>{if(yearMatch(t.date,y)){if(!t.paid)run+=n(t.amount)+n(t.fee);balances[i]=run;}});
+    const q=ui.search.credit||''; const filterKey=`credit-${ui.activeCard}`;
+    const filtered=filteredDataRows(card.transactions,q,filterKey).filter(({item})=>yearMatch(item.date,y));
+    const p=paged(filtered,filterKey,70);
+    const allFilteredPaid=filtered.length>0&&filtered.every(({item})=>item.paid);
+    return `<div class="page-stack">
+      <section class="summary-grid">
+        ${state.creditCards.map((c,i)=>{const x=cardTotals(c,y);return `<button class="summary-tile ${i===ui.activeCard?'active-card':''}" data-action="set-card" data-index="${i}"><h4>${esc(c.bank)}</h4><div class="big">${money(x.outstanding)}</div><small>${y} 未繳｜${esc(c.title)}</small></button>`}).join('')}
+      </section>
+      <section class="card">
+        <div class="section-head"><div><h2>${y}｜${esc(card.title)}</h2><p>勾選後保留歷史紀錄，但不再計入 ${y} 年未繳餘額。</p></div><div class="chips"><button type="button" data-action="add-card">新增卡別</button><button type="button" class="danger" data-action="delete-card" data-index="${ui.activeCard}">刪除此卡別</button></div></div>
+        <div class="form-grid">
+          <div class="field wide"><label>顯示名稱</label>${input(`creditCards.${ui.activeCard}.title`,card.title)}</div>
+          <div class="field"><label>銀行</label>${input(`creditCards.${ui.activeCard}.bank`,card.bank)}</div>
+          <div class="field"><label>額度</label>${input(`creditCards.${ui.activeCard}.limit`,card.limit,'number')}</div>
+          <div class="field"><label>${y} 消費金額</label><input readonly value="${money(totals.amount)}"></div>
+          <div class="field"><label>${y} 手續費</label><input readonly value="${money(totals.fee)}"></div>
+          <div class="field"><label>${y} 未繳餘額</label><input readonly value="${money(totals.outstanding)}"></div>
+        </div>
+        ${ui.deleteCardIndex===ui.activeCard?`<div class="delete-confirm"><div><strong>確定刪除「${esc(card.title)}」？</strong><span>這會一併刪除此卡別的交易與固定支出模板。</span></div><div class="chips"><button type="button" data-action="cancel-delete-card">取消</button><button type="button" class="danger" data-action="confirm-delete-card" data-index="${ui.activeCard}">確定刪除</button></div></div>`:''}
+      </section>
+      ${ui.showAddCard?creditCardCreateForm():''}
+      <section class="card no-print">
+        <div class="section-head"><div><h2>固定信用卡支出</h2><p>固定支出跨年度共用；按「帶入」填入 ${y} 年新增交易欄。</p></div><button data-action="add-credit-template">新增固定支出</button></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>描述</th><th class="numeric">金額</th><th>商店名稱</th><th>卡片</th><th class="numeric">手續費</th><th></th></tr></thead><tbody>
+          ${card.templates.length?card.templates.map((t,i)=>`<tr><td>${input(`creditCards.${ui.activeCard}.templates.${i}.description`,t.description)}</td><td>${input(`creditCards.${ui.activeCard}.templates.${i}.amount`,t.amount,'number')}</td><td>${input(`creditCards.${ui.activeCard}.templates.${i}.store`,t.store)}</td><td>${input(`creditCards.${ui.activeCard}.templates.${i}.card`,t.card)}</td><td>${input(`creditCards.${ui.activeCard}.templates.${i}.fee`,t.fee,'number')}</td><td class="nowrap"><button class="small primary" data-action="use-credit-template" data-index="${i}">帶入</button> <button class="small" data-action="copy-credit-template" data-index="${i}">複製</button> <button class="small danger" data-action="delete" data-array="creditCards.${ui.activeCard}.templates" data-index="${i}">刪除</button></td></tr>`).join(''):empty(6,'尚未建立固定信用卡支出')}
+        </tbody></table></div>
+      </section>
+      <section class="card no-print">
+        <h2>新增 ${y} 年信用卡交易</h2>
+        <form class="form-grid" data-form="credit">
+          <div class="field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div>
+          <div class="field wide"><label>描述</label><input name="description" required></div>
+          <div class="field"><label>金額</label><input name="amount" type="number" step="any" required></div>
+          <div class="field"><label>商店名稱</label><input name="store"></div>
+          <div class="field"><label>卡片</label><input name="card"></div>
+          <div class="field"><label>交易手續費</label><input name="fee" type="number" step="any" value="0"></div>
+          <div class="field"><label>標記顏色</label>${rowColorForm('rowColor')}</div>
+          <button class="primary" type="submit">新增交易</button>
+        </form>
+      </section>
+      <section class="card">
+        <div class="section-head"><div><h2>${y} 年信用卡交易紀錄</h2><p>已繳欄僅保留勾選框；表頭勾選框會全選目前年度、搜尋與日期篩選下的所有結果。</p></div>${dateFilterBar(filterKey)}</div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th>描述</th><th class="numeric">金額</th><th>商店名稱</th><th>卡片</th><th class="numeric">交易手續費</th><th class="row-color-cell">顏色</th><th class="paid-col" title="全選目前篩選結果"><input class="paid-check" type="checkbox" data-bulk-paid="${ui.activeCard}" ${allFilteredPaid?'checked':''} aria-label="全選已繳"></th><th class="numeric">未繳累計</th><th></th></tr></thead><tbody>
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr class="${t.paid?'paid-row':''}" data-row-color="${esc(rowColor)}"><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.date`,t.date,'date')}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.description`,t.description)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.amount`,t.amount,'number')}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.store`,t.store)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.card`,t.card)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.fee`,t.fee,'number')}</td><td class="row-color-cell">${rowColorSelect(`creditCards.${ui.activeCard}.transactions.${i}.rowColor`,rowColor)}</td><td class="paid-col">${checkbox(`creditCards.${ui.activeCard}.transactions.${i}.paid`,t.paid,'')}</td><td class="numeric computed">${money(balances[i])}</td><td><button class="small danger" data-action="delete" data-array="creditCards.${ui.activeCard}.transactions" data-index="${i}">刪除</button></td></tr>`}).join(''):empty(10,`${y} 年目前沒有信用卡交易`)}
+        </tbody><tfoot><tr><td>${y} 年交易</td><td></td><td class="numeric">${money(totals.amount)}</td><td></td><td></td><td class="numeric">${money(totals.fee)}</td><td></td><td></td><td class="numeric">未繳 ${money(totals.outstanding)}</td><td></td></tr></tfoot></table></div>${pager(filterKey,p)}
+      </section>
+    </div>`;
+  }
+
+  function cashMonth(month){
+    const tx=state.cash.transactions.filter(t=>yearMatch(t.date)&&Number(String(t.date||'').slice(5,7))===month);
+    return {expense:sum(tx.filter(t=>cashFlow(t)==='expense'),t=>t.amount),income:sum(tx.filter(t=>cashFlow(t)==='income'),t=>Math.abs(n(t.amount)))};
+  }
+  function renderCardFees(){
+    const y=currentYear(), months=state.meta.months, book=currentCardFeeBook();
+    const monthTotals=months.map((_,m)=>sum(book.banks,r=>r.months[m]));
+    return `<div class="page-stack">
+      <section class="card">
+        <div class="section-head"><div><h2>${y} 年各銀行卡費</h2><p>目前年度由「設定」切換；每月總計由各銀行列自動加總。</p></div><button data-action="add-fee-bank">新增銀行</button></div>
+        <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>銀行</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
+          ${book.banks.map((r,i)=>`<tr><td>${input(`cardFees.yearBooks.${y}.banks.${i}.bank`,r.bank)}</td>${r.months.map((v,m)=>`<td>${input(`cardFees.yearBooks.${y}.banks.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="cardFees.yearBooks.${y}.banks" data-index="${i}">刪除</button></td></tr>`).join('')}
+          <tr class="total-row"><td>總計</td>${monthTotals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}<td></td></tr>
+        </tbody></table></div>
+      </section>
+      <section class="card">
+        <div class="section-head"><div><h2>歷年卡費</h2><p>保留原 Excel 的歷年月份比較資料；詳細年度內容請從「設定」切換年份。</p></div><button data-action="add-fee-history">新增年度</button></div>
+        <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
+          ${state.cardFees.history.map((r,i)=>`<tr><td>${input(`cardFees.history.${i}.year`,r.year)}</td>${r.months.map((v,m)=>`<td>${input(`cardFees.history.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="cardFees.history" data-index="${i}">刪除</button></td></tr>`).join('')}
+        </tbody></table></div>
+      </section>
+      <section class="card">
+        <div class="section-head"><div><h2>${y} 年每月開銷</h2><p>現金／轉帳與收入依 ${y} 年「現金花費」日期自動歸月。</p></div></div>
+        <div class="formula-note">現金／轉帳＝本月現金支出合計；每月餘額＝收入－現金／轉帳－刷卡。</div>
+        <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>月份</th><th class="numeric">現金／轉帳</th><th class="numeric">刷卡</th><th class="numeric">收入</th><th class="numeric">每月餘額</th><th class="numeric">總薪水</th><th class="numeric">喜樂薪水</th></tr></thead><tbody>
+          ${book.monthlyInputs.map((r,i)=>{const c=cashMonth(r.month);const cashNet=c.expense;const bal=c.income-cashNet-monthTotals[i];return `<tr><td>${months[i]}</td><td class="numeric computed">${money(cashNet)}</td><td class="numeric computed">${money(monthTotals[i])}</td><td class="numeric computed">${money(c.income)}</td><td class="numeric computed ${bal>=0?'income':'expense'}">${money(bal)}</td><td>${input(`cardFees.yearBooks.${y}.monthlyInputs.${i}.salary`,r.salary,'number')}</td><td>${input(`cardFees.yearBooks.${y}.monthlyInputs.${i}.musicSalary`,r.musicSalary,'number')}</td></tr>`}).join('')}
+        </tbody></table></div>
+      </section>
+    </div>`;
+  }
+
+  function renderHome(){
+    const y=currentYear(),months=state.meta.months,book=currentHomeBook(); const totals=months.map((_,m)=>sum(book.items,r=>r.months[m]));
+    return `<div class="page-stack"><section class="card">
+      <div class="section-head"><div><h2>${y} 年家的支出</h2><p>目前年度由「設定」切換；各月份總計由所有項目自動加總。</p></div><button data-action="add-home-item">新增項目</button></div>
+      <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>項目</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
+        ${book.items.map((r,i)=>`<tr><td>${input(`homeExpenses.yearBooks.${y}.items.${i}.item`,r.item)}</td>${r.months.map((v,m)=>`<td>${input(`homeExpenses.yearBooks.${y}.items.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="homeExpenses.yearBooks.${y}.items" data-index="${i}">刪除</button></td></tr>`).join('')}
+        <tr class="total-row"><td>總計</td>${totals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}<td></td></tr>
+      </tbody></table></div></section>
+      <section class="card"><div class="section-head"><h2>歷年比較</h2><button data-action="add-home-history">新增年度</button></div><div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>${state.homeExpenses.history.map((r,i)=>`<tr><td>${input(`homeExpenses.history.${i}.year`,r.year)}</td>${r.months.map((v,m)=>`<td>${input(`homeExpenses.history.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="homeExpenses.history" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div></section>
+    </div>`;
+  }
+
+  function renderInstallments(){
+    const y=currentYear();
+    const activeRows=state.installments.map((item,index)=>({item,index})).filter(({item})=>normalizeYear(item.year)===y);
+    const historyRows=filteredDataRows(state.installmentHistory,ui.search.installments||'','installment-history',x=>x.completedAt).filter(({item})=>yearMatch(item.completedAt,y));
+    return `<div class="page-stack">
+      <section class="card"><div class="section-head"><div><h2>${y} 年進行中的分期</h2><p>完成後會移入 ${y} 年歷史紀錄。</p></div><button data-action="add-installment">新增分期</button></div>
+        <div class="installment-grid">${activeRows.length?activeRows.map(({item:it,index:i},pos)=>`<article class="installment-card"><div class="section-head"><strong>分期 ${pos+1}</strong><div class="chips"><button type="button" class="small primary" data-action="complete-installment" data-index="${i}">✓ 完成</button><button class="small danger" data-action="delete" data-array="installments" data-index="${i}">刪除</button></div></div><div class="header-fields"><div class="field"><label>項目</label>${input(`installments.${i}.title`,it.title)}</div><div class="field"><label>總額</label>${input(`installments.${i}.total`,it.total,'number')}</div></div><div class="field"><label>扣款帳戶</label>${input(`installments.${i}.account`,it.account)}</div>${it.plans.map((p,j)=>`<div class="plan-row">${input(`installments.${i}.plans.${j}.label`,p.label)}${input(`installments.${i}.plans.${j}.amount`,p.amount,'number')}${input(`installments.${i}.plans.${j}.schedule`,p.schedule)}<button class="small danger" data-action="delete" data-array="installments.${i}.plans" data-index="${j}">×</button></div>`).join('')}<button class="small" data-action="add-plan" data-index="${i}">＋新增期別</button><div class="field" style="margin-top:8px"><label>備註</label>${textarea(`installments.${i}.note`,it.note||'')}</div></article>`).join(''):`<div class="empty">${y} 年目前沒有進行中的分期。</div>`}</div>
+      </section>
+      <section class="card"><div class="section-head"><div><h2>${y} 年分期歷史紀錄</h2><p>歷史項目可恢復到進行中。</p></div>${dateFilterBar('installment-history')}</div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>完成日</th><th>項目</th><th class="numeric">總額</th><th>扣款帳戶</th><th>期別明細</th><th>備註</th><th></th></tr></thead><tbody>
+          ${historyRows.length?historyRows.map(({item:it,index:i})=>`<tr><td>${input(`installmentHistory.${i}.completedAt`,it.completedAt,'date')}</td><td>${esc(it.title)}</td><td class="numeric">${money(it.total)}</td><td>${esc(it.account)}</td><td>${esc((it.plans||[]).map(p=>`${p.label} ${plain(p.amount)} ${p.schedule}`.trim()).join('；'))}</td><td>${esc(it.note||'')}</td><td class="nowrap"><button class="small" data-action="restore-installment" data-index="${i}">恢復</button> <button class="small danger" data-action="delete" data-array="installmentHistory" data-index="${i}">刪除</button></td></tr>`).join(''):empty(7,`${y} 年尚無完成的分期紀錄`)}
+        </tbody></table></div>
+      </section>
+    </div>`;
+  }
+
+  function mortgageStats(){
+    return state.mortgage.accounts.map((a,i)=>{const paid=sum(state.mortgage.payments.filter(p=>p.account===a.name),p=>p.amount);return {a,i,paid,balance:n(a.principal)-paid};});
+  }
+  function renderMortgage(){
+    const y=currentYear(),stats=mortgageStats(); const q=ui.search.mortgage||'';
+    const yearPayments=state.mortgage.payments.filter(x=>yearMatch(x.date,y));
+    const p=paged(filteredDataRows(state.mortgage.payments,q,'mortgage').filter(({item})=>yearMatch(item.date,y)),'mortgage',70);
+    const accounts=state.mortgage.accounts.map(a=>a.name);
+    return `<div class="page-stack"><section class="kpis"><div class="kpi accent"><span>房貸總額</span><strong>${money(sum(stats,x=>x.a.principal))}</strong></div><div class="kpi"><span>${y} 年還款</span><strong>${money(sum(yearPayments,x=>x.amount))}</strong></div><div class="kpi negative"><span>目前總餘額</span><strong>${money(sum(stats,x=>x.balance))}</strong></div><div class="kpi"><span>${y} 年還款筆數</span><strong>${plain(yearPayments.length)}</strong></div></section>
+      <section class="card"><div class="section-head"><div><h2>房貸摘要</h2><p>餘額使用所有年度還款計算；下方明細只顯示 ${y} 年。</p></div><button data-action="add-mortgage-account">新增帳戶</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>帳戶</th><th class="numeric">房貸總額</th><th class="numeric">歷年總還款</th><th class="numeric">目前餘額</th><th>備註</th><th></th></tr></thead><tbody>${stats.map(({a,i,paid,balance})=>`<tr><td>${input(`mortgage.accounts.${i}.name`,a.name)}</td><td>${input(`mortgage.accounts.${i}.principal`,a.principal,'number')}</td><td class="numeric computed">${money(paid)}</td><td class="numeric computed">${money(balance)}</td><td>${input(`mortgage.accounts.${i}.note`,a.note)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.accounts" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div></section>
+      <section class="card no-print"><h2>新增 ${y} 年還款</h2><form class="form-grid" data-form="mortgage"><div class="field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div><div class="field"><label>科目</label><input name="category" value="房貸還款"></div><div class="field wide"><label>描述</label><input name="description"></div><div class="field"><label>金額</label><input name="amount" type="number" step="any" required></div><div class="field"><label>帳戶</label><select name="account">${accounts.map(a=>`<option>${esc(a)}</option>`).join('')}</select></div><button class="primary">新增還款</button></form></section>
+      <section class="card"><div class="section-head"><div><h2>${y} 年還款記錄</h2></div>${dateFilterBar('mortgage')}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th></th></tr></thead><tbody>${p.rows.length?p.rows.map(({item:x,index:i})=>`<tr><td>${input(`mortgage.payments.${i}.date`,x.date,'date')}</td><td>${input(`mortgage.payments.${i}.category`,x.category)}</td><td>${input(`mortgage.payments.${i}.description`,x.description)}</td><td>${input(`mortgage.payments.${i}.amount`,x.amount,'number')}</td><td>${select(`mortgage.payments.${i}.account`,x.account,accounts)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.payments" data-index="${i}">刪除</button></td></tr>`).join(''):empty(6,`${y} 年目前沒有還款紀錄`)}</tbody></table></div>${pager('mortgage',p)}</section>
+    </div>`;
+  }
+
+  function renderTaxInvest(){
+    const currentYearValue=currentYear();
+    const taxes=state.taxesInvestments.taxes; const taxRows=taxes.map((item,index)=>({item,index})).filter(({item})=>gregorianYear(item.year)===currentYearValue);
+    const currentTaxes=taxRows.map(x=>x.item);
+    const tt={houseTax:sum(currentTaxes,x=>x.houseTax),insurance:sum(currentTaxes,x=>x.insurance),incomeTax:sum(currentTaxes,x=>x.incomeTax),landTax:sum(currentTaxes,x=>x.landTax)};
+    const investFilter='investments';
+    return `<div class="page-stack"><section class="card"><div class="section-head"><div><h2>${currentYearValue} 年稅費</h2><p>只顯示設定中的目前年度；切換年份即可查看其他年度。</p></div><button data-action="add-tax">新增本年度資料</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年度</th><th class="numeric">房屋稅</th><th class="numeric">火災地震險</th><th class="numeric">綜所稅</th><th class="numeric">地價稅</th><th></th></tr></thead><tbody>${taxRows.length?taxRows.map(({item:r,index:i})=>`<tr><td>${input(`taxesInvestments.taxes.${i}.year`,r.year)}</td><td>${input(`taxesInvestments.taxes.${i}.houseTax`,r.houseTax,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.insurance`,r.insurance,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.incomeTax`,r.incomeTax,'number')}</td><td>${input(`taxesInvestments.taxes.${i}.landTax`,r.landTax,'number')}</td><td><button class="small danger" data-action="delete" data-array="taxesInvestments.taxes" data-index="${i}">刪除</button></td></tr>`).join(''):empty(6,`${currentYearValue} 年尚無稅費資料`)}<tr class="total-row"><td>${currentYearValue} 年總計</td><td class="numeric">${money(tt.houseTax)}</td><td class="numeric">${money(tt.insurance)}</td><td class="numeric">${money(tt.incomeTax)}</td><td class="numeric">${money(tt.landTax)}</td><td></td></tr></tbody></table></div></section>
+      <section class="card"><div class="section-head"><div><h2>${currentYearValue} 年投資配息</h2><p>明細只顯示目前年度；每個標的仍保留歷年總計。</p></div><div class="chips"><button data-action="add-asset">新增標的</button>${dateFilterBar(investFilter)}</div></div><div class="asset-grid">${state.taxesInvestments.investments.map((a,i)=>{const rows=filteredDataRows(a.transactions,'',investFilter).filter(({item})=>yearMatch(item.date,currentYearValue));const histories=yearTotals(a.transactions);const currentTotal=sum(a.transactions.filter(t=>txYear(t.date)===currentYearValue),t=>t.amount);return `<article class="asset-card"><div class="section-head"><div>${input(`taxesInvestments.investments.${i}.name`,a.name)}</div><button class="small danger" data-action="delete" data-array="taxesInvestments.investments" data-index="${i}">刪除標的</button></div><div class="asset-totals"><div><span>${currentYearValue} 年總計</span><strong>${money(currentTotal)}</strong></div><details><summary>歷年總計</summary><table class="mini-history">${histories.length?histories.map(([y,v])=>`<tr><td>${y}</td><td>${money(v)}</td></tr>`).join(''):`<tr><td>尚無日期資料</td></tr>`}</table></details></div><div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th class="numeric">金額</th><th></th></tr></thead><tbody>${rows.length?rows.map(({item:t,index:j})=>`<tr><td>${input(`taxesInvestments.investments.${i}.transactions.${j}.date`,t.date,'date')}</td><td>${input(`taxesInvestments.investments.${i}.transactions.${j}.amount`,t.amount,'number')}</td><td><button class="small danger" data-action="delete" data-array="taxesInvestments.investments.${i}.transactions" data-index="${j}">×</button></td></tr>`).join(''):empty(3,`${currentYearValue} 年沒有配息資料`)}<tr class="total-row"><td>${currentYearValue} 年總計</td><td class="numeric">${money(currentTotal)}</td><td></td></tr></tbody></table></div><button class="small" data-action="add-invest-tx" data-index="${i}">＋新增配息</button></article>`}).join('')}</div></section>
+    </div>`;
+  }
+
+  function workdays(start,end){
+    if(!start||!end)return 0; let a=new Date(start+'T00:00:00'),b=new Date(end+'T00:00:00');
+    if(Number.isNaN(a.getTime())||Number.isNaN(b.getTime()))return 0; if(a>b)return -workdays(end,start);
+    let count=0; for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1)){const day=d.getDay();if(day!==0&&day!==6)count++;} return count;
+  }
+  function renderLunch(){
+    const y=currentYear(),products=state.lunch.products, allRows=state.lunch.rows;
+    const yearRows=allRows.filter(r=>yearMatch(r.date,y));
+    const totals=Object.fromEntries(products.map(p=>[p.key,sum(yearRows,r=>r.costs[p.key])]));
+    const filtered=filteredDataRows(allRows,ui.search.lunch||'','lunch').filter(({item})=>yearMatch(item.date,y));
+    return `<div class="page-stack"><section class="kpis"><div class="kpi accent"><span>${y} 年採買紀錄</span><strong>${yearRows.length} 次</strong></div><div class="kpi"><span>${y} 年食材總支出</span><strong>${money(sum(yearRows,r=>sum(products,p=>r.costs[p.key])))}</strong></div><div class="kpi"><span>食材品項</span><strong>${products.length}</strong></div><div class="kpi"><span>${y} 年最近採買日</span><strong>${esc(yearRows.at(-1)?.date||'—')}</strong></div></section>
+      <section class="card"><div class="section-head"><div><h2>${y} 年午餐花費</h2><p>天數使用工作日計算；只顯示設定中的目前年度。</p></div><div class="chips"><button data-action="add-lunch-row">新增採買</button><button data-action="add-product">新增食材欄</button>${dateFilterBar('lunch')}</div></div><div class="table-wrap"><table class="data-table lunch-table"><thead><tr><th>日期</th><th class="numeric">天數</th>${products.map(p=>`<th>${esc(p.name)}</th>`).join('')}<th class="numeric">工作日 $$</th><th></th></tr></thead><tbody>
+        ${filtered.length?filtered.map(({item:r,index:i})=>{const next=allRows.slice(i+1).find(x=>yearMatch(x.date,y))?.date||`${y}-12-31`;const days=workdays(r.date,next);const cost=sum(products,p=>r.costs[p.key]);return `<tr><td>${input(`lunch.rows.${i}.date`,r.date,'date')}</td><td class="numeric computed">${plain(days)}</td>${products.map(p=>`<td>${input(`lunch.rows.${i}.costs.${p.key}`,r.costs[p.key]||0,'number')}</td>`).join('')}<td class="numeric computed">${days?money(cost/days,2):'—'}</td><td><button class="small danger" data-action="delete" data-array="lunch.rows" data-index="${i}">刪除</button></td></tr>`}).join(''):empty(products.length+4,`${y} 年沒有採買資料`)}
+        <tr class="total-row"><td>${y} 年總計</td><td></td>${products.map(p=>`<td class="numeric">${money(totals[p.key])}</td>`).join('')}<td></td><td></td></tr>
+      </tbody></table></div></section>
+      <section class="card"><div class="section-head"><h2>食材欄位名稱</h2></div><div class="summary-grid">${products.map((p,i)=>`<div class="summary-tile"><div class="inline-edit">${input(`lunch.products.${i}.name`,p.name)}<button class="small danger" data-action="delete-product" data-index="${i}">刪除</button></div></div>`).join('')}</div></section>
+    </div>`;
+  }
+
+  function renderSettings(){
+    const y=currentYear(),years=availableYears();
+    const counts=years.map(year=>({year,cash:state.cash.transactions.filter(x=>yearMatch(x.date,year)).length,credit:sum(state.creditCards,c=>c.transactions.filter(x=>yearMatch(x.date,year)).length),mortgage:state.mortgage.payments.filter(x=>yearMatch(x.date,year)).length,invest:sum(state.taxesInvestments.investments,a=>a.transactions.filter(x=>yearMatch(x.date,year)).length)}));
+    return `<div class="page-stack">
+      <section class="card settings-hero"><div><span class="settings-kicker">目前記帳年度</span><strong>${y}</strong><p>切換後，現金、信用卡、卡費、家庭支出、分期、房貸、稅費投資與午餐頁面都會顯示該年度；含年份的標題也會同步更新。</p></div></section>
+      <section class="card"><div class="section-head"><div><h2>年度設定</h2><p>年份只控制目前檢視與新增資料的預設日期，不會刪除其他年度紀錄。</p></div><button data-action="add-year">新增年份</button></div>
+        <div class="form-grid settings-form"><div class="field wide"><label>當前記帳表年份</label><select data-setting-year>${years.map(x=>`<option value="${x}" ${x===y?'selected':''}>${x} 年</option>`).join('')}</select></div></div>
+        <div class="formula-note">新增下一年度時，卡費銀行與家庭支出項目會沿用名稱但金額歸零；帳戶期初金額會優先承接前一年度的期末餘額。既有舊年度若沒有期初資料，預設為 0，可在「現金花費」頁修正。</div>
+      </section>
+      <section class="card"><div class="section-head"><div><h2>記帳表顏色</h2><p>顏色設定會儲存在這台裝置，所有分頁立即套用。</p></div></div><div class="theme-grid">${THEMES.map(t=>`<button type="button" class="theme-option ${state.meta.theme===t.id?'active':''}" data-action="set-theme" data-theme="${t.id}" aria-pressed="${state.meta.theme===t.id}"><span class="theme-swatches">${t.colors.map(c=>`<i style="background:${c}"></i>`).join('')}</span><strong>${t.name}</strong><small>${state.meta.theme===t.id?'目前使用':'點選套用'}</small></button>`).join('')}</div></section>
+      <section class="card"><div class="section-head"><div><h2>可用年度</h2><p>以下年份由既有日期資料與已建立的年度帳本自動整理。</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年份</th><th class="numeric">現金交易</th><th class="numeric">信用卡交易</th><th class="numeric">房貸還款</th><th class="numeric">投資配息</th><th></th></tr></thead><tbody>${counts.map(x=>`<tr class="${x.year===y?'active-year-row':''}"><td><strong>${x.year}</strong></td><td class="numeric">${x.cash}</td><td class="numeric">${x.credit}</td><td class="numeric">${x.mortgage}</td><td class="numeric">${x.invest}</td><td><button class="small ${x.year===y?'primary':''}" data-action="switch-year" data-year="${x.year}">${x.year===y?'目前年度':'切換'}</button></td></tr>`).join('')}</tbody></table></div></section>
+    </div>`;
+  }
+
+  const sidebar=document.querySelector('.sidebar');
+  const sidebarBackdrop=document.getElementById('sidebarBackdrop');
+  const drawerMedia=window.matchMedia('(max-width: 760px), (orientation: landscape) and (max-height: 600px)');
+  function setSidebarOpen(open){
+    const shouldOpen=Boolean(open&&drawerMedia.matches);
+    sidebar.classList.toggle('open',shouldOpen);
+    sidebarBackdrop?.classList.toggle('open',shouldOpen);
+    sidebarBackdrop?.setAttribute('aria-hidden',String(!shouldOpen));
+    document.body.classList.toggle('sidebar-open',shouldOpen);
+    document.getElementById('menuBtn')?.setAttribute('aria-expanded',String(shouldOpen));
+  }
+  function toggleSidebar(){setSidebarOpen(!sidebar.classList.contains('open'));}
+  nav.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-tab]'); if(!btn)return; ui.tab=btn.dataset.tab; setSidebarOpen(false); render(); main.focus();
+  });
+  document.getElementById('menuBtn').addEventListener('click',toggleSidebar);
+  sidebarBackdrop?.addEventListener('click',()=>setSidebarOpen(false));
+  drawerMedia.addEventListener?.('change',()=>setSidebarOpen(false));
+
+  let sidebarGesture=null;
+  document.addEventListener('touchstart',e=>{
+    if(!drawerMedia.matches||e.touches.length!==1)return;
+    const t=e.touches[0];
+    sidebarGesture={x:t.clientX,y:t.clientY,open:sidebar.classList.contains('open'),fromLeftEdge:t.clientX<=30};
+  },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(!sidebarGesture||!drawerMedia.matches||e.changedTouches.length!==1){sidebarGesture=null;return;}
+    const t=e.changedTouches[0],dx=t.clientX-sidebarGesture.x,dy=t.clientY-sidebarGesture.y;
+    const horizontal=Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.15;
+    if(horizontal){
+      if(sidebarGesture.open&&dx<0)setSidebarOpen(false);
+      else if(!sidebarGesture.open&&sidebarGesture.fromLeftEdge&&dx>0)setSidebarOpen(true);
+    }
+    sidebarGesture=null;
+  },{passive:true});
+  document.addEventListener('touchcancel',()=>{sidebarGesture=null;},{passive:true});
+  searchInput.addEventListener('input',()=>{ ui.search[ui.tab]=searchInput.value; ui.page[ui.tab]=1; clearTimeout(searchInput._t); searchInput._t=setTimeout(render,180); });
+
+  main.addEventListener('change',e=>{
+    const el=e.target;
+    if(el.dataset.settingTheme!==undefined){
+      const theme=el.value;if(THEMES.some(t=>t.id===theme)){state.meta.theme=theme;scheduleSave();render();}return;
+    }
+    if(el.dataset.settingYear!==undefined){
+      const y=normalizeYear(el.value);if(y){state.meta.currentYear=y;state.meta.year=y;ensureYearStructure(y);ui.dateFilters={};ui.page={};scheduleSave();render();}return;
+    }
+    if(el.dataset.bulkPaid!==undefined){
+      const cardIndex=Number(el.dataset.bulkPaid),card=state.creditCards[cardIndex];if(!card)return;
+      const key=`credit-${cardIndex}`,q=ui.search.credit||'';
+      filteredDataRows(card.transactions,q,key).filter(({item})=>yearMatch(item.date)).forEach(({item})=>item.paid=el.checked);
+      scheduleSave();toast(el.checked?'已全選目前篩選結果':'已取消目前篩選結果');render();return;
+    }
+    if(el.dataset.filterKey){
+      const key=el.dataset.filterKey;ui.dateFilters[key]=ui.dateFilters[key]||{};ui.dateFilters[key][el.dataset.filterSide]=el.value;ui.page[key]=1;render();return;
+    }
+    if(!el.dataset.path)return;
+    let value=el.type==='checkbox'?el.checked:el.value;
+    if(el.type==='number') value=value===''?0:n(value);
+    if(value==='true')value=true; else if(value==='false')value=false;
+    setPath(el.dataset.path,value);
+    const m=el.dataset.path.match(/^cash\.transactions\.(\d+)\.date$/);if(m)state.cash.transactions[Number(m[1])].reportMonth=Number(String(value).slice(5,7))||1;
+    scheduleSave(); render();
+  });
+  main.addEventListener('submit',e=>{
+    const form=e.target.closest('form[data-form]'); if(!form)return; e.preventDefault(); const fd=Object.fromEntries(new FormData(form));
+    if(form.dataset.form==='credit-card'){
+      const bank=String(fd.bank||'').trim(),title=String(fd.title||'').trim();
+      if(!bank||!title)return;
+      state.creditCards.push({id:uid('card'),bank,title,limit:n(fd.limit),transactions:[],templates:[]});
+      ui.activeCard=state.creditCards.length-1;ui.showAddCard=false;ui.deleteCardIndex=null;
+    }
+    if(form.dataset.form==='cash') state.cash.transactions.push({id:uid('cash'),date:fd.date,category:fd.category,description:fd.description,amount:n(fd.amount),account:fd.account,monthlyFlow:fd.reportMode==='neutral'?'neutral':'auto',reportMonth:Number(fd.date.slice(5,7)),rowColor:validRowColor(fd.rowColor)});
+    if(form.dataset.form==='credit') state.creditCards[ui.activeCard].transactions.push({id:uid('cc'),date:fd.date,description:fd.description,amount:n(fd.amount),store:fd.store,card:fd.card,fee:n(fd.fee),paid:false,rowColor:validRowColor(fd.rowColor)});
+    if(form.dataset.form==='mortgage') state.mortgage.payments.push({id:uid('mort'),date:fd.date,category:fd.category,description:fd.description,amount:n(fd.amount),account:fd.account});
+    scheduleSave(); toast('已新增'); render();
+  });
+  main.addEventListener('click',e=>{
+    const b=e.target.closest('[data-action]'); if(!b)return; const a=b.dataset.action;
+    if(a==='delete'){
+      if(!confirm('確定刪除這筆資料？'))return; const arr=getPath(b.dataset.array); arr.splice(Number(b.dataset.index),1); scheduleSave(); render(); return;
+    }
+    if(a==='page'){ui.page[b.dataset.key]=Number(b.dataset.page);render();return;}
+    if(a==='clear-date-filter'){ui.dateFilters[b.dataset.key]={};ui.page[b.dataset.key]=1;render();return;}
+    if(a==='add-cash-template')state.cash.templates.push({id:uid('cashtpl'),category:'固定支出',description:'',amount:0,account:state.cash.accounts[0]?.name||'',reportMode:'auto'});
+    if(a==='use-cash-template'){const t=state.cash.templates[Number(b.dataset.index)];fillForm('cash',{category:t.category,description:t.description,amount:t.amount,account:t.account,reportMode:t.reportMode});toast('已帶入新增欄');return;}
+    if(a==='copy-cash-template'){const t=state.cash.templates[Number(b.dataset.index)];copyText([t.category,t.description,t.amount,t.account,t.reportMode==='neutral'?'不列入月報':'依正負號'].join('\t'));return;}
+    if(a==='add-credit-template'){state.creditCards[ui.activeCard].templates.push({id:uid('cctpl'),description:'固定支出',amount:0,store:'',card:'',fee:0});}
+    if(a==='use-credit-template'){const t=state.creditCards[ui.activeCard].templates[Number(b.dataset.index)];fillForm('credit',{description:t.description,amount:t.amount,store:t.store,card:t.card,fee:t.fee});toast('已帶入新增欄');return;}
+    if(a==='copy-credit-template'){const t=state.creditCards[ui.activeCard].templates[Number(b.dataset.index)];copyText([t.description,t.amount,t.store,t.card,t.fee].join('\t'));return;}
+    if(a==='complete-installment'){
+      const index=Number(b.dataset.index),it=state.installments[index];
+      if(!it){toast('找不到這筆分期，請重新開啟分期頁');render();return;}
+      state.installments.splice(index,1);
+      const archived=clone(it);archived.completedAt=defaultDateForYear();archived.year=currentYear();state.installmentHistory.unshift(archived);
+      scheduleSave();toast('已移入歷史紀錄，可在下方恢復');render();return;
+    }
+    if(a==='restore-installment'){
+      const index=Number(b.dataset.index),it=state.installmentHistory[index];
+      if(!it){toast('找不到這筆歷史紀錄');render();return;}
+      state.installmentHistory.splice(index,1);const restored=clone(it);delete restored.completedAt;restored.year=currentYear();state.installments.push(restored);
+      scheduleSave();toast('已恢復為進行中');render();return;
+    }
+    if(a==='set-card'){ui.activeCard=Number(b.dataset.index);ui.search.credit='';ui.deleteCardIndex=null;render();return;}
+    if(a==='add-account'){const name=prompt('帳戶名稱');if(name)state.cash.accounts.push({id:uid('acc'),name,initial:0,initialByYear:{[String(currentYear())]:0},note:'',includeInTwdTotal:true});}
+    if(a==='add-card'){ui.showAddCard=true;ui.deleteCardIndex=null;render();setTimeout(()=>main.querySelector('[data-form="credit-card"] input[name="bank"]')?.focus(),0);return;}
+    if(a==='cancel-add-card'){ui.showAddCard=false;render();return;}
+    if(a==='delete-card'){ui.deleteCardIndex=Number(b.dataset.index);ui.showAddCard=false;render();return;}
+    if(a==='cancel-delete-card'){ui.deleteCardIndex=null;render();return;}
+    if(a==='confirm-delete-card'){const index=Number(b.dataset.index);const title=state.creditCards[index]?.title||'此卡別';state.creditCards.splice(index,1);ui.activeCard=Math.max(0,Math.min(index-1,state.creditCards.length-1));ui.deleteCardIndex=null;toast(`已刪除 ${title}`);}
+    if(a==='add-fee-bank'){const name=prompt('銀行名稱');if(name)currentCardFeeBook().banks.push({id:uid('bank'),bank:name,months:Array(12).fill(0)});}
+    if(a==='add-fee-history'){const year=prompt('年度');if(year)state.cardFees.history.unshift({year,months:Array(12).fill(0)});}
+    if(a==='add-home-item'){const item=prompt('支出項目');if(item)currentHomeBook().items.push({id:uid('home'),item,months:Array(12).fill(0)});}
+    if(a==='add-home-history'){const year=prompt('年度');if(year)state.homeExpenses.history.unshift({year,months:Array(12).fill(0)});}
+    if(a==='add-installment')state.installments.push({id:uid('inst'),year:currentYear(),title:'新分期',total:0,account:'',plans:[{label:'一期',amount:0,schedule:''}],note:''});
+    if(a==='add-plan')state.installments[Number(b.dataset.index)].plans.push({label:'',amount:0,schedule:''});
+    if(a==='add-mortgage-account'){const name=prompt('房貸帳戶名稱');if(name)state.mortgage.accounts.push({id:uid('mortacc'),name,principal:0,note:''});}
+    if(a==='add-tax')state.taxesInvestments.taxes.push({id:uid('tax'),year:String(currentYear()),houseTax:0,insurance:0,incomeTax:0,landTax:0});
+    if(a==='add-asset'){const name=prompt('投資標的名稱');if(name)state.taxesInvestments.investments.push({id:uid('asset'),name,transactions:[]});}
+    if(a==='add-invest-tx')state.taxesInvestments.investments[Number(b.dataset.index)].transactions.push({id:uid('inv'),date:defaultDateForYear(),amount:0});
+    if(a==='add-lunch-row')state.lunch.rows.push({id:uid('lunch'),date:defaultDateForYear(),costs:Object.fromEntries(state.lunch.products.map(p=>[p.key,0]))});
+    if(a==='add-product'){const name=prompt('食材名稱');if(name){const key=uid('p').replaceAll('-','_');state.lunch.products.push({key,name});state.lunch.rows.forEach(r=>r.costs[key]=0);}}
+    if(a==='delete-product'){const i=Number(b.dataset.index),p=state.lunch.products[i];if(!confirm(`刪除「${p.name}」欄及其所有金額？`))return;state.lunch.products.splice(i,1);state.lunch.rows.forEach(r=>delete r.costs[p.key]);}
+    if(a==='set-theme'){const theme=b.dataset.theme;if(THEMES.some(t=>t.id===theme)){state.meta.theme=theme;applyTheme();toast(`已套用 ${THEMES.find(t=>t.id===theme).name}`);}}
+    if(a==='switch-year'){const y=normalizeYear(b.dataset.year);if(y){state.meta.currentYear=y;state.meta.year=y;ensureYearStructure(y);ui.dateFilters={};ui.page={};toast(`已切換到 ${y} 年`);}}
+    if(a==='add-year'){const raw=prompt('輸入西元年份，例如 2027');const y=normalizeYear(raw);if(!y||y<1900||y>2200){if(raw!==null)alert('請輸入 1900～2200 的西元年份。');return;}ensureYearStructure(y);state.meta.currentYear=y;state.meta.year=y;ui.dateFilters={};ui.page={};toast(`已建立並切換到 ${y} 年`);}
+    scheduleSave(); render();
+  });
+
+  document.querySelector('.toolbar').addEventListener('click',e=>{
+    const b=e.target.closest('[data-global-action]'); if(!b)return;
+    if(b.dataset.globalAction==='export'){
+      downloadJson(state,`財務追蹤_全年度備份_${today()}.json`);toast('備份已下載');
+    }
+    if(b.dataset.globalAction==='restore-import')restorePreImport();
+    if(b.dataset.globalAction==='print')window.print();
+    if(b.dataset.globalAction==='reset'){
+      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); scheduleSave();render();
+    }
+  });
+  document.getElementById('importFile').addEventListener('change',e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        const raw=JSON.parse(reader.result);
+        const validation=backupValidation(raw);
+        let normalized;
+        try{normalized=migrateState(clone(raw));}catch(err){validation.errors.push('資料轉換失敗，檔案可能已損壞。');validation.compatible=false;normalized=migrateState({meta:{year:new Date().getFullYear()},cash:{accounts:[],transactions:[]}});}
+        pendingImport={raw,normalized,validation,fileName:file.name,fileSize:file.size};
+        showImportPreview();
+      }catch(_){alert('無法解析這個檔案。請選擇由財務追蹤 App 下載的 JSON 備份。');}
+    };
+    reader.onerror=()=>alert('讀取備份檔失敗，請重新選擇檔案。');
+    reader.readAsText(file);e.target.value='';
+  });
+  importDialog?.addEventListener('click',e=>{
+    const action=e.target.closest('[data-import-action]')?.dataset.importAction;
+    if(action==='cancel')closeImportDialog();
+    if(action==='confirm')performSafeImport();
+    if(e.target===importDialog)closeImportDialog();
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&importDialog&&!importDialog.hidden)closeImportDialog();});
+
+  window.FinanceTrackerApp = {
+    getState:()=>clone(state),
+    getLocalUpdatedAt:()=>state.meta?.updatedAt||'',
+    getSchemaVersion:()=>CURRENT_SCHEMA,
+    getStorageKey:()=>STORAGE_KEY,
+    validateBackup:raw=>backupValidation(raw),
+    summarizeState:raw=>backupSummary(migrateState(clone(raw))),
+    migrateState:raw=>migrateState(clone(raw)),
+    setSaveStatus:text=>{saveStatus.textContent=text;},
+    toast,
+    downloadJson,
+    fileStamp,
+    createCloudRollback(provider='cloud'){
+      const snapshot={createdAt:new Date().toISOString(),provider,data:clone(state)};
+      localStorage.setItem(CLOUD_ROLLBACK_KEY,JSON.stringify(snapshot));
+      return snapshot;
+    },
+    getCloudRollback(){
+      try{return JSON.parse(localStorage.getItem(CLOUD_ROLLBACK_KEY)||'null');}catch(_){return null;}
+    },
+    clearCloudRollback(){localStorage.removeItem(CLOUD_ROLLBACK_KEY);},
+    replaceStateFromCloud(raw,remoteUpdatedAt=''){
+      const validation=backupValidation(raw);
+      if(!validation.compatible)throw new Error(validation.errors.join(' ')||'雲端資料格式不相容。');
+      const incoming=migrateState(clone(raw));
+      if(remoteUpdatedAt)incoming.meta.updatedAt=remoteUpdatedAt;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(incoming));
+      state=incoming;
+      ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
+      render();
+      return clone(state);
+    },
+    restoreCloudRollback(){
+      let snapshot;
+      try{snapshot=JSON.parse(localStorage.getItem(CLOUD_ROLLBACK_KEY)||'null');}catch(_){snapshot=null;}
+      if(!snapshot?.data)throw new Error('找不到可復原的雲端同步前資料。');
+      const restored=migrateState(clone(snapshot.data));
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));
+      state=restored;localStorage.removeItem(CLOUD_ROLLBACK_KEY);
+      ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
+      render();
+      return {createdAt:snapshot.createdAt,provider:snapshot.provider};
+    }
+  };
+
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  render();
+})();

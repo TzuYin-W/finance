@@ -1,0 +1,17 @@
+{
+  "name": "財務追蹤｜空白版",
+  "short_name": "空白財務追蹤",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7f4",
+  "theme_color": "#7b963f",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "orientation": "any"
+}
