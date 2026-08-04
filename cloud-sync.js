@@ -15,6 +15,7 @@
     `${app.getStorageKey()}-microsoft-pending-v1`
   ];
   const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+  const DEFAULT_GOOGLE_CLIENT_ID = String(window.FINANCE_APP_CONFIG?.googleClientId||'').trim();
 
   const cloudButton = document.getElementById('cloudSyncButton');
   const modal = document.getElementById('cloudSyncModal');
@@ -59,8 +60,9 @@
   function loadConfig(){
     try {
       const saved = JSON.parse(localStore.getItem(CONFIG_KEY)||'{}');
+      const hasSavedClientId=Object.prototype.hasOwnProperty.call(saved,'googleClientId');
       const migrated = {
-        googleClientId:String(saved.googleClientId||''),
+        googleClientId:String(hasSavedClientId?saved.googleClientId:DEFAULT_GOOGLE_CLIENT_ID),
         autoSync:Boolean(saved.autoSync) && saved.activeProvider==='google',
         activeProvider:saved.activeProvider==='google'?'google':'',
         google:{...defaultGoogleState(),...(saved.google||{})}
@@ -69,7 +71,7 @@
       localStore.setItem(CONFIG_KEY,JSON.stringify(migrated));
       return migrated;
     } catch (_) {
-      return {googleClientId:'',autoSync:false,activeProvider:'',google:defaultGoogleState()};
+      return {googleClientId:DEFAULT_GOOGLE_CLIENT_ID,autoSync:false,activeProvider:'',google:defaultGoogleState()};
     }
   }
   function saveConfig(){localStore.setItem(CONFIG_KEY,JSON.stringify(config));renderUi();}

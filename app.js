@@ -7,7 +7,7 @@
   const CLOUD_ROLLBACK_KEY = `${STORAGE_KEY}-pre-cloud-sync-backup`;
   const TABS = [
     ['cash','現金花費','💵'],['credit','信用卡記錄','💳'],['cardFees','卡費記錄','🧾'],
-    ['home','家的支出','🏠'],['installments','分期','◫'],['mortgage','貸款','🏦'],
+    ['home','家的支出','🏠'],['installments','分期','💸'],['mortgage','貸款','🏦'],
     ['taxInvest','稅費、投資','📈'],['lunch','午餐花費','🥗'],['settings','設定','⚙️']
   ];
   const CURRENT_SCHEMA = 6;
