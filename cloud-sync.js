@@ -7,11 +7,12 @@
   const APP_FILE_NAME = 'finance-tracker-sync.json';
   const CONFIG_KEY = `${app.getStorageKey()}-cloud-config-v2`;
   const DEVICE_KEY = `${app.getStorageKey()}-device-id-v1`;
-  const GOOGLE_SESSION_KEY = `${app.getStorageKey()}-google-session-v1`;
+  const GOOGLE_SESSION_KEY = `${app.getStorageKey()}-google-session-v2`;
   const MICROSOFT_SESSION_KEY = `${app.getStorageKey()}-microsoft-session-v1`;
   const MICROSOFT_OAUTH_KEY = `${app.getStorageKey()}-microsoft-oauth-v1`;
   const MICROSOFT_PENDING_KEY = `${app.getStorageKey()}-microsoft-pending-v1`;
-  const GOOGLE_SCOPES = 'email https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/drive.appdata';
+  const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+  const GOOGLE_SCOPES = GOOGLE_DRIVE_SCOPE;
   const MICROSOFT_SCOPES = 'openid profile email offline_access Files.ReadWrite.AppFolder';
 
   const cloudButton = document.getElementById('cloudSyncButton');
@@ -211,17 +212,36 @@
       error_callback:error=>{if(!googlePending)return;googlePending.reject(new Error(error?.message||error?.type||'Google 登入視窗已關閉。'));googlePending=null;}
     });
     setStatus(`正在向 Google 送出 Client ID：${maskGoogleClientId(clientId)}（長度 ${clientId.length}）`,'working');
-    const response=await new Promise((resolve,reject)=>{googlePending={resolve,reject};googleTokenClient.requestAccessToken({prompt:'consent'});});
-    const saved={accessToken:response.access_token,expiresAt:Date.now()+Math.max(60,Number(response.expires_in||3600)-60)*1000};
+    const response=await new Promise((resolve,reject)=>{googlePending={resolve,reject};googleTokenClient.requestAccessToken({prompt:'consent',scope:GOOGLE_DRIVE_SCOPE});});
+    const grantedByHelper=typeof google.accounts.oauth2.hasGrantedAllScopes==='function'
+      ? google.accounts.oauth2.hasGrantedAllScopes(response,GOOGLE_DRIVE_SCOPE)
+      : String(response.scope||'').split(/\s+/).includes(GOOGLE_DRIVE_SCOPE);
+    if(!grantedByHelper){
+      if(response.access_token&&window.google?.accounts?.oauth2){
+        try{google.accounts.oauth2.revoke(response.access_token,()=>{});}catch(_){}
+      }
+      writeSession(GOOGLE_SESSION_KEY,null);
+      throw new Error('Google 登入成功，但沒有授權「儲存應用程式資料」權限。請在 Google 同意畫面核准 Google Drive App Data，然後重新連線。');
+    }
+    const saved={accessToken:response.access_token,expiresAt:Date.now()+Math.max(60,Number(response.expires_in||3600)-60)*1000,scope:response.scope||GOOGLE_DRIVE_SCOPE};
     writeSession(GOOGLE_SESSION_KEY,saved);
-    try{const profile=await googleFetch('https://www.googleapis.com/oauth2/v3/userinfo',{},saved.accessToken);config.google.email=profile.email||config.google.email;saveConfig();}catch(_){}
+    config.google.email='';
+    saveConfig();
     return saved.accessToken;
   }
   async function googleFetch(url,options={},token=null){
     const accessToken=token||await getGoogleToken(false);if(!accessToken)throw new Error('Google 尚未登入，或授權已過期。');
     const response=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:`Bearer ${accessToken}`}});
     if(response.status===401)writeSession(GOOGLE_SESSION_KEY,null);
-    if(!response.ok){let detail='';try{detail=(await response.json())?.error?.message||'';}catch(_){}throw new Error(detail||`Google Drive 回應錯誤（${response.status}）。`);}
+    if(!response.ok){
+      let detail='',reason='';
+      try{const payload=await response.json();detail=payload?.error?.message||'';reason=payload?.error?.status||payload?.error?.errors?.[0]?.reason||'';}catch(_){}
+      if(response.status===403&&/insufficient authentication scopes/i.test(detail)){
+        writeSession(GOOGLE_SESSION_KEY,null);
+        throw new Error('目前的 Google 授權不含 Drive App Data。請按「中斷 Google」後重新連線，並在同意畫面核准儲存應用程式資料。');
+      }
+      throw new Error(detail||reason||`Google Drive 回應錯誤（${response.status}）。`);
+    }
     if(response.status===204)return null;const type=response.headers.get('content-type')||'';return type.includes('application/json')?response.json():response.text();
   }
   async function googleFindFile(){
@@ -399,7 +419,7 @@
     const button=event.target.closest('[data-cloud-action]');if(!button)return;
     const action=button.dataset.cloudAction;
     try{
-      if(action==='google-login'){commitGoogleClientId();setBusy(true,`正在開啟 Google 登入（${maskGoogleClientId(config.googleClientId)}）…`);await getGoogleToken(true);setStatus('Google 帳戶連線完成。','ok');}
+      if(action==='google-login'){commitGoogleClientId();setBusy(true,`正在開啟 Google 登入（${maskGoogleClientId(config.googleClientId)}）…`);await getGoogleToken(true);setStatus('Google Drive App Data 授權完成。','ok');}
       if(action==='google-sync')await smartSync('google',true);
       if(action==='google-upload')await forceUpload('google');
       if(action==='google-download')await forceDownload('google');

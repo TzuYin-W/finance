@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-v9-google-client-diagnostic';
+const CACHE='finance-tracker-v10-google-drive-scope-fix';
 const ASSETS=['./','./index.html','./styles.css','./initial-data.js','./app.js','./cloud-sync.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
