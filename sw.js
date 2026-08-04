@@ -1,5 +1,5 @@
-const CACHE='finance-tracker-v18-official-art';
-const ASSETS=['./','./index.html','./styles.css','./initial-data.js','./app.js','./cloud-sync.js','./manifest.webmanifest','./icon.svg'];
+const CACHE='finance-tracker-v19-unique-art-layout';
+const ASSETS=['./','./index.html','./styles.css','./initial-data.js','./app.js','./cloud-sync.js','./manifest.webmanifest','./icon.svg','./theme-pikmin-sidebar.png','./theme-pikmin-right.png','./theme-pikmin-corner.png','./theme-pokemon-right.png','./theme-pokemon-corner.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
