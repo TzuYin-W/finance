@@ -166,6 +166,25 @@
     return envelope;
   }
 
+  function normalizeGoogleClientId(value){
+    return String(value??'').normalize('NFKC').replace(/[\s\u200B-\u200D\u2060\uFEFF]+/g,'');
+  }
+  function maskGoogleClientId(value){
+    const id=normalizeGoogleClientId(value);
+    if(id.length<=28)return id||'未設定';
+    return `${id.slice(0,12)}…${id.slice(-16)}`;
+  }
+  function commitGoogleClientId(){
+    const normalized=normalizeGoogleClientId(googleClientIdInput.value||config.googleClientId);
+    googleClientIdInput.value=normalized;
+    if(config.googleClientId!==normalized){
+      config.googleClientId=normalized;
+      googleTokenClient=null;
+      writeSession(GOOGLE_SESSION_KEY,null);
+      localStore.setItem(CONFIG_KEY,JSON.stringify(config));
+    }
+    return normalized;
+  }
   async function loadGoogleIdentity(){
     if(window.google?.accounts?.oauth2)return;
     await new Promise((resolve,reject)=>{
@@ -178,16 +197,20 @@
     const session=readSession(GOOGLE_SESSION_KEY);
     if(session?.accessToken&&session.expiresAt>Date.now()+60000)return session.accessToken;
     if(!interactive)return null;
-    if(!config.googleClientId)throw new Error('請先輸入 Google OAuth Client ID。');
+    const clientId=commitGoogleClientId();
+    if(!clientId)throw new Error('請先輸入 Google OAuth Client ID。');
+    if(!/^\d+-[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$/.test(clientId)){
+      throw new Error(`Google Client ID 格式不正確（目前長度 ${clientId.length}）。請貼上 Web application 的 Client ID，不要貼 Client secret、Project ID 或 API key。`);
+    }
     if(!isSecureEnvironment())throw new Error('Google 登入必須由 HTTPS 或 localhost 開啟。');
     await loadGoogleIdentity();
-    if(!googleTokenClient){
-      googleTokenClient=google.accounts.oauth2.initTokenClient({
-        client_id:config.googleClientId,scope:GOOGLE_SCOPES,
-        callback:response=>{if(!googlePending)return;if(response.error)googlePending.reject(new Error(response.error_description||response.error));else googlePending.resolve(response);googlePending=null;},
-        error_callback:error=>{if(!googlePending)return;googlePending.reject(new Error(error?.message||error?.type||'Google 登入視窗已關閉。'));googlePending=null;}
-      });
-    }
+    // 每次互動登入都以輸入框當下的 Client ID 重新建立 Token Client，避免手機 PWA 沿用舊憑證。
+    googleTokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:clientId,scope:GOOGLE_SCOPES,
+      callback:response=>{if(!googlePending)return;if(response.error)googlePending.reject(new Error(response.error_description||response.error));else googlePending.resolve(response);googlePending=null;},
+      error_callback:error=>{if(!googlePending)return;googlePending.reject(new Error(error?.message||error?.type||'Google 登入視窗已關閉。'));googlePending=null;}
+    });
+    setStatus(`正在向 Google 送出 Client ID：${maskGoogleClientId(clientId)}（長度 ${clientId.length}）`,'working');
     const response=await new Promise((resolve,reject)=>{googlePending={resolve,reject};googleTokenClient.requestAccessToken({prompt:'consent'});});
     const saved={accessToken:response.access_token,expiresAt:Date.now()+Math.max(60,Number(response.expires_in||3600)-60)*1000};
     writeSession(GOOGLE_SESSION_KEY,saved);
@@ -366,7 +389,8 @@
   modal.addEventListener('click',event=>{if(event.target===modal)closeModal();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&modal.classList.contains('open'))closeModal();});
 
-  googleClientIdInput.addEventListener('change',()=>{config.googleClientId=googleClientIdInput.value.trim();googleTokenClient=null;writeSession(GOOGLE_SESSION_KEY,null);saveConfig();});
+  googleClientIdInput.addEventListener('change',()=>{commitGoogleClientId();saveConfig();});
+  googleClientIdInput.addEventListener('paste',()=>setTimeout(()=>{googleClientIdInput.value=normalizeGoogleClientId(googleClientIdInput.value);},0));
   microsoftClientIdInput.addEventListener('change',()=>{config.microsoftClientId=microsoftClientIdInput.value.trim();writeSession(MICROSOFT_SESSION_KEY,null);saveConfig();});
   autoSyncInput.addEventListener('change',()=>{config.autoSync=autoSyncInput.checked;saveConfig();});
   activeProviderSelect.addEventListener('change',()=>{config.activeProvider=activeProviderSelect.value;saveConfig();});
@@ -375,7 +399,7 @@
     const button=event.target.closest('[data-cloud-action]');if(!button)return;
     const action=button.dataset.cloudAction;
     try{
-      if(action==='google-login'){setBusy(true,'正在開啟 Google 登入…');await getGoogleToken(true);setStatus('Google 帳戶連線完成。','ok');}
+      if(action==='google-login'){commitGoogleClientId();setBusy(true,`正在開啟 Google 登入（${maskGoogleClientId(config.googleClientId)}）…`);await getGoogleToken(true);setStatus('Google 帳戶連線完成。','ok');}
       if(action==='google-sync')await smartSync('google',true);
       if(action==='google-upload')await forceUpload('google');
       if(action==='google-download')await forceDownload('google');
