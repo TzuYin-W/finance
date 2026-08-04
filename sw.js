@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-v16-pokemon-theme';
+const CACHE='finance-tracker-v18-official-art';
 const ASSETS=['./','./index.html','./styles.css','./initial-data.js','./app.js','./cloud-sync.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
