@@ -17,19 +17,22 @@
     </aside>
     <section class="workspace">
       <header class="topbar">
-        <button id="menuBtn" class="icon-btn mobile-only" aria-label="開啟選單">☰</button>
-        <div><h1 id="pageTitle">現金花費</h1><div id="saveStatus" class="save-status">已載入</div></div>
-        <div class="toolbar">
-          <label class="search-box"><span>⌕</span><input id="globalSearch" placeholder="搜尋目前分頁" /></label>
-          <button id="cloudSyncButton" type="button">☁ 雲端同步</button>
+        <button id="menuBtn" class="icon-btn mobile-only" aria-label="開啟選單" aria-expanded="false">☰</button>
+        <h1 id="pageTitle">現金花費</h1>
+      </header>
+      <main id="main" tabindex="-1"></main>
+      <div id="globalControlHost" class="global-control-host" hidden>
+        <div id="saveStatus" class="save-status">已載入</div>
+        <div class="toolbar" id="settingsToolbar">
+          <button id="cloudSyncButton" type="button">☁ Google Drive</button>
           <button data-global-action="export">下載備份</button>
           <label class="button file-button">安全匯入<input id="importFile" type="file" accept="application/json" hidden /></label>
           <button id="restoreImportBtn" data-global-action="restore-import" hidden>復原匯入前</button>
           <button data-global-action="print">列印</button>
           <button class="danger-ghost" data-global-action="reset">還原空白範本</button>
         </div>
-      </header>
-      <main id="main" tabindex="-1"></main>
+        <label class="search-box" id="pageSearchBox"><span>⌕</span><input id="globalSearch" placeholder="搜尋目前分頁" /></label>
+      </div>
     </section>
   </div>
   <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>

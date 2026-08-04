@@ -47,6 +47,9 @@
   const confirmImportBtn = document.getElementById('confirmImportBtn');
   const restoreImportBtn = document.getElementById('restoreImportBtn');
   const resetButton = document.querySelector('[data-global-action="reset"]');
+  const globalControlHost = document.getElementById('globalControlHost');
+  const settingsToolbar = document.getElementById('settingsToolbar');
+  const pageSearchBox = document.getElementById('pageSearchBox');
   if(resetButton)resetButton.textContent=APP_CONFIG.resetLabel||'還原原始 Excel';
   let saveTimer;
 
@@ -428,23 +431,41 @@
     </section>`;
   }
 
+  function stashGlobalControls(){
+    if(!globalControlHost)return;
+    if(saveStatus&&saveStatus.parentElement!==globalControlHost)globalControlHost.appendChild(saveStatus);
+    if(settingsToolbar&&settingsToolbar.parentElement!==globalControlHost)globalControlHost.appendChild(settingsToolbar);
+    if(pageSearchBox&&pageSearchBox.parentElement!==globalControlHost)globalControlHost.appendChild(pageSearchBox);
+  }
+  function placeGlobalControls(){
+    if(ui.tab==='settings'){
+      const slot=document.getElementById('settingsUtilitySlot');
+      if(slot){slot.appendChild(saveStatus);slot.appendChild(settingsToolbar);}
+    }else{
+      const slot=document.getElementById('pageSearchSlot');
+      if(slot)slot.appendChild(pageSearchBox);
+    }
+  }
   function renderNav(){
     nav.innerHTML=TABS.map(([id,label,icon])=>`<button class="nav-btn ${ui.tab===id?'active':''}" data-tab="${id}"><span>${icon}</span>${label}</button>`).join('');
   }
   function render(){
+    stashGlobalControls();
     applyTheme();
     if(restoreImportBtn)restoreImportBtn.hidden=!localStorage.getItem(IMPORT_ROLLBACK_KEY);
     renderNav();
     const tab=TABS.find(t=>t[0]===ui.tab);
     const year=currentYear();
-    pageTitle.textContent=ui.tab==='settings'?'設定':`${year}｜${tab[1]}`;
+    pageTitle.textContent=ui.tab==='settings'?'設定':`${year}${tab[1]}`;
     document.title=`${year} 財務追蹤`;
     const brandYear=document.getElementById('brandYear');if(brandYear)brandYear.textContent=`目前年度：${year}`;
     searchInput.value=ui.search[ui.tab]||'';
     searchInput.disabled=ui.tab==='settings';
-    searchInput.placeholder=ui.tab==='settings'?'設定頁不需搜尋':'搜尋目前分頁';
+    searchInput.placeholder='搜尋目前分頁';
     const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,taxInvest:renderTaxInvest,lunch:renderLunch,settings:renderSettings};
-    main.innerHTML=renderers[ui.tab]();
+    const content=renderers[ui.tab]();
+    main.innerHTML=ui.tab==='settings'?content:`<section class="page-search-panel no-print"><div id="pageSearchSlot"></div></section>${content}`;
+    placeGlobalControls();
     location.hash=ui.tab;
   }
 
@@ -480,8 +501,8 @@
       </section>
       <section class="card no-print">
         <div class="section-head"><div><h2>固定現金項目</h2><p>固定項目跨年度共用；「帶入」會填入下方 ${y} 年新增欄。</p></div><button data-action="add-cash-template">新增固定項目</button></div>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th>月報處理</th><th></th></tr></thead><tbody>
-          ${state.cash.templates.length?state.cash.templates.map((t,i)=>`<tr><td>${input(`cash.templates.${i}.category`,t.category)}</td><td>${input(`cash.templates.${i}.description`,t.description)}</td><td>${input(`cash.templates.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.templates.${i}.account`,t.account,accountOpts)}</td><td>${select(`cash.templates.${i}.reportMode`,t.reportMode,[['auto','依正負號'],['neutral','不列入月報']])}</td><td class="nowrap"><button class="small primary" data-action="use-cash-template" data-index="${i}">帶入</button> <button class="small" data-action="copy-cash-template" data-index="${i}">複製</button> <button class="small danger" data-action="delete" data-array="cash.templates" data-index="${i}">刪除</button></td></tr>`).join(''):empty(6,'尚未建立固定現金項目')}
+        <div class="table-wrap cash-template-wrap"><table class="data-table cash-template-table"><thead><tr><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th>月報處理</th><th>操作</th></tr></thead><tbody>
+          ${state.cash.templates.length?state.cash.templates.map((t,i)=>`<tr><td>${input(`cash.templates.${i}.category`,t.category)}</td><td>${input(`cash.templates.${i}.description`,t.description)}</td><td>${input(`cash.templates.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.templates.${i}.account`,t.account,accountOpts)}</td><td>${select(`cash.templates.${i}.reportMode`,t.reportMode,[['auto','依正負號'],['neutral','不列入月報']])}</td><td class="cash-template-actions"><div><button class="small primary" data-action="use-cash-template" data-index="${i}">帶入</button><button class="small" data-action="copy-cash-template" data-index="${i}">複製</button><button class="small danger" data-action="delete" data-array="cash.templates" data-index="${i}">刪除</button></div></td></tr>`).join(''):empty(6,'尚未建立固定現金項目')}
         </tbody></table></div>
       </section>
       <section class="card no-print">
@@ -684,6 +705,7 @@
         <div class="formula-note">新增下一年度時，卡費銀行與家庭支出項目會沿用名稱但金額歸零；帳戶期初金額會優先承接前一年度的期末餘額。既有舊年度若沒有期初資料，預設為 0，可在「現金花費」頁修正。</div>
       </section>
       <section class="card"><div class="section-head"><div><h2>記帳表顏色</h2><p>顏色設定會儲存在這台裝置，所有分頁立即套用。</p></div></div><div class="theme-grid">${THEMES.map(t=>`<button type="button" class="theme-option ${state.meta.theme===t.id?'active':''}" data-action="set-theme" data-theme="${t.id}" aria-pressed="${state.meta.theme===t.id}"><span class="theme-swatches">${t.colors.map(c=>`<i style="background:${c}"></i>`).join('')}</span><strong>${t.name}</strong><small>${state.meta.theme===t.id?'目前使用':'點選套用'}</small></button>`).join('')}</div></section>
+      <section class="card no-print settings-utility-card"><div class="section-head"><div><h2>App 工具與雲端</h2><p>Google Drive、備份、匯入與列印集中放在這裡，頁面頂部只保留目前分頁名稱。</p></div></div><div id="settingsUtilitySlot" class="settings-utility-slot"></div></section>
       <section class="card"><div class="section-head"><div><h2>可用年度</h2><p>以下年份由既有日期資料與已建立的年度帳本自動整理。</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年份</th><th class="numeric">現金交易</th><th class="numeric">信用卡交易</th><th class="numeric">貸款還款</th><th class="numeric">投資配息</th><th></th></tr></thead><tbody>${counts.map(x=>`<tr class="${x.year===y?'active-year-row':''}"><td><strong>${x.year}</strong></td><td class="numeric">${x.cash}</td><td class="numeric">${x.credit}</td><td class="numeric">${x.mortgage}</td><td class="numeric">${x.invest}</td><td><button class="small ${x.year===y?'primary':''}" data-action="switch-year" data-year="${x.year}">${x.year===y?'目前年度':'切換'}</button></td></tr>`).join('')}</tbody></table></div></section>
     </div>`;
   }
@@ -691,13 +713,28 @@
   const sidebar=document.querySelector('.sidebar');
   const sidebarBackdrop=document.getElementById('sidebarBackdrop');
   const drawerMedia=window.matchMedia('(max-width: 760px), (orientation: landscape) and (max-height: 600px)');
+  let sidebarScrollLock=null;
+  function lockPageForSidebar(){
+    if(sidebarScrollLock)return;
+    const body=document.body,scrollY=window.scrollY||document.documentElement.scrollTop||0;
+    sidebarScrollLock={scrollY,position:body.style.position,top:body.style.top,left:body.style.left,right:body.style.right,width:body.style.width,overflow:body.style.overflow};
+    body.style.position='fixed';body.style.top=`-${scrollY}px`;body.style.left='0';body.style.right='0';body.style.width='100%';body.style.overflow='hidden';
+  }
+  function unlockPageForSidebar(){
+    if(!sidebarScrollLock)return;
+    const body=document.body,lock=sidebarScrollLock;sidebarScrollLock=null;
+    body.style.position=lock.position;body.style.top=lock.top;body.style.left=lock.left;body.style.right=lock.right;body.style.width=lock.width;body.style.overflow=lock.overflow;
+    window.scrollTo(0,lock.scrollY);
+  }
   function setSidebarOpen(open){
     const shouldOpen=Boolean(open&&drawerMedia.matches);
     sidebar.classList.toggle('open',shouldOpen);
     sidebarBackdrop?.classList.toggle('open',shouldOpen);
     sidebarBackdrop?.setAttribute('aria-hidden',String(!shouldOpen));
     document.body.classList.toggle('sidebar-open',shouldOpen);
+    document.documentElement.classList.toggle('sidebar-open',shouldOpen);
     document.getElementById('menuBtn')?.setAttribute('aria-expanded',String(shouldOpen));
+    if(shouldOpen)lockPageForSidebar();else unlockPageForSidebar();
   }
   function toggleSidebar(){setSidebarOpen(!sidebar.classList.contains('open'));}
   nav.addEventListener('click',e=>{
@@ -713,6 +750,16 @@
     const t=e.touches[0];
     sidebarGesture={x:t.clientX,y:t.clientY,open:sidebar.classList.contains('open'),fromLeftEdge:t.clientX<=30};
   },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!drawerMedia.matches||!sidebarGesture||e.touches.length!==1)return;
+    const t=e.touches[0],dx=t.clientX-sidebarGesture.x,dy=t.clientY-sidebarGesture.y;
+    const targetInSidebar=e.target instanceof Element&&Boolean(e.target.closest('.sidebar'));
+    if(sidebar.classList.contains('open')){
+      if(!targetInSidebar||Math.abs(dx)>Math.abs(dy))e.preventDefault();
+    }else if(sidebarGesture.fromLeftEdge&&Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)){
+      e.preventDefault();
+    }
+  },{passive:false});
   document.addEventListener('touchend',e=>{
     if(!sidebarGesture||!drawerMedia.matches||e.changedTouches.length!==1){sidebarGesture=null;return;}
     const t=e.changedTouches[0],dx=t.clientX-sidebarGesture.x,dy=t.clientY-sidebarGesture.y;
@@ -816,7 +863,7 @@
     scheduleSave(); render();
   });
 
-  document.querySelector('.toolbar').addEventListener('click',e=>{
+  settingsToolbar.addEventListener('click',e=>{
     const b=e.target.closest('[data-global-action]'); if(!b)return;
     if(b.dataset.globalAction==='export'){
       downloadJson(state,`財務追蹤_全年度備份_${today()}.json`);toast('備份已下載');
