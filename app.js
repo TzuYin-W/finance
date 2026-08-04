@@ -7,16 +7,17 @@
   const CLOUD_ROLLBACK_KEY = `${STORAGE_KEY}-pre-cloud-sync-backup`;
   const TABS = [
     ['cash','現金花費','💵'],['credit','信用卡記錄','💳'],['cardFees','卡費記錄','🧾'],
-    ['home','家的支出','🏠'],['installments','分期','◫'],['mortgage','房貸','🏦'],
+    ['home','家的支出','🏠'],['installments','分期','◫'],['mortgage','貸款','🏦'],
     ['taxInvest','稅費、投資','📈'],['lunch','午餐花費','🥗'],['settings','設定','⚙️']
   ];
-  const CURRENT_SCHEMA = 5;
+  const CURRENT_SCHEMA = 6;
   const THEMES = [
     {id:'olive',name:'橄欖綠色調',colors:['#7b963f','#eaf2d7','#f5f7f4']},
     {id:'pink',name:'粉色調',colors:['#c97891','#f9e7ed','#fff7fa']},
     {id:'charcoal',name:'黑灰色調',colors:['#4a4f55','#e8eaed','#f1f2f3']},
     {id:'cream',name:'奶油色調',colors:['#b99a63','#f5ead6','#fbf7ef']},
-    {id:'white',name:'全白色調',colors:['#5f6b74','#f2f4f5','#ffffff']}
+    {id:'white',name:'全白色調',colors:['#5f6b74','#f2f4f5','#ffffff']},
+    {id:'pikmin',name:'皮克敏風格',colors:['#34d27a','#fff6dc','#d9e4ea']}
   ];
   const ROW_COLORS = [
     {id:'',name:'無'},
@@ -114,6 +115,14 @@
     s.mortgage = s.mortgage || {accounts:[],payments:[]};
     s.mortgage.accounts = Array.isArray(s.mortgage.accounts) ? s.mortgage.accounts : [];
     s.mortgage.payments = Array.isArray(s.mortgage.payments) ? s.mortgage.payments : [];
+    s.mortgage.accounts.forEach(a=>{
+      a.loanType = String(a.loanType||'').trim();
+      a.note = String(a.note||'');
+    });
+    s.mortgage.payments.forEach(x=>{
+      const acc=s.mortgage.accounts.find(a=>a.name===x.account);
+      x.loanType = String(x.loanType || acc?.loanType || '').trim();
+    });
     s.taxesInvestments = s.taxesInvestments || {taxes:[],investments:[]};
     s.taxesInvestments.taxes = Array.isArray(s.taxesInvestments.taxes) ? s.taxesInvestments.taxes : [];
     s.taxesInvestments.investments = Array.isArray(s.taxesInvestments.investments) ? s.taxesInvestments.investments : [];
@@ -236,7 +245,7 @@
       cardFees:`${cardFeeBooks.length} 個年度／${sum(cardFeeBooks,b=>(b.banks||[]).length)} 個卡費項目`,
       home:`${homeBooks.length} 個年度／${sum(homeBooks,b=>(b.items||[]).length)} 個支出項目`,
       installments:`${(s.installments||[]).length} 筆進行中／${(s.installmentHistory||[]).length} 筆歷史`,
-      mortgage:`${(s.mortgage?.accounts||[]).length} 組房貸／${(s.mortgage?.payments||[]).length} 筆還款`,
+      mortgage:`${(s.mortgage?.accounts||[]).length} 組貸款／${(s.mortgage?.payments||[]).length} 筆還款`,
       taxInvest:`${(s.taxesInvestments?.taxes||[]).length} 筆稅費／${(s.taxesInvestments?.investments||[]).length} 項投資／${investmentTransactions} 筆投資紀錄`,
       lunch:`${(s.lunch?.products||[]).length} 個品項／${(s.lunch?.rows||[]).length} 筆紀錄`
     };
@@ -249,7 +258,7 @@
   function showImportPreview(){
     if(!pendingImport||!importDialog||!importPreview)return;
     const p=pendingImport,v=p.validation,cur=backupSummary(state),inc=backupSummary(p.normalized);
-    const rows=[['現金花費','cash'],['信用卡記錄','credit'],['卡費記錄','cardFees'],['家的支出','home'],['分期','installments'],['房貸','mortgage'],['稅費、投資','taxInvest'],['午餐花費','lunch']];
+    const rows=[['現金花費','cash'],['信用卡記錄','credit'],['卡費記錄','cardFees'],['家的支出','home'],['分期','installments'],['貸款','mortgage'],['稅費、投資','taxInvest'],['午餐花費','lunch']];
     const sourceVersion=v.sourceSchema===null?'未標示':String(v.sourceSchema);
     let statusClass='ok',statusText=`版本相容：可匯入至目前版本 ${CURRENT_SCHEMA}。`;
     if(v.sourceSchema===null){statusClass='warn';statusText=`舊版備份未標示版本，將先轉換為目前資料格式 ${CURRENT_SCHEMA}。`; }
@@ -626,10 +635,11 @@
     const yearPayments=state.mortgage.payments.filter(x=>yearMatch(x.date,y));
     const p=paged(filteredDataRows(state.mortgage.payments,q,'mortgage').filter(({item})=>yearMatch(item.date,y)),'mortgage',70);
     const accounts=state.mortgage.accounts.map(a=>a.name);
-    return `<div class="page-stack"><section class="kpis"><div class="kpi accent"><span>房貸總額</span><strong>${money(sum(stats,x=>x.a.principal))}</strong></div><div class="kpi"><span>${y} 年還款</span><strong>${money(sum(yearPayments,x=>x.amount))}</strong></div><div class="kpi negative"><span>目前總餘額</span><strong>${money(sum(stats,x=>x.balance))}</strong></div><div class="kpi"><span>${y} 年還款筆數</span><strong>${plain(yearPayments.length)}</strong></div></section>
-      <section class="card"><div class="section-head"><div><h2>房貸摘要</h2><p>餘額使用所有年度還款計算；下方明細只顯示 ${y} 年。</p></div><button data-action="add-mortgage-account">新增帳戶</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>帳戶</th><th class="numeric">房貸總額</th><th class="numeric">歷年總還款</th><th class="numeric">目前餘額</th><th>備註</th><th></th></tr></thead><tbody>${stats.map(({a,i,paid,balance})=>`<tr><td>${input(`mortgage.accounts.${i}.name`,a.name)}</td><td>${input(`mortgage.accounts.${i}.principal`,a.principal,'number')}</td><td class="numeric computed">${money(paid)}</td><td class="numeric computed">${money(balance)}</td><td>${input(`mortgage.accounts.${i}.note`,a.note)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.accounts" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div></section>
-      <section class="card no-print"><h2>新增 ${y} 年還款</h2><form class="form-grid" data-form="mortgage"><div class="field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div><div class="field"><label>科目</label><input name="category" value="房貸還款"></div><div class="field wide"><label>描述</label><input name="description"></div><div class="field"><label>金額</label><input name="amount" type="number" step="any" required></div><div class="field"><label>帳戶</label><select name="account">${accounts.map(a=>`<option>${esc(a)}</option>`).join('')}</select></div><button class="primary">新增還款</button></form></section>
-      <section class="card"><div class="section-head"><div><h2>${y} 年還款記錄</h2></div>${dateFilterBar('mortgage')}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th></th></tr></thead><tbody>${p.rows.length?p.rows.map(({item:x,index:i})=>`<tr><td>${input(`mortgage.payments.${i}.date`,x.date,'date')}</td><td>${input(`mortgage.payments.${i}.category`,x.category)}</td><td>${input(`mortgage.payments.${i}.description`,x.description)}</td><td>${input(`mortgage.payments.${i}.amount`,x.amount,'number')}</td><td>${select(`mortgage.payments.${i}.account`,x.account,accounts)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.payments" data-index="${i}">刪除</button></td></tr>`).join(''):empty(6,`${y} 年目前沒有還款紀錄`)}</tbody></table></div>${pager('mortgage',p)}</section>
+    const loanTypes=[...new Set(state.mortgage.accounts.map(a=>String(a.loanType||'').trim()).concat(state.mortgage.payments.map(x=>String(x.loanType||'').trim())).filter(Boolean))];
+    return `<div class="page-stack"><section class="kpis"><div class="kpi accent"><span>貸款總額</span><strong>${money(sum(stats,x=>x.a.principal))}</strong></div><div class="kpi"><span>${y} 年還款</span><strong>${money(sum(yearPayments,x=>x.amount))}</strong></div><div class="kpi negative"><span>目前總餘額</span><strong>${money(sum(stats,x=>x.balance))}</strong></div><div class="kpi"><span>${y} 年還款筆數</span><strong>${plain(yearPayments.length)}</strong></div></section>
+      <section class="card"><div class="section-head"><div><h2>貸款摘要</h2><p>餘額使用所有年度還款計算；下方明細只顯示 ${y} 年。可手動輸入貸款類型，例如房貸、信貸、學貸、車貸。</p></div><button data-action="add-mortgage-account">新增帳戶</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>帳戶</th><th>貸款類型</th><th class="numeric">貸款總額</th><th class="numeric">歷年總還款</th><th class="numeric">目前餘額</th><th>備註</th><th></th></tr></thead><tbody>${stats.map(({a,i,paid,balance})=>`<tr><td>${input(`mortgage.accounts.${i}.name`,a.name)}</td><td>${input(`mortgage.accounts.${i}.loanType`,a.loanType)}</td><td>${input(`mortgage.accounts.${i}.principal`,a.principal,'number')}</td><td class="numeric computed">${money(paid)}</td><td class="numeric computed">${money(balance)}</td><td>${input(`mortgage.accounts.${i}.note`,a.note)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.accounts" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div></section>
+      <section class="card no-print"><h2>新增 ${y} 年還款</h2><form class="form-grid" data-form="mortgage"><div class="field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div><div class="field"><label>科目</label><input name="category" value="貸款還款"></div><div class="field wide"><label>描述</label><input name="description"></div><div class="field"><label>金額</label><input name="amount" type="number" step="any" required></div><div class="field"><label>帳戶</label><select name="account">${accounts.map(a=>`<option>${esc(a)}</option>`).join('')}</select></div><div class="field"><label>貸款類型</label><input name="loanType" list="loanTypeOptions" placeholder="例如：房貸、信貸"></div><datalist id="loanTypeOptions">${loanTypes.map(t=>`<option value="${esc(t)}"></option>`).join('')}</datalist><button class="primary">新增還款</button></form></section>
+      <section class="card"><div class="section-head"><div><h2>${y} 年還款記錄</h2></div>${dateFilterBar('mortgage')}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th>貸款類型</th><th></th></tr></thead><tbody>${p.rows.length?p.rows.map(({item:x,index:i})=>`<tr><td>${input(`mortgage.payments.${i}.date`,x.date,'date')}</td><td>${input(`mortgage.payments.${i}.category`,x.category)}</td><td>${input(`mortgage.payments.${i}.description`,x.description)}</td><td>${input(`mortgage.payments.${i}.amount`,x.amount,'number')}</td><td>${select(`mortgage.payments.${i}.account`,x.account,accounts)}</td><td>${input(`mortgage.payments.${i}.loanType`,x.loanType)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.payments" data-index="${i}">刪除</button></td></tr>`).join(''):empty(7,`${y} 年目前沒有還款紀錄`)}</tbody></table></div>${pager('mortgage',p)}</section>
     </div>`;
   }
 
@@ -667,13 +677,13 @@
     const y=currentYear(),years=availableYears();
     const counts=years.map(year=>({year,cash:state.cash.transactions.filter(x=>yearMatch(x.date,year)).length,credit:sum(state.creditCards,c=>c.transactions.filter(x=>yearMatch(x.date,year)).length),mortgage:state.mortgage.payments.filter(x=>yearMatch(x.date,year)).length,invest:sum(state.taxesInvestments.investments,a=>a.transactions.filter(x=>yearMatch(x.date,year)).length)}));
     return `<div class="page-stack">
-      <section class="card settings-hero"><div><span class="settings-kicker">目前記帳年度</span><strong>${y}</strong><p>切換後，現金、信用卡、卡費、家庭支出、分期、房貸、稅費投資與午餐頁面都會顯示該年度；含年份的標題也會同步更新。</p></div></section>
+      <section class="card settings-hero"><div><span class="settings-kicker">目前記帳年度</span><strong>${y}</strong><p>切換後，現金、信用卡、卡費、家庭支出、分期、貸款、稅費投資與午餐頁面都會顯示該年度；含年份的標題也會同步更新。</p></div></section>
       <section class="card"><div class="section-head"><div><h2>年度設定</h2><p>年份只控制目前檢視與新增資料的預設日期，不會刪除其他年度紀錄。</p></div><button data-action="add-year">新增年份</button></div>
         <div class="form-grid settings-form"><div class="field wide"><label>當前記帳表年份</label><select data-setting-year>${years.map(x=>`<option value="${x}" ${x===y?'selected':''}>${x} 年</option>`).join('')}</select></div></div>
         <div class="formula-note">新增下一年度時，卡費銀行與家庭支出項目會沿用名稱但金額歸零；帳戶期初金額會優先承接前一年度的期末餘額。既有舊年度若沒有期初資料，預設為 0，可在「現金花費」頁修正。</div>
       </section>
       <section class="card"><div class="section-head"><div><h2>記帳表顏色</h2><p>顏色設定會儲存在這台裝置，所有分頁立即套用。</p></div></div><div class="theme-grid">${THEMES.map(t=>`<button type="button" class="theme-option ${state.meta.theme===t.id?'active':''}" data-action="set-theme" data-theme="${t.id}" aria-pressed="${state.meta.theme===t.id}"><span class="theme-swatches">${t.colors.map(c=>`<i style="background:${c}"></i>`).join('')}</span><strong>${t.name}</strong><small>${state.meta.theme===t.id?'目前使用':'點選套用'}</small></button>`).join('')}</div></section>
-      <section class="card"><div class="section-head"><div><h2>可用年度</h2><p>以下年份由既有日期資料與已建立的年度帳本自動整理。</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年份</th><th class="numeric">現金交易</th><th class="numeric">信用卡交易</th><th class="numeric">房貸還款</th><th class="numeric">投資配息</th><th></th></tr></thead><tbody>${counts.map(x=>`<tr class="${x.year===y?'active-year-row':''}"><td><strong>${x.year}</strong></td><td class="numeric">${x.cash}</td><td class="numeric">${x.credit}</td><td class="numeric">${x.mortgage}</td><td class="numeric">${x.invest}</td><td><button class="small ${x.year===y?'primary':''}" data-action="switch-year" data-year="${x.year}">${x.year===y?'目前年度':'切換'}</button></td></tr>`).join('')}</tbody></table></div></section>
+      <section class="card"><div class="section-head"><div><h2>可用年度</h2><p>以下年份由既有日期資料與已建立的年度帳本自動整理。</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年份</th><th class="numeric">現金交易</th><th class="numeric">信用卡交易</th><th class="numeric">貸款還款</th><th class="numeric">投資配息</th><th></th></tr></thead><tbody>${counts.map(x=>`<tr class="${x.year===y?'active-year-row':''}"><td><strong>${x.year}</strong></td><td class="numeric">${x.cash}</td><td class="numeric">${x.credit}</td><td class="numeric">${x.mortgage}</td><td class="numeric">${x.invest}</td><td><button class="small ${x.year===y?'primary':''}" data-action="switch-year" data-year="${x.year}">${x.year===y?'目前年度':'切換'}</button></td></tr>`).join('')}</tbody></table></div></section>
     </div>`;
   }
 
@@ -750,7 +760,7 @@
     }
     if(form.dataset.form==='cash') state.cash.transactions.push({id:uid('cash'),date:fd.date,category:fd.category,description:fd.description,amount:n(fd.amount),account:fd.account,monthlyFlow:fd.reportMode==='neutral'?'neutral':'auto',reportMonth:Number(fd.date.slice(5,7)),rowColor:validRowColor(fd.rowColor)});
     if(form.dataset.form==='credit') state.creditCards[ui.activeCard].transactions.push({id:uid('cc'),date:fd.date,description:fd.description,amount:n(fd.amount),store:fd.store,card:fd.card,fee:n(fd.fee),paid:false,rowColor:validRowColor(fd.rowColor)});
-    if(form.dataset.form==='mortgage') state.mortgage.payments.push({id:uid('mort'),date:fd.date,category:fd.category,description:fd.description,amount:n(fd.amount),account:fd.account});
+    if(form.dataset.form==='mortgage'){ const acc=state.mortgage.accounts.find(a=>a.name===fd.account); state.mortgage.payments.push({id:uid('mort'),date:fd.date,category:fd.category,description:fd.description,amount:n(fd.amount),account:fd.account,loanType:String(fd.loanType||acc?.loanType||'').trim()}); }
     scheduleSave(); toast('已新增'); render();
   });
   main.addEventListener('click',e=>{
@@ -792,7 +802,7 @@
     if(a==='add-home-history'){const year=prompt('年度');if(year)state.homeExpenses.history.unshift({year,months:Array(12).fill(0)});}
     if(a==='add-installment')state.installments.push({id:uid('inst'),year:currentYear(),title:'新分期',total:0,account:'',plans:[{label:'一期',amount:0,schedule:''}],note:''});
     if(a==='add-plan')state.installments[Number(b.dataset.index)].plans.push({label:'',amount:0,schedule:''});
-    if(a==='add-mortgage-account'){const name=prompt('房貸帳戶名稱');if(name)state.mortgage.accounts.push({id:uid('mortacc'),name,principal:0,note:''});}
+    if(a==='add-mortgage-account'){const name=prompt('貸款帳戶名稱');if(name)state.mortgage.accounts.push({id:uid('mortacc'),name,loanType:'',principal:0,note:''});}
     if(a==='add-tax')state.taxesInvestments.taxes.push({id:uid('tax'),year:String(currentYear()),houseTax:0,insurance:0,incomeTax:0,landTax:0});
     if(a==='add-asset'){const name=prompt('投資標的名稱');if(name)state.taxesInvestments.investments.push({id:uid('asset'),name,transactions:[]});}
     if(a==='add-invest-tx')state.taxesInvestments.investments[Number(b.dataset.index)].transactions.push({id:uid('inv'),date:defaultDateForYear(),amount:0});

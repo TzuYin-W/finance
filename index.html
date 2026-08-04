@@ -13,7 +13,7 @@
     <aside class="sidebar">
       <div class="brand"><div class="brand-mark">財</div><div><strong>財務追蹤</strong><small id="brandYear">目前年度：2026</small></div></div>
       <nav id="nav" aria-label="分頁"></nav>
-      <div class="privacy-note">資料預設保存在本機；啟用同步後，只會上傳到你授權的 Google Drive／OneDrive App 專屬空間。</div>
+      <div class="privacy-note">資料預設保存在本機；啟用同步後，只會上傳到你授權的 Google Drive App Data 專屬空間。</div>
     </aside>
     <section class="workspace">
       <header class="topbar">
@@ -46,14 +46,14 @@
   <div id="cloudSyncModal" class="modal-backdrop cloud-backdrop" aria-hidden="true">
     <section class="cloud-modal" role="dialog" aria-modal="true" aria-labelledby="cloudModalTitle">
       <div class="cloud-modal-head">
-        <div><span class="modal-kicker">選用功能</span><h2 id="cloudModalTitle">Google Drive／OneDrive 同步</h2><p>本機仍是主要資料來源；雲端保存一份 App 專屬 JSON，傳輸使用 HTTPS。</p></div>
+        <div><span class="modal-kicker">選用功能</span><h2 id="cloudModalTitle">Google Drive 同步</h2><p>本機仍是主要資料來源；雲端保存一份 App 專屬 JSON，傳輸使用 HTTPS。</p></div>
         <button id="cloudModalClose" class="icon-btn" type="button" aria-label="關閉">✕</button>
       </div>
       <div id="cloudEnvironmentNotice" class="cloud-notice"></div>
       <div class="cloud-sync-options">
         <label class="check-label"><input id="cloudAutoSync" type="checkbox"><span>本機儲存後自動同步</span></label>
         <label>自動同步目的地
-          <select id="cloudActiveProvider"><option value="">不啟用</option><option value="google">Google Drive</option><option value="onedrive">OneDrive</option></select>
+          <select id="cloudActiveProvider"><option value="">不啟用</option><option value="google">Google Drive</option></select>
         </label>
         <button id="restoreCloudButton" type="button" data-cloud-action="restore-cloud" hidden>復原雲端載入前</button>
       </div>
@@ -69,7 +69,7 @@
         </div>
       </div>
 
-      <div class="cloud-provider-grid">
+      <div class="cloud-provider-grid google-only">
         <article class="cloud-provider-card">
           <div class="provider-title"><span class="provider-mark">G</span><div><h3>Google Drive</h3><p>使用隱藏的 Drive App Data 專屬空間，不會讀取其他檔案。</p></div></div>
           <label class="field"><span>Google OAuth Client ID</span><input id="googleClientId" type="text" placeholder="xxxxxxxx.apps.googleusercontent.com" autocomplete="off"></label>
@@ -85,24 +85,8 @@
           <div class="cloud-meta">最後同步：<span id="googleLastSync">尚未同步</span></div>
           <details><summary>Google Cloud 設定步驟</summary><ol><li>建立 Google Cloud 專案並啟用 Google Drive API。</li><li>設定 OAuth consent screen；測試階段把自己的 Gmail 加入 Test users。</li><li>建立 OAuth Client ID，類型選 Web application。</li><li>把上方 origin 加入 Authorized JavaScript origins，貼回 Client ID。</li></ol></details>
         </article>
-
-        <article class="cloud-provider-card">
-          <div class="provider-title"><span class="provider-mark microsoft">M</span><div><h3>OneDrive</h3><p>使用 OneDrive Apps 專屬資料夾；目前以個人 Microsoft 帳戶為主要支援範圍。</p></div></div>
-          <label class="field"><span>Microsoft Application (client) ID</span><input id="microsoftClientId" type="text" placeholder="00000000-0000-0000-0000-000000000000" autocomplete="off"></label>
-          <div class="redirect-row"><span>SPA Redirect URI</span><code id="microsoftRedirectUri"></code><button type="button" class="small" data-cloud-action="copy-redirect">複製</button></div>
-          <div class="cloud-account" id="microsoftAccountStatus">尚未連線</div>
-          <div class="cloud-actions">
-            <button type="button" data-cloud-action="microsoft-login" data-provider="onedrive" data-needs-client data-requires-secure>連線 Microsoft</button>
-            <button type="button" class="primary" data-cloud-action="microsoft-sync" data-provider="onedrive" data-needs-client data-requires-secure>立即同步</button>
-            <button type="button" data-cloud-action="microsoft-upload" data-provider="onedrive" data-needs-client data-requires-secure>上傳覆蓋雲端</button>
-            <button type="button" data-cloud-action="microsoft-download" data-provider="onedrive" data-needs-client data-requires-secure>比較並載入雲端</button>
-            <button type="button" class="danger-ghost" data-cloud-action="microsoft-logout">中斷連線</button>
-          </div>
-          <div class="cloud-meta">最後同步：<span id="microsoftLastSync">尚未同步</span></div>
-          <details><summary>Microsoft Entra 設定步驟</summary><ol><li>建立 App registration，帳戶類型選可包含個人 Microsoft 帳戶。</li><li>新增 Single-page application 平台，貼上上方 Redirect URI。</li><li>新增 Microsoft Graph delegated permission：Files.ReadWrite.AppFolder。</li><li>貼回 Application (client) ID；不需要 Client Secret。</li></ol></details>
-        </article>
       </div>
-      <div class="cloud-footnote"><strong>衝突保護：</strong>App 以內容雜湊判斷變更。只有一端修改時才自動同步；本機與雲端都修改時會停止並要求選擇。OAuth Client ID 不是密碼，本 App 不會要求 Client Secret。同步檔未另做密碼加密，請替雲端帳戶啟用雙因素驗證。</div>
+      <div class="cloud-footnote"><strong>衝突保護：</strong>App 以內容雜湊判斷變更。只有一端修改時才自動同步；本機與 Google Drive 都修改時會停止並要求選擇。OAuth Client ID 不是密碼，本 App 不會要求 Client Secret。同步檔未另做密碼加密，請替 Google 帳戶啟用雙因素驗證。</div>
     </section>
   </div>
   <script>window.FINANCE_APP_CONFIG={storageKey:'finance-tracker-blank-template-v1',resetLabel:'還原空白範本',resetConfirm:'這會清除目前輸入的所有資料，還原成完全空白的範本。確定繼續？'};</script>
