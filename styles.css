@@ -1811,23 +1811,35 @@ button,input,select,textarea{font-size:calc(13px * var(--app-font-scale))}
   .cash-entry-form>button{grid-column:1/-1!important;width:100%!important}
   .cash-entry-form .cash-date-field{grid-column:span 6!important}
 
-  /* Cash filters: two fields per row. */
+  /* Cash / loan / tax / investment filters: two fields per row. */
   #cashTransactionList .cash-date-filter-bar,
   #cashTransactionList .cash-view-filter-bar,
   #mortgagePaymentList .mortgage-date-filter-bar,
-  #mortgagePaymentList .mortgage-view-filter-bar{
+  #mortgagePaymentList .mortgage-view-filter-bar,
+  .tax-view-filter-bar,
+  .investment-view-filter-bar{
     display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:9px!important
   }
   #cashTransactionList .filter-bar>strong,
-  #mortgagePaymentList .filter-bar>strong{grid-column:1/-1!important}
+  #mortgagePaymentList .filter-bar>strong,
+  .tax-view-filter-bar>strong,
+  .investment-view-filter-bar>strong{grid-column:1/-1!important}
   #cashTransactionList .filter-bar label,
-  #mortgagePaymentList .filter-bar label{display:grid!important;grid-template-columns:1fr!important;gap:3px!important;width:100%!important;min-width:0!important}
+  #mortgagePaymentList .filter-bar label,
+  .tax-view-filter-bar label,
+  .investment-view-filter-bar label{display:grid!important;grid-template-columns:1fr!important;gap:3px!important;width:100%!important;min-width:0!important;white-space:normal!important}
   #cashTransactionList .filter-bar button,
-  #mortgagePaymentList .filter-bar button{grid-column:1/-1!important;width:100%!important;min-height:36px!important}
+  #mortgagePaymentList .filter-bar button,
+  .tax-view-filter-bar button,
+  .investment-view-filter-bar button{grid-column:1/-1!important;width:100%!important;min-height:36px!important}
   #cashTransactionList .filter-bar input,
   #cashTransactionList .filter-bar select,
   #mortgagePaymentList .filter-bar input,
-  #mortgagePaymentList .filter-bar select{height:38px!important;min-height:38px!important;padding-top:6px!important;padding-bottom:6px!important}
+  #mortgagePaymentList .filter-bar select,
+  .tax-view-filter-bar input,
+  .tax-view-filter-bar select,
+  .investment-view-filter-bar input,
+  .investment-view-filter-bar select{height:38px!important;min-height:38px!important;padding-top:6px!important;padding-bottom:6px!important;width:100%!important;min-width:0!important;max-width:100%!important}
 
   /* Mortgage tables fit portrait phones without horizontal scrolling. */
   .mortgage-summary-wrap,.mortgage-payments-wrap{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
