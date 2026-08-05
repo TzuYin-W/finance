@@ -509,8 +509,8 @@
       </section>
       <section class="card no-print">
         <div class="section-head"><div><h2>新增 ${y} 年現金交易</h2><p>金額正負號決定收支；轉存、卡費等不應重複列入月報的項目選「不列入月報」。</p></div></div>
-        <form class="form-grid" data-form="cash">
-          <div class="field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div>
+        <form class="form-grid cash-entry-form" data-form="cash">
+          <div class="field cash-date-field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div>
           <div class="field"><label>科目</label><input name="category" required></div>
           <div class="field wide"><label>描述</label><input name="description"></div>
           <div class="field"><label>金額（正支出／負收入）</label><input name="amount" type="number" step="any" required></div>

@@ -966,3 +966,199 @@ html.sidebar-open,body.sidebar-open{overscroll-behavior:none}
     box-sizing:border-box !important;
   }
 }
+
+
+/* v27: definitive mobile cash-entry form repair */
+form.cash-entry-form{
+  min-width:0;
+  max-width:100%;
+}
+form.cash-entry-form,
+form.cash-entry-form *{
+  box-sizing:border-box;
+}
+
+/* Catch phones in both portrait and landscape, including wide landscape viewports. */
+@media (max-width:980px), (hover:none) and (pointer:coarse){
+  form.cash-entry-form{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    grid-template-columns:none !important;
+    width:100% !important;
+    inline-size:100% !important;
+    max-width:100% !important;
+    max-inline-size:100% !important;
+    min-width:0 !important;
+    min-inline-size:0 !important;
+    gap:10px !important;
+    overflow:hidden !important;
+  }
+  form.cash-entry-form > .field,
+  form.cash-entry-form > .field.wide,
+  form.cash-entry-form > button{
+    display:flex !important;
+    flex-direction:column !important;
+    flex:0 0 auto !important;
+    grid-column:auto !important;
+    width:100% !important;
+    inline-size:100% !important;
+    max-width:100% !important;
+    max-inline-size:100% !important;
+    min-width:0 !important;
+    min-inline-size:0 !important;
+    overflow:hidden !important;
+  }
+  form.cash-entry-form > .field > label{
+    flex:0 0 auto;
+    width:100%;
+    max-width:100%;
+  }
+  form.cash-entry-form input,
+  form.cash-entry-form select,
+  form.cash-entry-form textarea,
+  form.cash-entry-form .row-color-select{
+    display:block !important;
+    flex:0 0 auto !important;
+    width:100% !important;
+    inline-size:100% !important;
+    max-width:100% !important;
+    max-inline-size:100% !important;
+    min-width:0 !important;
+    min-inline-size:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  form.cash-entry-form .cash-date-field,
+  form.cash-entry-form .cash-date-field input[type="date"]{
+    width:100% !important;
+    inline-size:100% !important;
+    max-width:100% !important;
+    max-inline-size:100% !important;
+    min-width:0 !important;
+    min-inline-size:0 !important;
+  }
+  form.cash-entry-form .cash-date-field input[type="date"]{
+    height:40px;
+    font-size:16px;
+    line-height:1.2;
+    overflow:hidden !important;
+  }
+  form.cash-entry-form input[type="date"]::-webkit-date-and-time-value{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    text-align:left;
+  }
+  form.cash-entry-form input[type="date"]::-webkit-datetime-edit{
+    min-width:0;
+    max-width:100%;
+    overflow:hidden;
+  }
+  form.cash-entry-form input[type="date"]::-webkit-calendar-picker-indicator{
+    flex:0 0 auto;
+    margin-left:auto;
+  }
+}
+
+
+/* v28: iOS/PWA drawer safe area and independent scrolling */
+@media (max-width:760px), (orientation:landscape) and (max-height:600px), (hover:none) and (pointer:coarse){
+  html,body{min-height:100%;}
+
+  .sidebar-backdrop{
+    z-index:480 !important;
+    overscroll-behavior:none !important;
+    touch-action:none !important;
+  }
+
+  .sidebar,
+  :root[data-theme="pikmin"] .sidebar,
+  :root[data-theme="pokemon"] .sidebar{
+    position:fixed !important;
+    z-index:500 !important;
+    inset-block-start:0 !important;
+    inset-block-end:auto !important;
+    left:-290px !important;
+    width:min(82vw,280px) !important;
+    min-width:0 !important;
+    height:100vh !important;
+    height:100dvh !important;
+    max-height:100dvh !important;
+    padding-top:calc(14px + env(safe-area-inset-top,0px)) !important;
+    padding-right:14px !important;
+    padding-bottom:calc(12px + env(safe-area-inset-bottom,0px)) !important;
+    padding-left:14px !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    flex-direction:column !important;
+    overflow:hidden !important;
+    overscroll-behavior:contain !important;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y !important;
+    transition:left .2s ease !important;
+  }
+
+  .sidebar.open,
+  :root[data-theme="pikmin"] .sidebar.open,
+  :root[data-theme="pokemon"] .sidebar.open{
+    left:0 !important;
+  }
+
+  .sidebar .brand{
+    flex:0 0 auto !important;
+    min-height:0 !important;
+    padding:0 8px 14px !important;
+    margin:0 !important;
+  }
+
+  .sidebar nav{
+    display:flex !important;
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+    overscroll-behavior:contain !important;
+    -webkit-overflow-scrolling:touch !important;
+    touch-action:pan-y !important;
+    padding:0 0 calc(18px + env(safe-area-inset-bottom,0px)) !important;
+    scroll-padding-top:8px;
+    scroll-padding-bottom:24px;
+  }
+
+  .sidebar .nav-btn{
+    flex:0 0 auto !important;
+    min-height:44px;
+  }
+
+  .sidebar .privacy-note{display:none !important;}
+
+  html.sidebar-open,
+  body.sidebar-open{
+    overflow:hidden !important;
+    overscroll-behavior:none !important;
+    touch-action:none;
+  }
+
+  body.sidebar-open .sidebar,
+  body.sidebar-open .sidebar nav{
+    touch-action:pan-y !important;
+  }
+}
+
+@media (orientation:landscape) and (max-height:600px){
+  .sidebar,
+  :root[data-theme="pikmin"] .sidebar,
+  :root[data-theme="pokemon"] .sidebar{
+    width:min(56vw,280px) !important;
+    padding-top:calc(8px + env(safe-area-inset-top,0px)) !important;
+    padding-bottom:calc(6px + env(safe-area-inset-bottom,0px)) !important;
+  }
+  .sidebar .brand{padding-bottom:8px !important;}
+  .sidebar .brand-mark{width:34px;height:34px;border-radius:10px;font-size:17px;}
+  .sidebar .brand strong{font-size:15px;}
+  .sidebar .brand small{font-size:11px;}
+  .sidebar nav{gap:3px !important;}
+  .sidebar .nav-btn{min-height:38px;padding:8px 10px !important;font-size:14px;}
+}
