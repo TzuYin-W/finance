@@ -2555,6 +2555,21 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   margin-right:auto!important;
 }
 
+/* v50: simplify mobile credit header labels; prevent fee header wrap. */
+.credit-template-table.data-table thead th,
+.credit-transactions-table.data-table thead th{
+  white-space:nowrap!important;
+}
+.credit-transactions-table.data-table thead th .desktop-label,
+.credit-transactions-table.data-table thead th .mobile-label{
+  display:none!important;
+}
+.credit-template-table.data-table thead th:nth-child(5),
+.credit-transactions-table.data-table thead th.fee-heading-col,
+.credit-transactions-table.data-table thead th.unpaid-heading-col{
+  white-space:nowrap!important;
+}
+
 /* v49: credit section titles left; table column headings centered. */
 .credit-template-table.data-table thead th,
 .credit-transactions-table.data-table thead th,
