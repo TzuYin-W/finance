@@ -360,7 +360,7 @@
   }
   function dateFilterBar(key){
     const f=ui.dateFilters[key]||{};
-    return `<div class="filter-bar no-print"><strong>日期篩選</strong><label>起日<input type="date" data-filter-key="${esc(key)}" data-filter-side="from" value="${esc(f.from||'')}"></label><label>迄日<input type="date" data-filter-key="${esc(key)}" data-filter-side="to" value="${esc(f.to||'')}"></label><button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button></div>`;
+    return `<div class="filter-bar date-filter-bar ${esc(key)}-date-filter-bar no-print"><strong>日期篩選</strong><label>起日<input type="date" data-filter-key="${esc(key)}" data-filter-side="from" value="${esc(f.from||'')}"></label><label>迄日<input type="date" data-filter-key="${esc(key)}" data-filter-side="to" value="${esc(f.to||'')}"></label><button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button></div>`;
   }
 
   function uniqueStrings(values){
@@ -374,7 +374,7 @@
     return `<label>${esc(label)}<select data-view-filter-page="${esc(page)}" data-view-filter-field="${esc(field)}">${options.map(o=>{const pair=Array.isArray(o)?o:[o,o];return `<option value="${esc(pair[0])}" ${String(pair[0])===String(value)?'selected':''}>${esc(pair[1])}</option>`;}).join('')}</select></label>`;
   }
   function viewFilterBar(page,controls){
-    return `<div class="filter-bar view-filter-bar no-print"><strong>顯示篩選</strong>${controls}<button class="small" data-action="clear-view-filters" data-page="${esc(page)}">清除篩選</button></div>`;
+    return `<div class="filter-bar view-filter-bar ${esc(page)}-view-filter-bar no-print"><strong>顯示篩選</strong>${controls}<button class="small" data-action="clear-view-filters" data-page="${esc(page)}">清除篩選</button></div>`;
   }
 
   function fillForm(formName,values){
@@ -548,13 +548,7 @@
       .filter(({item})=>!vf.description||String(item.description||'')===vf.description)
       .filter(({item})=>!vf.account||String(item.account||'')===vf.account)
       .filter(({item})=>vf.rowColor==='__none__'?!validRowColor(item.rowColor):(!vf.rowColor||validRowColor(item.rowColor)===vf.rowColor))
-      .sort((a,b)=>{
-        if(ui.revealCashId){
-          if(a.item.id===ui.revealCashId&&b.item.id!==ui.revealCashId)return -1;
-          if(b.item.id===ui.revealCashId&&a.item.id!==ui.revealCashId)return 1;
-        }
-        return String(b.item.date||'').localeCompare(String(a.item.date||''))||b.index-a.index;
-      });
+      .sort((a,b)=>String(a.item.date||'').localeCompare(String(b.item.date||''))||a.index-b.index);
   }
   function updateCashSelectionControls(){
     const count=ui.cashSelection.size;
@@ -602,8 +596,8 @@
       </section>
       <section class="card">
         <div class="section-head"><div><h2>${y} 年帳戶摘要</h2><p>餘額＝本年度期初現金－本年度交易金額。正值為支出、負值為收入。</p></div><button data-action="add-account">新增帳戶</button></div>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>帳戶</th><th class="numeric">${y} 年期初現金</th><th class="numeric">本年交易總和</th><th class="numeric">本年期末餘額</th><th>納入台幣總額</th><th>備註</th><th></th></tr></thead><tbody>
-          ${stats.map(({a,i,opening,movement,balance})=>`<tr><td>${input(`cash.accounts.${i}.name`,a.name)}</td><td>${input(`cash.accounts.${i}.initialByYear.${y}`,opening,'number')}</td><td class="numeric computed">${money(movement,2)}</td><td class="numeric computed">${money(balance,2)}</td><td>${select(`cash.accounts.${i}.includeInTwdTotal`,String(a.includeInTwdTotal),[['true','是'],['false','否']])}</td><td>${input(`cash.accounts.${i}.note`,a.note)}</td><td><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}">刪除</button></td></tr>`).join('')}
+        <div class="table-wrap account-summary-wrap"><table class="data-table account-summary-table"><thead><tr><th>帳戶</th><th class="numeric">${y} 年期初現金</th><th class="numeric">本年交易總和</th><th class="numeric">本年期末餘額</th><th>納入台幣總額</th><th>備註</th><th>操作</th></tr></thead><tbody>
+          ${stats.map(({a,i,opening,movement,balance})=>`<tr><td data-label="帳戶">${input(`cash.accounts.${i}.name`,a.name)}</td><td data-label="${y} 年期初現金">${input(`cash.accounts.${i}.initialByYear.${y}`,opening,'number')}</td><td data-label="本年交易總和" class="numeric computed">${money(movement,2)}</td><td data-label="本年期末餘額" class="numeric computed">${money(balance,2)}</td><td data-label="納入台幣總額">${select(`cash.accounts.${i}.includeInTwdTotal`,String(a.includeInTwdTotal),[['true','是'],['false','否']])}</td><td data-label="備註">${input(`cash.accounts.${i}.note`,a.note)}</td><td data-label="操作"><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}">刪除</button></td></tr>`).join('')}
         </tbody></table></div>
       </section>
       <section class="card no-print">
