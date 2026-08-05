@@ -2264,3 +2264,178 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
     height:auto!important;min-height:28px!important;padding:2px 2px!important;letter-spacing:-.15px!important
   }
 }
+
+
+/* v43: compact template leaf and content-width tax columns */
+.tax-total-short{display:none}
+
+/* 「帶入」在窄欄位仍保留葉子，但縮小並移到文字右緣。 */
+:root[data-theme="pikmin"] .cash-template-actions button.primary,
+:root[data-theme="pikmin"] .credit-template-actions button.primary{
+  padding-left:1px!important;padding-right:8px!important;overflow:visible!important
+}
+:root[data-theme="pikmin"] .cash-template-actions button.primary::after,
+:root[data-theme="pikmin"] .credit-template-actions button.primary::after{
+  width:7px!important;height:7px!important;right:0!important;opacity:.86!important;pointer-events:none!important
+}
+
+@media (orientation:portrait) and (max-width:760px){
+  /* 稅費：年度以兩個中文字、各稅費項目以五個中文字的原字級寬度配置。 */
+  .tax-table-wrap{overflow-x:hidden!important}
+  .tax-table{
+    width:max-content!important;min-width:0!important;max-width:100%!important;
+    table-layout:fixed!important;font-size:calc(13px * var(--app-font-scale))!important
+  }
+  .tax-table th,.tax-table td{
+    min-width:0!important;max-width:none!important;padding:5px 1px!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;
+    vertical-align:middle!important
+  }
+  .tax-table .tax-year-col{width:30px!important;min-width:30px!important;max-width:30px!important;text-align:center!important}
+  .tax-table .tax-item-col{width:67px!important;min-width:67px!important;max-width:67px!important;text-align:right!important}
+  .tax-table .tax-action-col{width:34px!important;min-width:34px!important;max-width:34px!important;text-align:center!important}
+  .tax-table input{
+    width:100%!important;min-width:0!important;max-width:100%!important;height:30px!important;min-height:30px!important;
+    padding:3px 1px!important;font-size:inherit!important;text-align:inherit!important;box-sizing:border-box!important
+  }
+  .tax-table .tax-year-col input{text-align:center!important}
+  .tax-table .tax-action-col button{width:100%!important;min-width:0!important;padding:4px 0!important;font-size:calc(10px * var(--app-font-scale))!important}
+  .tax-total-long{display:none!important}.tax-total-short{display:inline!important}
+
+  /* 手機的固定項目操作列再預留葉子空間，文字不被覆蓋。 */
+  :root[data-theme="pikmin"] .cash-template-actions button.primary,
+  :root[data-theme="pikmin"] .credit-template-actions button.primary{
+    font-size:calc(6.8px * var(--app-font-scale))!important;padding-left:0!important;padding-right:7px!important
+  }
+  :root[data-theme="pikmin"] .cash-template-actions button.primary::after,
+  :root[data-theme="pikmin"] .credit-template-actions button.primary::after{
+    width:6px!important;height:6px!important;right:0!important
+  }
+}
+
+
+/* v44: hard fix for compact tax year column and non-overlapping template leaf */
+.template-use-button{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  white-space:nowrap!important;
+  position:relative!important;
+}
+.template-use-button .template-use-label{display:inline-block!important;position:static!important;line-height:1!important}
+.template-use-button .template-use-leaf{display:none;flex:0 0 auto;width:7px;height:9px;border-radius:80% 0 80% 0;transform:rotate(-32deg);box-sizing:border-box}
+:root[data-theme="pikmin"] .template-use-button::after{content:none!important;display:none!important;background:none!important}
+:root[data-theme="pikmin"] .template-use-button{
+  padding-left:2px!important;
+  padding-right:2px!important;
+}
+:root[data-theme="pikmin"] .template-use-button .template-use-leaf{
+  display:inline-block!important;
+  background:#8bd25e;
+  border:1px solid #4f8c2b;
+}
+
+@media (orientation:portrait) and (max-width:760px){
+  .tax-table-wrap{
+    overflow-x:auto!important;
+    text-align:left!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  .tax-table{
+    display:inline-table!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    table-layout:fixed!important;
+    margin:0!important;
+  }
+  .tax-table col.tax-year-track{width:2.35em!important}
+  .tax-table col.tax-item-track{width:5.2em!important}
+  .tax-table col.tax-action-track{width:2.8em!important}
+  .tax-table .tax-year-col{
+    width:2.35em!important;
+    min-width:2.35em!important;
+    max-width:2.35em!important;
+    padding-left:1px!important;
+    padding-right:1px!important;
+  }
+  .tax-table .tax-item-col{
+    width:5.2em!important;
+    min-width:5.2em!important;
+    max-width:5.2em!important;
+  }
+  .tax-table .tax-action-col{
+    width:2.8em!important;
+    min-width:2.8em!important;
+    max-width:2.8em!important;
+  }
+  .tax-table .tax-year-col input{
+    padding-left:0!important;
+    padding-right:0!important;
+    text-align:center!important;
+    letter-spacing:-.1px!important;
+  }
+  .cash-template-actions .template-use-button,
+  .credit-template-actions .template-use-button{
+    font-size:calc(7px * var(--app-font-scale))!important;
+    padding:3px 1px!important;
+    gap:2px!important;
+  }
+  :root[data-theme="pikmin"] .cash-template-actions .template-use-button,
+  :root[data-theme="pikmin"] .credit-template-actions .template-use-button{
+    padding-left:1px!important;
+    padding-right:1px!important;
+  }
+  .template-use-button .template-use-leaf{width:6px;height:8px}
+}
+
+
+/* v44b: final hard fix — exact tax widths and unobstructed 帶入 label */
+.cash-template-actions .template-use-button::after,
+.credit-template-actions .template-use-button::after{
+  content:none!important;
+  display:none!important;
+  width:0!important;
+  height:0!important;
+  background:none!important;
+}
+.cash-template-actions .template-use-button .template-use-leaf,
+.credit-template-actions .template-use-button .template-use-leaf{
+  display:none!important;
+}
+.cash-template-actions button.template-use-button.primary,
+.credit-template-actions button.template-use-button.primary,
+:root[data-theme="pikmin"] .cash-template-actions button.template-use-button.primary,
+:root[data-theme="pikmin"] .credit-template-actions button.template-use-button.primary{
+  padding-left:1px!important;
+  padding-right:1px!important;
+  gap:0!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+
+@media (orientation:portrait) and (max-width:760px){
+  .tax-table-wrap{overflow-x:auto!important;text-align:left!important}
+  .tax-table{
+    display:inline-table!important;
+    width:var(--tax-table-width)!important;
+    min-width:0!important;
+    max-width:none!important;
+    table-layout:fixed!important;
+    margin:0!important;
+  }
+  .tax-table col.tax-year-track{width:2.35em!important}
+  .tax-table col.tax-item-track{width:5.2em!important}
+  .tax-table col.tax-action-track{width:2.8em!important}
+  .tax-table th.tax-year-col,.tax-table td.tax-year-col{
+    width:2.35em!important;min-width:2.35em!important;max-width:2.35em!important;
+    box-sizing:border-box!important;padding-left:1px!important;padding-right:1px!important;
+  }
+  .tax-table th.tax-item-col,.tax-table td.tax-item-col{
+    width:5.2em!important;min-width:5.2em!important;max-width:5.2em!important;box-sizing:border-box!important;
+  }
+  .tax-table th.tax-action-col,.tax-table td.tax-action-col{
+    width:2.8em!important;min-width:2.8em!important;max-width:2.8em!important;box-sizing:border-box!important;
+  }
+}
