@@ -2488,3 +2488,39 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 .account-summary-table th:nth-child(4),.account-summary-table td:nth-child(4){width:16%!important}
 .account-summary-table th:nth-child(5),.account-summary-table td:nth-child(5){width:23%!important}
 .account-summary-table th:nth-child(6),.account-summary-table td:nth-child(6){width:10%!important}
+
+/* v46: force centered headings in fixed-credit and credit-transaction tables */
+.credit-template-table.data-table thead th,
+.credit-transactions-table.data-table thead th,
+.credit-template-table.data-table thead th.description-col,
+.credit-template-table.data-table thead th.store-col,
+.credit-transactions-table.data-table thead th.description-col,
+.credit-transactions-table.data-table thead th.store-col{
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+.credit-template-table.data-table thead th > span,
+.credit-transactions-table.data-table thead th > span,
+.credit-template-table.data-table thead th .desktop-label,
+.credit-template-table.data-table thead th .mobile-label,
+.credit-transactions-table.data-table thead th .desktop-label,
+.credit-transactions-table.data-table thead th .mobile-label{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.credit-template-table.data-table thead th input[type="checkbox"],
+.credit-transactions-table.data-table thead th input[type="checkbox"]{
+  display:block!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+
+/* v47: center section titles for fixed-credit and credit-transaction cards */
+.credit-heading-center .section-head{justify-content:center!important;align-items:center!important}
+.credit-heading-center .section-head>div{flex:1 1 100%!important;text-align:center!important}
+.credit-heading-center .section-head>div h2,.credit-heading-center .section-head>div p{text-align:center!important}
+.credit-heading-center .section-head>button,.credit-heading-center .section-head>.filter-stack{margin-left:auto!important;margin-right:auto!important}
