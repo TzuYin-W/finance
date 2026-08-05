@@ -228,7 +228,7 @@
   function normalizeReportMode(value){return value==='neutral'?'neutral':'auto';}
   function reportModeLabel(value){return normalizeReportMode(value)==='neutral'?'不列入月報':'依正負號';}
   function reportModeIcon(value){
-    if(normalizeReportMode(value)==='neutral')return `<span class="report-neutral-icon" aria-hidden="true">❎</span>`;
+    if(normalizeReportMode(value)==='neutral')return `<svg class="report-neutral-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="27" height="27" rx="7"></rect><path d="M9 9l14 14M23 9L9 23"></path></svg>`;
     return `<svg class="report-plus-minus-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="27" height="27" rx="7"></rect><path d="M10 7.5v8M6 11.5h8M18.5 22h8M8 25L24 7"></path></svg>`;
   }
   function reportModeToggle(path,value){
@@ -640,7 +640,7 @@
           <div class="field wide"><label>描述</label><input name="description"></div>
           <div class="field"><label>金額（正支出／負收入）</label><input name="amount" type="number" step="any" required></div>
           <div class="field"><label>帳戶</label><select name="account" required>${accountOpts.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
-          <div class="field"><label>月報處理</label><select name="reportMode"><option value="auto" ${cashDefaultReportMode==='auto'?'selected':''}>＋／－</option><option value="neutral" ${cashDefaultReportMode==='neutral'?'selected':''}>❎</option></select></div>
+          <div class="field"><label>月報處理</label><select name="reportMode"><option value="auto" ${cashDefaultReportMode==='auto'?'selected':''}>＋／－</option><option value="neutral" ${cashDefaultReportMode==='neutral'?'selected':''}>× 不列入月報</option></select></div>
           <div class="field"><label>標記顏色</label>${rowColorForm('rowColor')}</div>
           <button class="primary" type="submit">新增交易</button>
         </form>
@@ -649,7 +649,7 @@
         <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；可勾選多筆後批次修改月報處理與顏色。</p></div><div class="filter-stack">${dateFilterBar('cash')}${cashFilters}</div></div>
         <div class="cash-bulk-toolbar no-print">
           <strong data-cash-selected-count>已選 ${ui.cashSelection.size} 筆</strong>
-          <label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">❎</option></select></label>
+          <label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">× 不列入月報</option></select></label>
           <label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>
           <button class="small primary" type="button" data-action="apply-cash-bulk">套用到已選資料</button>
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
@@ -680,7 +680,7 @@
     const p=paged(filtered,filterKey,70);
     const allFilteredPaid=filtered.length>0&&filtered.every(({item})=>item.paid);
     return `<div class="page-stack">
-      <section class="summary-grid">
+      <section class="summary-grid credit-summary-grid">
         ${state.creditCards.map((c,i)=>{const x=cardTotals(c,y);return `<button class="summary-tile ${i===ui.activeCard?'active-card':''}" data-action="set-card" data-index="${i}"><h4>${esc(c.bank)}</h4><div class="big">${money(x.outstanding)}</div><small>${y} 未繳｜${esc(c.title)}</small></button>`}).join('')}
       </section>
       <section class="card">
@@ -717,7 +717,7 @@
       </section>
       <section class="card">
         <div class="section-head"><div><h2>${y} 年信用卡交易紀錄</h2><p>已繳欄僅保留勾選框；表頭勾選框會全選目前年度、搜尋與日期篩選下的所有結果。</p></div>${dateFilterBar(filterKey)}</div>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th>描述</th><th class="numeric">金額</th><th>商店名稱</th><th>卡片</th><th class="numeric">交易手續費</th><th class="row-color-cell">顏色</th><th class="paid-col" title="全選目前篩選結果"><input class="paid-check" type="checkbox" data-bulk-paid="${ui.activeCard}" ${allFilteredPaid?'checked':''} aria-label="全選已繳"></th><th class="numeric">未繳累計</th><th></th></tr></thead><tbody>
+        <div class="table-wrap credit-transactions-wrap"><table class="data-table credit-transactions-table"><thead><tr><th>日期</th><th>描述</th><th class="numeric">金額</th><th><span class="desktop-label">商店名稱</span><span class="mobile-label">商店</span></th><th>卡片</th><th class="numeric"><span class="desktop-label">交易手續費</span><span class="mobile-label">費</span></th><th class="row-color-cell">顏色</th><th class="paid-col" title="全選目前篩選結果"><input class="paid-check" type="checkbox" data-bulk-paid="${ui.activeCard}" ${allFilteredPaid?'checked':''} aria-label="全選已繳"></th><th class="numeric"><span class="desktop-label">未繳累計</span><span class="mobile-label">未繳</span></th><th><span class="mobile-label">刪</span></th></tr></thead><tbody>
           ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr class="${t.paid?'paid-row':''}" data-row-color="${esc(rowColor)}"><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.date`,t.date,'date')}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.description`,t.description)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.amount`,t.amount,'number')}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.store`,t.store)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.card`,t.card)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.fee`,t.fee,'number')}</td><td class="row-color-cell">${rowColorSelect(`creditCards.${ui.activeCard}.transactions.${i}.rowColor`,rowColor)}</td><td class="paid-col">${checkbox(`creditCards.${ui.activeCard}.transactions.${i}.paid`,t.paid,'')}</td><td class="numeric computed">${money(balances[i])}</td><td><button class="small danger" data-action="delete" data-array="creditCards.${ui.activeCard}.transactions" data-index="${i}">刪除</button></td></tr>`}).join(''):empty(10,`${y} 年目前沒有信用卡交易`)}
         </tbody><tfoot><tr><td>${y} 年交易</td><td></td><td class="numeric">${money(totals.amount)}</td><td></td><td></td><td class="numeric">${money(totals.fee)}</td><td></td><td></td><td class="numeric">未繳 ${money(totals.outstanding)}</td><td></td></tr></tfoot></table></div>${pager(filterKey,p)}
       </section>
