@@ -2208,3 +2208,59 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
     white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important
   }
 }
+
+
+/* v42: mobile numeric typography and content-sized summary columns */
+@media (orientation:portrait) and (max-width:760px){
+  /* 分期歷史：完成日使用和項目、總額、扣款帳戶相同的可讀字級，欄寬只保留完整日期所需空間。 */
+  .installment-history-table .date-col{
+    width:88px!important;min-width:88px!important;max-width:88px!important;
+    white-space:nowrap!important;vertical-align:middle!important
+  }
+  .installment-history-table th.date-col,
+  .installment-history-table td.date-col,
+  .installment-history-table .date-col .app-date-display{
+    font-size:calc(13px * var(--app-font-scale))!important;
+    line-height:1.2!important;letter-spacing:0!important
+  }
+  .installment-history-table .date-col .app-date-control{
+    width:100%!important;min-width:0!important;min-height:30px!important;overflow:hidden!important
+  }
+  .installment-history-table .date-col .app-date-display{
+    min-height:28px!important;padding:3px 13px 3px 3px!important;
+    justify-content:center!important;text-align:center!important;white-space:nowrap!important
+  }
+  .installment-history-table .date-col .app-date-control::after{right:3px!important;font-size:7px!important}
+
+  /* 貸款摘要：歷年總還款依文字與金額需要加寬，備註縮小。 */
+  .mortgage-summary-table th:nth-child(1),.mortgage-summary-table td:nth-child(1){width:12%!important}
+  .mortgage-summary-table th:nth-child(2),.mortgage-summary-table td:nth-child(2){width:11%!important}
+  .mortgage-summary-table th:nth-child(3),.mortgage-summary-table td:nth-child(3){width:13%!important}
+  .mortgage-summary-table th:nth-child(4),.mortgage-summary-table td:nth-child(4){width:19%!important;white-space:nowrap!important}
+  .mortgage-summary-table th:nth-child(5),.mortgage-summary-table td:nth-child(5){width:15%!important}
+  .mortgage-summary-table th:nth-child(6),.mortgage-summary-table td:nth-child(6){width:20%!important}
+  .mortgage-summary-table th:nth-child(7),.mortgage-summary-table td:nth-child(7){width:10%!important}
+  .mortgage-summary-table td:nth-child(4).computed{font-size:inherit!important;letter-spacing:-.15px!important}
+
+  /* 投資：日期與右側金額固定使用同一字級。 */
+  .asset-card .data-table td.date-col .app-date-display,
+  .asset-card .data-table td:nth-child(2) input{
+    font-size:calc(13px * var(--app-font-scale))!important;
+    line-height:1.2!important;font-variant-numeric:tabular-nums!important
+  }
+  .asset-card .data-table td.date-col .app-date-display{
+    letter-spacing:0!important;padding:3px 13px 3px 3px!important;
+    justify-content:center!important;text-align:center!important;white-space:nowrap!important
+  }
+  .asset-card .data-table td:nth-child(2) input{
+    text-align:left!important;padding-left:8px!important;padding-right:4px!important
+  }
+
+  /* 每月開銷：總薪水與喜樂薪水的輸入數字與左側計算數字同字級。 */
+  .monthly-expense-table td:nth-child(6) input,
+  .monthly-expense-table td:nth-child(7) input{
+    font-size:inherit!important;line-height:inherit!important;font-weight:inherit!important;
+    font-variant-numeric:tabular-nums!important;text-align:right!important;
+    height:auto!important;min-height:28px!important;padding:2px 2px!important;letter-spacing:-.15px!important
+  }
+}
