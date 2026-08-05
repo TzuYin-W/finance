@@ -1720,3 +1720,278 @@ form.cash-entry-form *{
 @media (orientation:portrait) and (min-width:430px) and (max-width:760px){
   .credit-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 }
+
+
+/* v38: compact mobile loan/cash/credit layouts, scrollable lunch, and app font scaling */
+:root{--app-font-scale:1}
+body{font-size:calc(14px * var(--app-font-scale))}
+button,input,select,textarea{font-size:calc(13px * var(--app-font-scale))}
+.font-scale-control{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.font-scale-control>button:not(.small){width:44px;height:40px;padding:0;font-size:22px;font-weight:800;line-height:1}
+.font-scale-control>strong{min-width:62px;text-align:center;font-size:18px}
+
+/* Tables intentionally fitted to the viewport use the largest practical type. */
+.fit-table{font-size:calc(12px * var(--app-font-scale))}
+.fit-table input,.fit-table select,.fit-table button{font-size:inherit}
+
+/* Fixed cash template: prioritize description and account. */
+.cash-template-wrap,.credit-template-wrap,.mortgage-summary-wrap,.mortgage-payments-wrap{overflow-x:hidden!important}
+.cash-template-table,.credit-template-table,.mortgage-summary-table,.mortgage-payments-table{width:100%!important;max-width:100%!important;min-width:0!important;table-layout:fixed!important}
+.cash-template-table th:nth-child(1),.cash-template-table td:nth-child(1){width:10%!important}
+.cash-template-table th:nth-child(2),.cash-template-table td:nth-child(2){width:25%!important}
+.cash-template-table th:nth-child(3),.cash-template-table td:nth-child(3){width:10%!important}
+.cash-template-table th:nth-child(4),.cash-template-table td:nth-child(4){width:23%!important}
+.cash-template-table th:nth-child(5),.cash-template-table td:nth-child(5){width:10%!important}
+.cash-template-table th:nth-child(6),.cash-template-table td:nth-child(6){width:22%!important}
+.cash-template-table input,.cash-template-table select{width:100%!important;min-width:0!important;max-width:100%!important}
+
+/* Lunch is deliberately horizontally scrollable and readable. */
+.lunch-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain}
+.lunch-table{width:max-content!important;min-width:max(920px,calc(330px + var(--lunch-product-width,120px)))!important;table-layout:auto!important;font-size:calc(11px * var(--app-font-scale))!important}
+.lunch-table th,.lunch-table td{padding:6px 4px!important;min-width:110px!important;white-space:nowrap!important}
+.lunch-table th:first-child,.lunch-table td:first-child{width:78px!important;min-width:78px!important;max-width:78px!important}
+.lunch-table th:nth-child(2),.lunch-table td:nth-child(2){width:42px!important;min-width:42px!important;max-width:42px!important}
+.lunch-table th:nth-child(3),.lunch-table td:nth-child(3){width:110px!important;min-width:110px!important}
+.lunch-table th:nth-last-child(2),.lunch-table td:nth-last-child(2){width:72px!important;min-width:72px!important;max-width:72px!important}
+.lunch-table th:last-child,.lunch-table td:last-child{width:48px!important;min-width:48px!important;max-width:48px!important}
+.lunch-table input,.lunch-table select{font-size:inherit!important;padding:5px 4px!important}
+.lunch-table .app-date-display{font-size:inherit!important;letter-spacing:-.25px!important;padding-left:2px!important;padding-right:2px!important}
+.lunch-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+
+/* Mortgage desktop/tablet fit. */
+.mortgage-summary-table th:nth-child(1),.mortgage-summary-table td:nth-child(1){width:14%}
+.mortgage-summary-table th:nth-child(2),.mortgage-summary-table td:nth-child(2){width:13%}
+.mortgage-summary-table th:nth-child(3),.mortgage-summary-table td:nth-child(3){width:13%}
+.mortgage-summary-table th:nth-child(4),.mortgage-summary-table td:nth-child(4){width:13%}
+.mortgage-summary-table th:nth-child(5),.mortgage-summary-table td:nth-child(5){width:13%}
+.mortgage-summary-table th:nth-child(6),.mortgage-summary-table td:nth-child(6){width:25%}
+.mortgage-summary-table th:nth-child(7),.mortgage-summary-table td:nth-child(7){width:9%}
+.mortgage-summary-table input,.mortgage-summary-table select,.mortgage-payments-table input,.mortgage-payments-table select{width:100%!important;min-width:0!important;max-width:100%!important}
+.mortgage-payments-table th:nth-child(1),.mortgage-payments-table td:nth-child(1){width:13%}
+.mortgage-payments-table th:nth-child(2),.mortgage-payments-table td:nth-child(2){width:13%}
+.mortgage-payments-table th:nth-child(3),.mortgage-payments-table td:nth-child(3){width:31%}
+.mortgage-payments-table th:nth-child(4),.mortgage-payments-table td:nth-child(4){width:13%}
+.mortgage-payments-table th:nth-child(5),.mortgage-payments-table td:nth-child(5){width:21%}
+.mortgage-payments-table th:nth-child(6),.mortgage-payments-table td:nth-child(6){width:9%}
+
+/* Credit templates fit the viewport. */
+.credit-template-table th:nth-child(1),.credit-template-table td:nth-child(1){width:23%}
+.credit-template-table th:nth-child(2),.credit-template-table td:nth-child(2){width:11%}
+.credit-template-table th:nth-child(3),.credit-template-table td:nth-child(3){width:18%}
+.credit-template-table th:nth-child(4),.credit-template-table td:nth-child(4){width:14%}
+.credit-template-table th:nth-child(5),.credit-template-table td:nth-child(5){width:10%}
+.credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:24%}
+.credit-template-table input,.credit-template-table select{width:100%!important;min-width:0!important;max-width:100%!important}
+.credit-template-table td:last-child{white-space:normal!important}
+.credit-template-table td:last-child button{margin:1px 0!important}
+
+@media(max-width:760px){
+  /* All compact entry forms keep intentional row groupings. */
+  .compact-entry-form{display:grid!important;width:100%!important;min-width:0!important;gap:8px!important}
+  .compact-entry-form>.field{min-width:0!important;width:auto!important;max-width:none!important}
+  .compact-entry-form input,.compact-entry-form select,.compact-entry-form textarea{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+
+  .mortgage-entry-form{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .mortgage-entry-form>button{grid-column:auto!important;width:100%!important;align-self:end}
+
+  .credit-card-settings-form,.credit-card-create-form{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .credit-card-create-form>.field.wide{grid-column:auto!important}
+  .credit-card-create-form>button{grid-column:1/-1!important;width:100%!important}
+  .credit-entry-form{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .credit-entry-form>button{grid-column:1/-1!important;width:100%!important}
+
+  .cash-entry-form{grid-template-columns:repeat(12,minmax(0,1fr))!important}
+  .cash-entry-form .cash-entry-date{grid-column:span 6!important}
+  .cash-entry-form .cash-entry-category{grid-column:span 6!important}
+  .cash-entry-form .cash-entry-description{grid-column:span 8!important}
+  .cash-entry-form .cash-entry-amount{grid-column:span 4!important}
+  .cash-entry-form .cash-entry-account{grid-column:span 6!important}
+  .cash-entry-form .cash-entry-report{grid-column:span 3!important}
+  .cash-entry-form .cash-entry-color{grid-column:span 3!important}
+  .cash-entry-form>button{grid-column:1/-1!important;width:100%!important}
+  .cash-entry-form .cash-date-field{grid-column:span 6!important}
+
+  /* Cash filters: two fields per row. */
+  #cashTransactionList .cash-date-filter-bar,
+  #cashTransactionList .cash-view-filter-bar,
+  #mortgagePaymentList .mortgage-date-filter-bar,
+  #mortgagePaymentList .mortgage-view-filter-bar{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:9px!important
+  }
+  #cashTransactionList .filter-bar>strong,
+  #mortgagePaymentList .filter-bar>strong{grid-column:1/-1!important}
+  #cashTransactionList .filter-bar label,
+  #mortgagePaymentList .filter-bar label{display:grid!important;grid-template-columns:1fr!important;gap:3px!important;width:100%!important;min-width:0!important}
+  #cashTransactionList .filter-bar button,
+  #mortgagePaymentList .filter-bar button{grid-column:1/-1!important;width:100%!important;min-height:36px!important}
+  #cashTransactionList .filter-bar input,
+  #cashTransactionList .filter-bar select,
+  #mortgagePaymentList .filter-bar input,
+  #mortgagePaymentList .filter-bar select{height:38px!important;min-height:38px!important;padding-top:6px!important;padding-bottom:6px!important}
+
+  /* Mortgage tables fit portrait phones without horizontal scrolling. */
+  .mortgage-summary-wrap,.mortgage-payments-wrap{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+  .mortgage-summary-table,.mortgage-payments-table{font-size:calc(8.4px * var(--app-font-scale))!important}
+  .mortgage-summary-table th,.mortgage-summary-table td,.mortgage-payments-table th,.mortgage-payments-table td{padding:3px 1px!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important;line-height:1.1!important;vertical-align:middle!important}
+  .mortgage-summary-table input,.mortgage-summary-table select,.mortgage-payments-table input,.mortgage-payments-table select{height:27px!important;min-height:27px!important;padding:2px 1px!important;font-size:inherit!important;text-align:center!important}
+  .mortgage-summary-table th:nth-child(1),.mortgage-summary-table td:nth-child(1){width:13%!important}
+  .mortgage-summary-table th:nth-child(2),.mortgage-summary-table td:nth-child(2){width:12%!important}
+  .mortgage-summary-table th:nth-child(3),.mortgage-summary-table td:nth-child(3){width:13%!important}
+  .mortgage-summary-table th:nth-child(4),.mortgage-summary-table td:nth-child(4){width:13%!important}
+  .mortgage-summary-table th:nth-child(5),.mortgage-summary-table td:nth-child(5){width:13%!important}
+  .mortgage-summary-table th:nth-child(6),.mortgage-summary-table td:nth-child(6){width:27%!important}
+  .mortgage-summary-table th:nth-child(7),.mortgage-summary-table td:nth-child(7){width:9%!important}
+  .mortgage-summary-table .computed{font-size:calc(7.7px * var(--app-font-scale))!important}
+  .mortgage-summary-table .small,.mortgage-payments-table .small{width:100%!important;min-width:0!important;padding:2px 0!important;font-size:inherit!important}
+  .mortgage-payments-table th:nth-child(1),.mortgage-payments-table td:nth-child(1){width:13%!important}
+  .mortgage-payments-table th:nth-child(2),.mortgage-payments-table td:nth-child(2){width:12%!important}
+  .mortgage-payments-table th:nth-child(3),.mortgage-payments-table td:nth-child(3){width:31%!important}
+  .mortgage-payments-table th:nth-child(4),.mortgage-payments-table td:nth-child(4){width:13%!important}
+  .mortgage-payments-table th:nth-child(5),.mortgage-payments-table td:nth-child(5){width:22%!important}
+  .mortgage-payments-table th:nth-child(6),.mortgage-payments-table td:nth-child(6){width:9%!important}
+  .mortgage-payments-table .app-date-display{font-size:calc(6.7px * var(--app-font-scale))!important;padding:1px 0!important;letter-spacing:-.35px!important}
+  .mortgage-payments-table .app-date-control::after{display:none!important}
+
+  /* Cash and account tables use the largest font that still fits. */
+  .account-summary-table{font-size:calc(8.2px * var(--app-font-scale))!important}
+  .cash-transactions-table{font-size:calc(7.5px * var(--app-font-scale))!important}
+  .cash-transactions-table input:not([type="checkbox"]),.cash-transactions-table select{font-size:calc(7.3px * var(--app-font-scale))!important}
+  .cash-template-table,.credit-template-table{font-size:calc(8.5px * var(--app-font-scale))!important}
+  .cash-template-table th,.cash-template-table td,.credit-template-table th,.credit-template-table td{padding:3px 1px!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  .cash-template-table input,.cash-template-table select,.credit-template-table input,.credit-template-table select{height:27px!important;min-height:27px!important;padding:2px 1px!important;font-size:inherit!important}
+  .cash-template-table th:nth-child(1),.cash-template-table td:nth-child(1){width:9%!important}
+  .cash-template-table th:nth-child(2),.cash-template-table td:nth-child(2){width:27%!important}
+  .cash-template-table th:nth-child(3),.cash-template-table td:nth-child(3){width:9%!important}
+  .cash-template-table th:nth-child(4),.cash-template-table td:nth-child(4){width:25%!important}
+  .cash-template-table th:nth-child(5),.cash-template-table td:nth-child(5){width:9%!important}
+  .cash-template-table th:nth-child(6),.cash-template-table td:nth-child(6){width:21%!important}
+  .cash-template-actions>div{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px!important}
+  .cash-template-actions button{width:100%!important;min-width:0!important;padding:3px 0!important;font-size:calc(7px * var(--app-font-scale))!important}
+
+  /* Credit transactions now have nine columns after removing color. */
+  .credit-transactions-table{font-size:calc(8.2px * var(--app-font-scale))!important}
+  .credit-transactions-table th:nth-child(1),.credit-transactions-table td:nth-child(1){width:12%!important}
+  .credit-transactions-table th:nth-child(2),.credit-transactions-table td:nth-child(2){width:20%!important}
+  .credit-transactions-table th:nth-child(3),.credit-transactions-table td:nth-child(3){width:10%!important}
+  .credit-transactions-table th:nth-child(4),.credit-transactions-table td:nth-child(4){width:15%!important}
+  .credit-transactions-table th:nth-child(5),.credit-transactions-table td:nth-child(5){width:12%!important}
+  .credit-transactions-table th:nth-child(6),.credit-transactions-table td:nth-child(6){width:8%!important}
+  .credit-transactions-table th:nth-child(7),.credit-transactions-table td:nth-child(7){width:6%!important}
+  .credit-transactions-table th:nth-child(8),.credit-transactions-table td:nth-child(8){width:11%!important}
+  .credit-transactions-table th:nth-child(9),.credit-transactions-table td:nth-child(9){width:6%!important}
+  .credit-transactions-table input:not([type="checkbox"]),.credit-transactions-table select{font-size:calc(7.8px * var(--app-font-scale))!important}
+  .credit-transactions-table .app-date-display{font-size:calc(6.7px * var(--app-font-scale))!important}
+  .credit-transactions-table .computed,.credit-transactions-table tfoot td{font-size:calc(7.2px * var(--app-font-scale))!important}
+
+  .credit-template-table th:nth-child(1),.credit-template-table td:nth-child(1){width:22%!important}
+  .credit-template-table th:nth-child(2),.credit-template-table td:nth-child(2){width:11%!important}
+  .credit-template-table th:nth-child(3),.credit-template-table td:nth-child(3){width:17%!important}
+  .credit-template-table th:nth-child(4),.credit-template-table td:nth-child(4){width:13%!important}
+  .credit-template-table th:nth-child(5),.credit-template-table td:nth-child(5){width:9%!important}
+  .credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:28%!important}
+  .credit-template-table td:last-child{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px!important}
+  .credit-template-table td:last-child button{width:100%!important;min-width:0!important;padding:3px 0!important;font-size:calc(7px * var(--app-font-scale))!important}
+
+  .lunch-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .lunch-product-grid .summary-tile{padding:8px!important;min-width:0!important}
+  .lunch-product-grid .inline-edit{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:5px!important}
+}
+
+@media(max-width:410px){
+  .mortgage-entry-form{grid-template-columns:repeat(3,minmax(0,1fr))!important;font-size:11px!important}
+  .mortgage-entry-form label{font-size:10px!important}
+  .mortgage-entry-form input,.mortgage-entry-form select{padding-left:5px!important;padding-right:5px!important}
+  .cash-entry-form .cash-entry-account{grid-column:span 6!important}
+  .cash-entry-form .cash-entry-report,.cash-entry-form .cash-entry-color{grid-column:span 3!important}
+}
+
+
+/* v38 final: readable fitted tables and persistent-filter release refinements */
+@media(min-width:761px){
+  .credit-template-table th:nth-child(1),.credit-template-table td:nth-child(1){width:34%!important}
+  .credit-template-table th:nth-child(2),.credit-template-table td:nth-child(2){width:10%!important}
+  .credit-template-table th:nth-child(3),.credit-template-table td:nth-child(3){width:18%!important}
+  .credit-template-table th:nth-child(4),.credit-template-table td:nth-child(4){width:8%!important}
+  .credit-template-table th:nth-child(5),.credit-template-table td:nth-child(5){width:7%!important}
+  .credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:23%!important}
+}
+@media(max-width:760px){
+  .mortgage-summary-table,.mortgage-payments-table{font-size:calc(9.1px * var(--app-font-scale))!important}
+  .mortgage-summary-table .computed{font-size:calc(8.5px * var(--app-font-scale))!important}
+  .account-summary-table{font-size:calc(9px * var(--app-font-scale))!important}
+  .cash-transactions-table{font-size:calc(8.4px * var(--app-font-scale))!important}
+  .cash-transactions-table input:not([type="checkbox"]),.cash-transactions-table select{font-size:calc(8.1px * var(--app-font-scale))!important}
+  .cash-template-table,.credit-template-table{font-size:calc(9px * var(--app-font-scale))!important}
+  .credit-transactions-table{font-size:calc(8.9px * var(--app-font-scale))!important}
+  .credit-transactions-table input:not([type="checkbox"]),.credit-transactions-table select{font-size:calc(8.5px * var(--app-font-scale))!important}
+  .credit-transactions-table th:nth-child(1),.credit-transactions-table td:nth-child(1){width:10%!important}
+  .credit-transactions-table th:nth-child(2),.credit-transactions-table td:nth-child(2){width:24%!important}
+  .credit-transactions-table th:nth-child(3),.credit-transactions-table td:nth-child(3){width:10%!important}
+  .credit-transactions-table th:nth-child(4),.credit-transactions-table td:nth-child(4){width:14%!important}
+  .credit-transactions-table th:nth-child(5),.credit-transactions-table td:nth-child(5){width:10%!important}
+  .credit-transactions-table th:nth-child(6),.credit-transactions-table td:nth-child(6){width:7%!important}
+  .credit-transactions-table th:nth-child(7),.credit-transactions-table td:nth-child(7){width:6%!important}
+  .credit-transactions-table th:nth-child(8),.credit-transactions-table td:nth-child(8){width:13%!important}
+  .credit-transactions-table th:nth-child(9),.credit-transactions-table td:nth-child(9){width:6%!important}
+  .credit-template-table th:nth-child(1),.credit-template-table td:nth-child(1){width:30%!important}
+  .credit-template-table th:nth-child(2),.credit-template-table td:nth-child(2){width:10%!important}
+  .credit-template-table th:nth-child(3),.credit-template-table td:nth-child(3){width:16%!important}
+  .credit-template-table th:nth-child(4),.credit-template-table td:nth-child(4){width:8%!important}
+  .credit-template-table th:nth-child(5),.credit-template-table td:nth-child(5){width:7%!important}
+  .credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:29%!important}
+}
+
+
+/* v39: credit total mode + undated budget inclusion */
+.include-undated-toggle{
+  display:flex!important;align-items:center!important;gap:7px!important;min-width:0!important;
+  padding:6px 9px!important;border:1px solid var(--line)!important;border-radius:9px!important;background:var(--control)!important
+}
+.include-undated-toggle input{width:17px!important;height:17px!important;min-width:17px!important;margin:0!important;accent-color:var(--accent)}
+.include-undated-toggle span{font-size:12px;font-weight:700;line-height:1.2}
+.credit-total-col{text-align:center!important;vertical-align:middle!important}
+.credit-total-toggle{margin:auto!important}
+
+@media (max-width:700px){
+  #cashTransactionList .cash-date-filter-bar,
+  .credit-date-filter-bar{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+  #cashTransactionList .cash-date-filter-bar .include-undated-toggle,
+  .credit-date-filter-bar .include-undated-toggle{
+    grid-column:1/-1!important;width:100%!important;min-height:38px!important;box-sizing:border-box!important
+  }
+  .credit-date-filter-bar{display:grid!important;gap:8px!important;padding:9px!important}
+  .credit-date-filter-bar>strong{grid-column:1/-1!important}
+  .credit-date-filter-bar>label:not(.include-undated-toggle){display:grid!important;gap:3px!important;min-width:0!important}
+  .credit-date-filter-bar>button{grid-column:1/-1!important;width:100%!important;min-height:36px!important}
+  .credit-date-filter-bar .app-date-control{width:100%!important;min-width:0!important}
+
+  /* Ten compact columns: date, description, amount, store, card, fee, total mode, paid, outstanding, delete. */
+  .credit-transactions-table th:nth-child(1),.credit-transactions-table td:nth-child(1){width:10%!important}
+  .credit-transactions-table th:nth-child(2),.credit-transactions-table td:nth-child(2){width:22%!important}
+  .credit-transactions-table th:nth-child(3),.credit-transactions-table td:nth-child(3){width:9%!important}
+  .credit-transactions-table th:nth-child(4),.credit-transactions-table td:nth-child(4){width:13%!important}
+  .credit-transactions-table th:nth-child(5),.credit-transactions-table td:nth-child(5){width:10%!important}
+  .credit-transactions-table th:nth-child(6),.credit-transactions-table td:nth-child(6){width:7%!important}
+  .credit-transactions-table th:nth-child(7),.credit-transactions-table td:nth-child(7){width:7%!important}
+  .credit-transactions-table th:nth-child(8),.credit-transactions-table td:nth-child(8){width:6%!important}
+  .credit-transactions-table th:nth-child(9),.credit-transactions-table td:nth-child(9){width:10%!important}
+  .credit-transactions-table th:nth-child(10),.credit-transactions-table td:nth-child(10){width:6%!important}
+  .credit-transactions-table .credit-total-toggle{width:20px!important;height:20px!important;min-width:20px!important;padding:0!important}
+  .credit-transactions-table .credit-total-toggle svg{width:18px!important;height:18px!important}
+  .credit-transactions-table .credit-total-col{padding-left:0!important;padding-right:0!important}
+}
+
+@media (min-width:701px){
+  .credit-transactions-table th:nth-child(1),.credit-transactions-table td:nth-child(1){width:9%}
+  .credit-transactions-table th:nth-child(2),.credit-transactions-table td:nth-child(2){width:23%}
+  .credit-transactions-table th:nth-child(3),.credit-transactions-table td:nth-child(3){width:9%}
+  .credit-transactions-table th:nth-child(4),.credit-transactions-table td:nth-child(4){width:13%}
+  .credit-transactions-table th:nth-child(5),.credit-transactions-table td:nth-child(5){width:10%}
+  .credit-transactions-table th:nth-child(6),.credit-transactions-table td:nth-child(6){width:8%}
+  .credit-transactions-table th:nth-child(7),.credit-transactions-table td:nth-child(7){width:7%}
+  .credit-transactions-table th:nth-child(8),.credit-transactions-table td:nth-child(8){width:6%}
+  .credit-transactions-table th:nth-child(9),.credit-transactions-table td:nth-child(9){width:9%}
+  .credit-transactions-table th:nth-child(10),.credit-transactions-table td:nth-child(10){width:6%}
+}
