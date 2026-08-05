@@ -73,12 +73,16 @@
       a.initialByYear = a.initialByYear && typeof a.initialByYear === 'object' ? a.initialByYear : {};
       if(a.initialByYear[String(baseYear)] === undefined) a.initialByYear[String(baseYear)] = Number(a.initial) || 0;
     });
+    const applyFutureMonthlyDefault = s.meta.futureMonthlyFlowDefaultVersion !== 1;
     s.cash.transactions.forEach(t => {
       t.id = t.id || uid('cash');
-      t.monthlyFlow = t.monthlyFlow === 'neutral' ? 'neutral' : 'auto';
+      const hadMonthlyFlow = t.monthlyFlow === 'neutral' || t.monthlyFlow === 'auto';
+      t.monthlyFlow = t.monthlyFlow === 'neutral' ? 'neutral' : (!hadMonthlyFlow && t.date && String(t.date) > today() ? 'neutral' : 'auto');
+      if(applyFutureMonthlyDefault && t.date && String(t.date) > today()) t.monthlyFlow = 'neutral';
       t.rowColor = validRowColor(t.rowColor);
       if(t.date) t.reportMonth = Number(String(t.date).slice(5,7)) || t.reportMonth || 1;
     });
+    if(applyFutureMonthlyDefault) s.meta.futureMonthlyFlowDefaultVersion = 1;
     s.cash.templates.forEach(t => { t.reportMode = t.reportMode === 'neutral' ? 'neutral' : 'auto'; });
 
     s.creditCards = Array.isArray(s.creditCards) ? s.creditCards : [];
@@ -176,7 +180,7 @@
     return new Intl.NumberFormat('zh-TW',{style:'currency',currency:'TWD',maximumFractionDigits:digits,minimumFractionDigits:digits}).format(n(v));
   }
   function plain(v,digits=0){ return new Intl.NumberFormat('zh-TW',{maximumFractionDigits:digits}).format(n(v)); }
-  function today(){ return new Date().toISOString().slice(0,10); }
+  function today(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
   function fileStamp(){
     const d=new Date(),pad=v=>String(v).padStart(2,'0');
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
@@ -564,6 +568,8 @@
   }
   function renderCash(){
     const y=currentYear(); const stats=accountStats();
+    const cashDefaultDate=defaultDateForYear();
+    const cashDefaultReportMode=cashDefaultDate>today()?'neutral':'auto';
     const yearTx=state.cash.transactions.filter(t=>yearMatch(t.date,y));
     const totalTwd=sum(stats.filter(x=>x.a.includeInTwdTotal),x=>x.balance);
     const incomes=yearTx.filter(t=>cashFlow(t)==='income');
@@ -609,12 +615,12 @@
       <section class="card no-print">
         <div class="section-head"><div><h2>新增 ${y} 年現金交易</h2><p>金額正負號決定收支；轉存、卡費等不應重複列入月報的項目選「不列入月報」。</p></div></div>
         <form class="form-grid cash-entry-form" data-form="cash">
-          <div class="field cash-date-field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div>
+          <div class="field cash-date-field"><label>日期</label><input name="date" type="date" value="${cashDefaultDate}" min="${y}-01-01" max="${y}-12-31" required></div>
           <div class="field"><label>科目</label><input name="category" required></div>
           <div class="field wide"><label>描述</label><input name="description"></div>
           <div class="field"><label>金額（正支出／負收入）</label><input name="amount" type="number" step="any" required></div>
           <div class="field"><label>帳戶</label><select name="account" required>${accountOpts.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
-          <div class="field"><label>月報處理</label><select name="reportMode"><option value="auto">依正負號</option><option value="neutral">不列入月報</option></select></div>
+          <div class="field"><label>月報處理</label><select name="reportMode"><option value="auto" ${cashDefaultReportMode==='auto'?'selected':''}>依正負號</option><option value="neutral" ${cashDefaultReportMode==='neutral'?'selected':''}>不列入月報</option></select></div>
           <div class="field"><label>標記顏色</label>${rowColorForm('rowColor')}</div>
           <button class="primary" type="submit">新增交易</button>
         </form>
@@ -628,8 +634,8 @@
           <button class="small primary" type="button" data-action="apply-cash-bulk">套用到已選資料</button>
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
         </div>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th><th>日期</th><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th class="row-color-cell">顏色</th><th></th></tr></thead><tbody>
-          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}"><td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td><td>${input(`cash.transactions.${i}.date`,t.date,'date')}</td><td>${input(`cash.transactions.${i}.category`,t.category)}</td><td>${input(`cash.transactions.${i}.description`,t.description)}</td><td>${input(`cash.transactions.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.transactions.${i}.account`,t.account,accountOpts)}</td><td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}">刪除</button></td></tr>`}).join(''):empty(8,`${y} 年目前沒有符合條件的交易`)}
+        <div class="table-wrap"><table class="data-table"><thead><tr><th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th><th>日期</th><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th>月報處理</th><th class="row-color-cell">顏色</th><th></th></tr></thead><tbody>
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}"><td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td><td>${input(`cash.transactions.${i}.date`,t.date,'date')}</td><td>${input(`cash.transactions.${i}.category`,t.category)}</td><td>${input(`cash.transactions.${i}.description`,t.description)}</td><td>${input(`cash.transactions.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.transactions.${i}.account`,t.account,accountOpts)}</td><td>${select(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow,[['auto','依正負號'],['neutral','不列入月報']])}</td><td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}">刪除</button></td></tr>`}).join(''):empty(9,`${y} 年目前沒有符合條件的交易`)}
         </tbody></table></div>${pager('cash',p)}
       </section>
     </div>`;
@@ -679,7 +685,7 @@
       <section class="card no-print">
         <h2>新增 ${y} 年信用卡交易</h2>
         <form class="form-grid" data-form="credit">
-          <div class="field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" min="${y}-01-01" max="${y}-12-31" required></div>
+          <div class="field"><label>日期</label><input name="date" type="date" value="${cashDefaultDate}" min="${y}-01-01" max="${y}-12-31" required></div>
           <div class="field wide"><label>描述</label><input name="description" required></div>
           <div class="field"><label>金額</label><input name="amount" type="number" step="any" required></div>
           <div class="field"><label>商店名稱</label><input name="store"></div>
@@ -957,12 +963,21 @@
     if(el.dataset.viewFilterPage){
       const page=el.dataset.viewFilterPage,field=el.dataset.viewFilterField;ui.viewFilters[page]=ui.viewFilters[page]||{};ui.viewFilters[page][field]=el.value;ui.page[page]=1;renderPreservingAnchor(el);return;
     }
+    if(el.matches('form[data-form="cash"] input[name="date"]')){
+      const reportMode=el.form?.elements?.reportMode;
+      if(reportMode && String(el.value||'')>today()) reportMode.value='neutral';
+      return;
+    }
     if(!el.dataset.path)return;
     let value=el.type==='checkbox'?el.checked:el.value;
     if(el.type==='number') value=value===''?0:n(value);
     if(value==='true')value=true; else if(value==='false')value=false;
     setPath(el.dataset.path,value);
-    const m=el.dataset.path.match(/^cash\.transactions\.(\d+)\.date$/);if(m)state.cash.transactions[Number(m[1])].reportMonth=Number(String(value).slice(5,7))||1;
+    const m=el.dataset.path.match(/^cash\.transactions\.(\d+)\.date$/);if(m){
+      const tx=state.cash.transactions[Number(m[1])];
+      tx.reportMonth=Number(String(value).slice(5,7))||1;
+      if(String(value||'')>today())tx.monthlyFlow='neutral';
+    }
     scheduleSave();
     if(/^cash\.transactions\.\d+\.rowColor$/.test(el.dataset.path)){
       const tr=el.closest('tr');if(tr)tr.dataset.rowColor=validRowColor(value);
@@ -984,7 +999,7 @@
       let date=normalizeDateValue(fd.date,defaultDateForYear());
       if(txYear(date)!==y)date=defaultDateForYear();
       addedCashId=uid('cash');
-      state.cash.transactions.unshift({id:addedCashId,date,category:String(fd.category||'').trim(),description:String(fd.description||'').trim(),amount:n(fd.amount),account:fd.account,monthlyFlow:fd.reportMode==='neutral'?'neutral':'auto',reportMonth:Number(date.slice(5,7)),rowColor:validRowColor(fd.rowColor),createdAt:new Date().toISOString()});
+      state.cash.transactions.unshift({id:addedCashId,date,category:String(fd.category||'').trim(),description:String(fd.description||'').trim(),amount:n(fd.amount),account:fd.account,monthlyFlow:String(date)>today()?'neutral':(fd.reportMode==='neutral'?'neutral':'auto'),reportMonth:Number(date.slice(5,7)),rowColor:validRowColor(fd.rowColor),createdAt:new Date().toISOString()});
       state.meta.years=Array.from(new Set([...(state.meta.years||[]),y])).sort((a,b)=>b-a);
       ui.revealCashId=addedCashId;ui.page.cash=1;ui.dateFilters.cash={};ui.viewFilters.cash={};ui.search.cash='';
     }
