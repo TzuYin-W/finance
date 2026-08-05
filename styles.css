@@ -2439,3 +2439,52 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
     width:2.8em!important;min-width:2.8em!important;max-width:2.8em!important;box-sizing:border-box!important;
   }
 }
+
+
+/* v45: centered table headings, compact cash summary, clean monthly-report heading */
+.data-table thead th,
+.data-table th,
+.data-table th.numeric{
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+.data-table thead th > span,
+.data-table thead th .desktop-label,
+.data-table thead th .mobile-label{
+  text-align:center!important;
+}
+.month-report-heading{
+  display:inline-block!important;
+  line-height:1.05!important;
+  text-align:center!important;
+  white-space:normal!important;
+}
+
+/* Fixed cash template 帶入 button: text only, no theme leaf or pseudo icon. */
+.cash-template-actions .template-use-button::before,
+.cash-template-actions .template-use-button::after,
+:root[data-theme="pikmin"] .cash-template-actions .template-use-button::before,
+:root[data-theme="pikmin"] .cash-template-actions .template-use-button::after{
+  content:none!important;
+  display:none!important;
+  width:0!important;
+  height:0!important;
+  background:none!important;
+}
+.cash-template-actions .template-use-button .template-use-leaf{display:none!important}
+.cash-template-actions button.template-use-button.primary,
+:root[data-theme="pikmin"] .cash-template-actions button.template-use-button.primary{
+  padding-left:2px!important;
+  padding-right:2px!important;
+  gap:0!important;
+  justify-content:center!important;
+  overflow:visible!important;
+}
+
+/* Cash account summary now has six visible columns (TWD inclusion column removed). */
+.account-summary-table th:nth-child(1),.account-summary-table td:nth-child(1){width:18%!important}
+.account-summary-table th:nth-child(2),.account-summary-table td:nth-child(2){width:17%!important}
+.account-summary-table th:nth-child(3),.account-summary-table td:nth-child(3){width:16%!important}
+.account-summary-table th:nth-child(4),.account-summary-table td:nth-child(4){width:16%!important}
+.account-summary-table th:nth-child(5),.account-summary-table td:nth-child(5){width:23%!important}
+.account-summary-table th:nth-child(6),.account-summary-table td:nth-child(6){width:10%!important}
