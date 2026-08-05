@@ -1606,3 +1606,51 @@ form.cash-entry-form *{
   .cash-transactions-table input:not([type="checkbox"]),.cash-transactions-table select{font-size:7px!important;padding:1px 0!important}
   .cash-transactions-table input[type="date"]{font-size:6px!important}
 }
+
+
+/* v36: compact report icons, slash date display, reliable tab navigation */
+.app-date-control{
+  position:relative;display:flex;align-items:center;width:100%;min-width:0;min-height:36px;
+  border:1px solid var(--line);border-radius:8px;background:var(--control);box-sizing:border-box;overflow:hidden;
+}
+.app-date-display{
+  display:flex;align-items:center;width:100%;min-width:0;min-height:34px;padding:6px 30px 6px 9px;
+  box-sizing:border-box;line-height:1.2;text-align:left;white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums;
+}
+.app-date-control::after{
+  content:"▾";position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);pointer-events:none;
+}
+.app-date-native{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;
+  margin:0!important;padding:0!important;border:0!important;opacity:0!important;cursor:pointer;background:transparent!important;
+  -webkit-appearance:none!important;appearance:none!important;
+}
+.app-date-control:focus-within{border-color:var(--green);box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 18%,transparent)}
+.data-table .app-date-control{min-height:30px;border-color:transparent;background:transparent;border-radius:6px}
+.data-table .app-date-display{min-height:28px;padding:4px 19px 4px 5px;font-size:inherit;justify-content:flex-start;vertical-align:middle}
+.data-table .app-date-control::after{right:5px;font-size:8px}
+.data-table .app-date-control:hover,.data-table .app-date-control:focus-within{border-color:#c9d4cd;background:var(--control)}
+.filter-bar .app-date-control{width:132px;min-height:32px}
+.filter-bar .app-date-display{min-height:30px;padding:5px 24px 5px 7px}
+.report-mode-toggle{
+  display:inline-flex;align-items:center;justify-content:center;width:34px;height:30px;min-width:34px;padding:2px;border:1px solid transparent;
+  border-radius:8px;background:transparent;color:var(--green-dark);cursor:pointer;vertical-align:middle;
+}
+.report-mode-toggle:hover,.report-mode-toggle:focus-visible{border-color:var(--line);background:var(--control);outline:none}
+.report-mode-toggle.neutral{font-size:18px;color:var(--danger)}
+.report-neutral-icon{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.report-plus-minus-icon{display:block;width:25px;height:25px}
+.report-plus-minus-icon rect{fill:color-mix(in srgb,var(--green) 11%,transparent);stroke:currentColor;stroke-width:1.6}
+.report-plus-minus-icon path{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cash-transactions-table td:nth-child(7),.cash-template-table td:nth-child(5){text-align:center;vertical-align:middle}
+@media(max-width:760px){
+  .app-date-control{min-height:34px}
+  .app-date-display{min-height:32px;padding:5px 25px 5px 7px;font-size:12px}
+  .filter-bar .app-date-control{width:100%;min-width:0}
+  .data-table .app-date-control{min-height:25px}
+  .data-table .app-date-display{min-height:23px;padding:2px 12px 2px 2px;font-size:7px;line-height:1;justify-content:center;text-align:center}
+  .data-table .app-date-control::after{right:2px;font-size:6px}
+  .cash-transactions-table .report-mode-toggle{width:22px;height:22px;min-width:22px;padding:0}
+  .cash-transactions-table .report-plus-minus-icon{width:20px;height:20px}
+  .cash-transactions-table .report-mode-toggle.neutral{font-size:13px}
+}

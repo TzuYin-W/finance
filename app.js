@@ -192,8 +192,23 @@
     for(let i=0;i<parts.length-1;i++) o=o[parts[i]];
     o[parts.at(-1)] = value;
   }
+  function displayDate(value){
+    const m=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m?`${Number(m[1])}/${Number(m[2])}/${Number(m[3])}`:'';
+  }
+  function dateControl(value,attrs='',emptyLabel='選擇日期'){
+    const raw=String(value||'');
+    return `<span class="app-date-control" data-date-empty="${esc(emptyLabel)}"><span class="app-date-display" aria-hidden="true">${esc(displayDate(raw)||emptyLabel)}</span><input type="date" class="app-date-native" value="${esc(raw)}" ${attrs}></span>`;
+  }
+  function formDateInput(name,value,extra=''){return dateControl(value,`name="${esc(name)}" ${extra}`,'選擇日期');}
+  function filterDateInput(key,side,value){return dateControl(value,`data-filter-key="${esc(key)}" data-filter-side="${esc(side)}"`,'不限');}
+  function updateDateControlDisplay(inputEl){
+    const control=inputEl?.closest?.('.app-date-control');if(!control)return;
+    const display=control.querySelector('.app-date-display');if(display)display.textContent=displayDate(inputEl.value)||control.dataset.dateEmpty||'選擇日期';
+  }
   function input(path,value,type='text',extra=''){
     const val = value ?? '';
+    if(type==='date')return dateControl(val,`data-path="${esc(path)}" ${extra}`,'選擇日期');
     return `<input type="${type}" data-path="${esc(path)}" value="${esc(val)}" ${type==='number'?'step="any"':''} ${extra}>`;
   }
   function textarea(path,value){ return `<textarea data-path="${esc(path)}">${esc(value)}</textarea>`; }
@@ -209,6 +224,17 @@
   }
   function rowColorSelect(path,value){ return `<select class="row-color-select" data-path="${esc(path)}" aria-label="標記顏色">${rowColorOptions(value)}</select>`; }
   function rowColorForm(name,value=''){ return `<select class="row-color-select" name="${esc(name)}" aria-label="標記顏色">${rowColorOptions(value)}</select>`; }
+
+  function normalizeReportMode(value){return value==='neutral'?'neutral':'auto';}
+  function reportModeLabel(value){return normalizeReportMode(value)==='neutral'?'不列入月報':'依正負號';}
+  function reportModeIcon(value){
+    if(normalizeReportMode(value)==='neutral')return `<span class="report-neutral-icon" aria-hidden="true">❎</span>`;
+    return `<svg class="report-plus-minus-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="27" height="27" rx="7"></rect><path d="M10 7.5v8M6 11.5h8M18.5 22h8M8 25L24 7"></path></svg>`;
+  }
+  function reportModeToggle(path,value){
+    const mode=normalizeReportMode(value),label=reportModeLabel(mode);
+    return `<button type="button" class="report-mode-toggle ${mode}" data-action="toggle-report-mode" data-path="${esc(path)}" data-mode="${mode}" title="${esc(label)}" aria-label="${esc(label)}">${reportModeIcon(mode)}</button>`;
+  }
 
   function toast(msg){
     toastEl.textContent=msg; toastEl.classList.add('show');
@@ -360,7 +386,7 @@
   }
   function dateFilterBar(key){
     const f=ui.dateFilters[key]||{};
-    return `<div class="filter-bar date-filter-bar ${esc(key)}-date-filter-bar no-print"><strong>日期篩選</strong><label>起日<input type="date" data-filter-key="${esc(key)}" data-filter-side="from" value="${esc(f.from||'')}"></label><label>迄日<input type="date" data-filter-key="${esc(key)}" data-filter-side="to" value="${esc(f.to||'')}"></label><button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button></div>`;
+    return `<div class="filter-bar date-filter-bar ${esc(key)}-date-filter-bar no-print"><strong>日期篩選</strong><label>起日${filterDateInput(key,'from',f.from||'')}</label><label>迄日${filterDateInput(key,'to',f.to||'')}</label><button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button></div>`;
   }
 
   function uniqueStrings(values){
@@ -603,18 +629,18 @@
       <section class="card no-print">
         <div class="section-head"><div><h2>固定現金項目</h2><p>固定項目跨年度共用；「帶入」會填入下方 ${y} 年新增欄。</p></div><button data-action="add-cash-template">新增固定項目</button></div>
         <div class="table-wrap cash-template-wrap"><table class="data-table cash-template-table"><thead><tr><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th>月報處理</th><th>操作</th></tr></thead><tbody>
-          ${state.cash.templates.length?state.cash.templates.map((t,i)=>`<tr><td>${input(`cash.templates.${i}.category`,t.category)}</td><td>${input(`cash.templates.${i}.description`,t.description)}</td><td>${input(`cash.templates.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.templates.${i}.account`,t.account,accountOpts)}</td><td>${select(`cash.templates.${i}.reportMode`,t.reportMode,[['auto','依正負號'],['neutral','不列入月報']])}</td><td class="cash-template-actions"><div><button class="small primary" data-action="use-cash-template" data-index="${i}">帶入</button><button class="small" data-action="copy-cash-template" data-index="${i}">複製</button><button class="small danger" data-action="delete" data-array="cash.templates" data-index="${i}">刪除</button></div></td></tr>`).join(''):empty(6,'尚未建立固定現金項目')}
+          ${state.cash.templates.length?state.cash.templates.map((t,i)=>`<tr><td>${input(`cash.templates.${i}.category`,t.category)}</td><td>${input(`cash.templates.${i}.description`,t.description)}</td><td>${input(`cash.templates.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.templates.${i}.account`,t.account,accountOpts)}</td><td>${reportModeToggle(`cash.templates.${i}.reportMode`,t.reportMode)}</td><td class="cash-template-actions"><div><button class="small primary" data-action="use-cash-template" data-index="${i}">帶入</button><button class="small" data-action="copy-cash-template" data-index="${i}">複製</button><button class="small danger" data-action="delete" data-array="cash.templates" data-index="${i}">刪除</button></div></td></tr>`).join(''):empty(6,'尚未建立固定現金項目')}
         </tbody></table></div>
       </section>
       <section class="card no-print">
         <div class="section-head"><div><h2>新增 ${y} 年現金交易</h2><p>金額正負號決定收支；轉存、卡費等不應重複列入月報的項目選「不列入月報」。</p></div></div>
         <form class="form-grid cash-entry-form" data-form="cash">
-          <div class="field cash-date-field"><label>日期</label><input name="date" type="date" value="${cashDefaultDate}" min="${y}-01-01" max="${y}-12-31" required></div>
+          <div class="field cash-date-field"><label>日期</label>${formDateInput('date',cashDefaultDate,`min="${y}-01-01" max="${y}-12-31" required`)}</div>
           <div class="field"><label>科目</label><input name="category" required></div>
           <div class="field wide"><label>描述</label><input name="description"></div>
           <div class="field"><label>金額（正支出／負收入）</label><input name="amount" type="number" step="any" required></div>
           <div class="field"><label>帳戶</label><select name="account" required>${accountOpts.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
-          <div class="field"><label>月報處理</label><select name="reportMode"><option value="auto" ${cashDefaultReportMode==='auto'?'selected':''}>依正負號</option><option value="neutral" ${cashDefaultReportMode==='neutral'?'selected':''}>不列入月報</option></select></div>
+          <div class="field"><label>月報處理</label><select name="reportMode"><option value="auto" ${cashDefaultReportMode==='auto'?'selected':''}>＋／－</option><option value="neutral" ${cashDefaultReportMode==='neutral'?'selected':''}>❎</option></select></div>
           <div class="field"><label>標記顏色</label>${rowColorForm('rowColor')}</div>
           <button class="primary" type="submit">新增交易</button>
         </form>
@@ -623,13 +649,13 @@
         <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；可勾選多筆後批次修改月報處理與顏色。</p></div><div class="filter-stack">${dateFilterBar('cash')}${cashFilters}</div></div>
         <div class="cash-bulk-toolbar no-print">
           <strong data-cash-selected-count>已選 ${ui.cashSelection.size} 筆</strong>
-          <label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">依正負號</option><option value="neutral">不列入月報</option></select></label>
+          <label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">❎</option></select></label>
           <label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>
           <button class="small primary" type="button" data-action="apply-cash-bulk">套用到已選資料</button>
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
         </div>
         <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table"><thead><tr><th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th><th>日期</th><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="desktop-label">月報處理</span><span class="mobile-label">月報</span></th><th class="row-color-cell">顏色</th><th><span class="mobile-label">刪</span></th></tr></thead><tbody>
-          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}"><td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td><td>${input(`cash.transactions.${i}.date`,t.date,'date')}</td><td>${input(`cash.transactions.${i}.category`,t.category)}</td><td>${input(`cash.transactions.${i}.description`,t.description)}</td><td>${input(`cash.transactions.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.transactions.${i}.account`,t.account,accountOpts)}</td><td>${select(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow,[['auto','依正負號'],['neutral','不列入月報']])}</td><td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td></tr>`}).join(''):empty(9,`${y} 年目前沒有符合條件的交易`)}
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}"><td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td><td>${input(`cash.transactions.${i}.date`,t.date,'date')}</td><td>${input(`cash.transactions.${i}.category`,t.category)}</td><td>${input(`cash.transactions.${i}.description`,t.description)}</td><td>${input(`cash.transactions.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.transactions.${i}.account`,t.account,accountOpts)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td><td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td></tr>`}).join(''):empty(9,`${y} 年目前沒有符合條件的交易`)}
         </tbody></table></div>${pager('cash',p)}
       </section>
     </div>`;
@@ -679,7 +705,7 @@
       <section class="card no-print">
         <h2>新增 ${y} 年信用卡交易</h2>
         <form class="form-grid" data-form="credit">
-          <div class="field"><label>日期</label><input name="date" type="date" value="${cashDefaultDate}" min="${y}-01-01" max="${y}-12-31" required></div>
+          <div class="field"><label>日期</label>${formDateInput('date',defaultDateForYear(),`min="${y}-01-01" max="${y}-12-31" required`)}</div>
           <div class="field wide"><label>描述</label><input name="description" required></div>
           <div class="field"><label>金額</label><input name="amount" type="number" step="any" required></div>
           <div class="field"><label>商店名稱</label><input name="store"></div>
@@ -783,7 +809,7 @@
     const listTitle=vf.year?`${vf.year} 年還款記錄`:'全部年度還款記錄';
     return `<div class="page-stack"><section class="kpis"><div class="kpi accent"><span>貸款總額</span><strong>${money(sum(stats,x=>x.a.principal))}</strong></div><div class="kpi"><span>篩選還款總額</span><strong>${money(sum(filteredPayments,x=>x.amount))}</strong></div><div class="kpi negative"><span>目前總餘額</span><strong>${money(sum(stats,x=>x.balance))}</strong></div><div class="kpi"><span>篩選還款筆數</span><strong>${plain(filteredPayments.length)}</strong></div></section>
       <section class="card"><div class="section-head"><div><h2>貸款摘要</h2><p>餘額使用全部年度還款計算；下方還款明細預設顯示全部年度，可依年份、帳戶與貸款類型篩選。</p></div><button data-action="add-mortgage-account">新增帳戶</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>帳戶</th><th>貸款類型</th><th class="numeric">貸款總額</th><th class="numeric">歷年總還款</th><th class="numeric">目前餘額</th><th>備註</th><th></th></tr></thead><tbody>${stats.map(({a,i,paid,balance})=>`<tr><td>${input(`mortgage.accounts.${i}.name`,a.name)}</td><td>${input(`mortgage.accounts.${i}.loanType`,a.loanType)}</td><td>${input(`mortgage.accounts.${i}.principal`,a.principal,'number')}</td><td class="numeric computed">${money(paid)}</td><td class="numeric computed">${money(balance)}</td><td>${input(`mortgage.accounts.${i}.note`,a.note)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.accounts" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div></section>
-      <section class="card no-print"><h2>新增貸款還款</h2><form class="form-grid" data-form="mortgage"><div class="field"><label>日期</label><input name="date" type="date" value="${defaultDateForYear()}" required></div><div class="field"><label>科目</label><input name="category" value="貸款還款"></div><div class="field wide"><label>描述</label><input name="description"></div><div class="field"><label>金額</label><input name="amount" type="number" step="any" required></div><div class="field"><label>帳戶</label><select name="account">${accounts.map(a=>`<option>${esc(a)}</option>`).join('')}</select></div><div class="field"><label>貸款類型</label><input name="loanType" list="loanTypeOptions" placeholder="例如：房貸、信貸"></div><datalist id="loanTypeOptions">${loanTypes.map(t=>`<option value="${esc(t)}"></option>`).join('')}</datalist><button class="primary">新增還款</button></form></section>
+      <section class="card no-print"><h2>新增貸款還款</h2><form class="form-grid" data-form="mortgage"><div class="field"><label>日期</label>${formDateInput('date',defaultDateForYear(),'required')}</div><div class="field"><label>科目</label><input name="category" value="貸款還款"></div><div class="field wide"><label>描述</label><input name="description"></div><div class="field"><label>金額</label><input name="amount" type="number" step="any" required></div><div class="field"><label>帳戶</label><select name="account">${accounts.map(a=>`<option>${esc(a)}</option>`).join('')}</select></div><div class="field"><label>貸款類型</label><input name="loanType" list="loanTypeOptions" placeholder="例如：房貸、信貸"></div><datalist id="loanTypeOptions">${loanTypes.map(t=>`<option value="${esc(t)}"></option>`).join('')}</datalist><button class="primary">新增還款</button></form></section>
       <section class="card"><div class="section-head"><div><h2>${listTitle}</h2><p>未選年份時會一次顯示全部年度，方便跨年比較。</p></div><div class="filter-stack">${dateFilterBar('mortgage')}${filterBar}</div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>日期</th><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th>貸款類型</th><th></th></tr></thead><tbody>${p.rows.length?p.rows.map(({item:x,index:i})=>`<tr><td>${input(`mortgage.payments.${i}.date`,x.date,'date')}</td><td>${input(`mortgage.payments.${i}.category`,x.category)}</td><td>${input(`mortgage.payments.${i}.description`,x.description)}</td><td>${input(`mortgage.payments.${i}.amount`,x.amount,'number')}</td><td>${select(`mortgage.payments.${i}.account`,x.account,accounts)}</td><td>${input(`mortgage.payments.${i}.loanType`,x.loanType)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.payments" data-index="${i}">刪除</button></td></tr>`).join(''):empty(7,'目前沒有符合篩選條件的還款紀錄')}</tbody></table></div>${pager('mortgage',p)}</section>
     </div>`;
   }
@@ -893,7 +919,13 @@
   }
   function toggleSidebar(){setSidebarOpen(!sidebar.classList.contains('open'));}
   nav.addEventListener('click',e=>{
-    const btn=e.target.closest('[data-tab]'); if(!btn)return; ui.tab=btn.dataset.tab; setSidebarOpen(false); render(); main.focus();
+    const btn=e.target.closest('[data-tab]');if(!btn)return;
+    const nextTab=btn.dataset.tab;if(!TABS.some(t=>t[0]===nextTab))return;
+    const changed=ui.tab!==nextTab;ui.tab=nextTab;setSidebarOpen(false);render();
+    if(changed)requestAnimationFrame(()=>{
+      window.scrollTo({top:0,left:0,behavior:'auto'});
+      main.querySelectorAll('.table-wrap').forEach(w=>{w.scrollLeft=0;});
+    });
   });
   document.getElementById('menuBtn').addEventListener('click',toggleSidebar);
   sidebarBackdrop?.addEventListener('click',()=>setSidebarOpen(false));
@@ -930,6 +962,7 @@
 
   main.addEventListener('change',e=>{
     const el=e.target;
+    if(el.matches?.('.app-date-native'))updateDateControlDisplay(el);
     if(el.dataset.settingTheme!==undefined){
       const theme=el.value;if(THEMES.some(t=>t.id===theme)){state.meta.theme=theme;scheduleSave();applyTheme();}return;
     }
@@ -1012,6 +1045,12 @@
   });
   main.addEventListener('click',e=>{
     const b=e.target.closest('[data-action]'); if(!b)return; const a=b.dataset.action;
+    if(a==='toggle-report-mode'){
+      const path=b.dataset.path;if(!path)return;
+      const next=normalizeReportMode(b.dataset.mode)==='neutral'?'auto':'neutral';
+      setPath(path,next);scheduleSave();b.dataset.mode=next;b.classList.toggle('neutral',next==='neutral');b.classList.toggle('auto',next==='auto');
+      b.innerHTML=reportModeIcon(next);b.title=reportModeLabel(next);b.setAttribute('aria-label',reportModeLabel(next));return;
+    }
     if(a==='delete'){
       if(!confirm('確定刪除這筆資料？'))return; const arr=getPath(b.dataset.array); arr.splice(Number(b.dataset.index),1); scheduleSave(); render(); return;
     }
