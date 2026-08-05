@@ -2139,3 +2139,72 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   .installment-history-table .date-col{width:12%!important;max-width:12%!important}
   .lunch-table .date-col{width:72px!important;min-width:72px!important;max-width:72px!important}
 }
+
+
+/* v41: unified undated-date field and safe compact credit date column */
+.undated-field-label{display:none}
+.undated-check-control{display:flex;align-items:center;gap:7px;min-width:0}
+
+@media (orientation:portrait) and (max-width:760px){
+  #cashTransactionList .cash-date-filter-bar,
+  .credit-date-filter-bar{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(86px,.82fr)!important;
+    align-items:stretch!important
+  }
+  #cashTransactionList .cash-date-filter-bar>label:not(.include-undated-toggle),
+  .credit-date-filter-bar>label:not(.include-undated-toggle),
+  #cashTransactionList .cash-date-filter-bar .include-undated-toggle,
+  .credit-date-filter-bar .include-undated-toggle{align-self:stretch!important}
+  #cashTransactionList .cash-date-filter-bar .include-undated-toggle,
+  .credit-date-filter-bar .include-undated-toggle{
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;align-content:end!important;gap:2px!important;
+    width:100%!important;min-width:0!important;min-height:0!important;padding:0!important;
+    border:0!important;border-radius:0!important;background:transparent!important;box-sizing:border-box!important;
+    justify-content:stretch!important
+  }
+  #cashTransactionList .cash-date-filter-bar .undated-field-label,
+  .credit-date-filter-bar .undated-field-label{
+    display:block!important;font-size:10px!important;font-weight:400!important;line-height:1.2!important;
+    color:var(--muted)!important;white-space:nowrap!important;padding:0!important
+  }
+  #cashTransactionList .cash-date-filter-bar .undated-check-control,
+  .credit-date-filter-bar .undated-check-control{
+    display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;
+    width:100%!important;height:34px!important;min-height:34px!important;min-width:0!important;
+    padding:0 5px!important;border:1px solid #cfd8d2!important;border-radius:8px!important;
+    background:var(--control)!important;color:var(--ink)!important;box-sizing:border-box!important
+  }
+  #cashTransactionList .cash-date-filter-bar .undated-check-control span,
+  .credit-date-filter-bar .undated-check-control span{
+    display:block!important;font-size:9px!important;font-weight:700!important;line-height:1!important;
+    white-space:nowrap!important;color:var(--ink)!important
+  }
+  #cashTransactionList .cash-date-filter-bar .undated-check-control input[type="checkbox"],
+  .credit-date-filter-bar .undated-check-control input[type="checkbox"]{
+    display:block!important;width:16px!important;height:16px!important;min-width:16px!important;max-width:16px!important;
+    min-height:16px!important;max-height:16px!important;margin:0!important;padding:0!important;border:0!important;
+    border-radius:3px!important;background:transparent!important;box-shadow:none!important;accent-color:var(--green)!important;
+    -webkit-appearance:auto!important;appearance:auto!important
+  }
+  #cashTransactionList .cash-date-filter-bar .app-date-control,
+  .credit-date-filter-bar .app-date-control{height:34px!important;min-height:34px!important}
+  #cashTransactionList .cash-date-filter-bar .app-date-display,
+  .credit-date-filter-bar .app-date-display{height:32px!important;min-height:32px!important}
+
+  .credit-transactions-table th:nth-child(1),.credit-transactions-table td:nth-child(1){width:12%!important;padding-left:1px!important;padding-right:1px!important}
+  .credit-transactions-table th:nth-child(2),.credit-transactions-table td:nth-child(2){width:22%!important}
+  .credit-transactions-table th:nth-child(3),.credit-transactions-table td:nth-child(3){width:8.5%!important}
+  .credit-transactions-table th:nth-child(4),.credit-transactions-table td:nth-child(4){width:13%!important}
+  .credit-transactions-table th:nth-child(5),.credit-transactions-table td:nth-child(5){width:9%!important}
+  .credit-transactions-table th:nth-child(6),.credit-transactions-table td:nth-child(6){width:6%!important}
+  .credit-transactions-table th:nth-child(7),.credit-transactions-table td:nth-child(7){width:7%!important}
+  .credit-transactions-table th:nth-child(8),.credit-transactions-table td:nth-child(8){width:5.5%!important}
+  .credit-transactions-table th:nth-child(9),.credit-transactions-table td:nth-child(9){width:11%!important}
+  .credit-transactions-table th:nth-child(10),.credit-transactions-table td:nth-child(10){width:6%!important}
+  .credit-transactions-table .date-col .app-date-control{width:100%!important;min-width:0!important;overflow:hidden!important}
+  .credit-transactions-table .date-col .app-date-display{
+    width:100%!important;min-width:0!important;padding:0!important;justify-content:center!important;text-align:center!important;
+    font-size:clamp(5.8px,1.65vw,6.8px)!important;letter-spacing:-.35px!important;line-height:1!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important
+  }
+}

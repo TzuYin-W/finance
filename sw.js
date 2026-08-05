@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-v40-mobile-sidebar-credit-layout';
+const CACHE='finance-tracker-v41-date-filter-credit-date';
 const ASSETS=['./','./index.html','./styles.css','./initial-data.js','./app.js','./cloud-sync.js','./manifest.webmanifest','./icon.svg','./theme-pikmin-sidebar.png','./theme-pikmin-right.png','./theme-pikmin-corner.png','./theme-pokemon-right.png','./theme-pokemon-corner.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));

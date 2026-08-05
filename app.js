@@ -406,7 +406,7 @@
   function undatedToggle(scope){
     if(!scope)return '';
     const checked=!!ui.includeUndated?.[scope];
-    return `<label class="include-undated-toggle"><input type="checkbox" data-include-undated-scope="${esc(scope)}" ${checked?'checked':''}><span class="desktop-label">空白日期納入總計</span><span class="mobile-label">空白日期</span></label>`;
+    return `<label class="include-undated-toggle"><span class="undated-field-label">空白日期</span><span class="undated-check-control"><input type="checkbox" data-include-undated-scope="${esc(scope)}" ${checked?'checked':''}><span>納入總計</span></span></label>`;
   }
   function dateFilterBar(key,undatedScope=''){
     const f=ui.dateFilters[key]||{};
