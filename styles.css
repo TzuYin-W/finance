@@ -1401,3 +1401,208 @@ form.cash-entry-form *{
   .account-summary-table th,.account-summary-table td{padding-left:5px;padding-right:5px}
   .account-summary-table .small{padding:4px 5px;font-size:11px}
 }
+
+
+/* v35: keep filters after adding + compact portrait account/cash tables */
+.mobile-label{display:none}
+.cash-transactions-wrap{max-width:100%}
+.cash-transactions-table{width:100%}
+
+@media(max-width:760px){
+  .desktop-label{display:none!important}
+  .mobile-label{display:inline!important}
+
+  /* Portrait account summary stays a compact comparison table instead of cards. */
+  .account-summary-wrap{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:visible!important;
+    border:1px solid var(--line)!important;
+    border-radius:9px!important;
+  }
+  .account-summary-table{
+    display:table!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    table-layout:fixed!important;
+    border-collapse:separate!important;
+    border-spacing:0!important;
+    font-size:8px!important;
+  }
+  .account-summary-table thead{display:table-header-group!important}
+  .account-summary-table tbody{display:table-row-group!important}
+  .account-summary-table tr{
+    display:table-row!important;
+    width:auto!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:transparent!important;
+  }
+  .account-summary-table th,
+  .account-summary-table td{
+    display:table-cell!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    padding:4px 2px!important;
+    border-right:1px solid var(--line)!important;
+    border-bottom:1px solid var(--line)!important;
+    text-align:center!important;
+    vertical-align:middle!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:break-word!important;
+    line-height:1.2!important;
+  }
+  .account-summary-table th{font-size:8px!important;letter-spacing:0!important}
+  .account-summary-table td::before{content:none!important;display:none!important}
+  .account-summary-table th:nth-child(1),.account-summary-table td:nth-child(1){width:17%!important}
+  .account-summary-table th:nth-child(2),.account-summary-table td:nth-child(2){width:15%!important}
+  .account-summary-table th:nth-child(3),.account-summary-table td:nth-child(3){width:14%!important}
+  .account-summary-table th:nth-child(4),.account-summary-table td:nth-child(4){width:14%!important}
+  .account-summary-table th:nth-child(5),.account-summary-table td:nth-child(5){width:12%!important}
+  .account-summary-table th:nth-child(6),.account-summary-table td:nth-child(6){width:18%!important}
+  .account-summary-table th:nth-child(7),.account-summary-table td:nth-child(7){width:10%!important}
+  .account-summary-table input,
+  .account-summary-table select{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:28px!important;
+    min-height:28px!important;
+    margin:0!important;
+    padding:2px 1px!important;
+    border-radius:4px!important;
+    box-sizing:border-box!important;
+    font-size:8px!important;
+    line-height:1.1!important;
+    text-align:center!important;
+    text-align-last:center!important;
+  }
+  .account-summary-table td.computed{
+    padding-left:1px!important;
+    padding-right:1px!important;
+    font-size:7px!important;
+    line-height:1.15!important;
+    overflow-wrap:anywhere!important;
+  }
+  .account-summary-table .small{
+    width:100%!important;
+    min-width:0!important;
+    min-height:28px!important;
+    padding:2px 0!important;
+    border-radius:4px!important;
+    font-size:8px!important;
+    line-height:1!important;
+  }
+
+  /* Cash transactions use the full portrait viewport, with compact fixed columns. */
+  .cash-transactions-wrap{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:visible!important;
+    border-radius:9px!important;
+  }
+  .cash-transactions-table{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    table-layout:fixed!important;
+    border-collapse:separate!important;
+    border-spacing:0!important;
+    font-size:8px!important;
+  }
+  .cash-transactions-table th,
+  .cash-transactions-table td{
+    min-width:0!important;
+    max-width:none!important;
+    padding:4px 1px!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:break-word!important;
+    line-height:1.15!important;
+    text-align:center!important;
+  }
+  .cash-transactions-table th{font-size:8px!important;letter-spacing:0!important}
+  .cash-transactions-table th:nth-child(1),.cash-transactions-table td:nth-child(1){width:6%!important}
+  .cash-transactions-table th:nth-child(2),.cash-transactions-table td:nth-child(2){width:14%!important}
+  .cash-transactions-table th:nth-child(3),.cash-transactions-table td:nth-child(3){width:11%!important}
+  .cash-transactions-table th:nth-child(4),.cash-transactions-table td:nth-child(4){width:15%!important}
+  .cash-transactions-table th:nth-child(5),.cash-transactions-table td:nth-child(5){width:11%!important}
+  .cash-transactions-table th:nth-child(6),.cash-transactions-table td:nth-child(6){width:10%!important}
+  .cash-transactions-table th:nth-child(7),.cash-transactions-table td:nth-child(7){width:13%!important}
+  .cash-transactions-table th:nth-child(8),.cash-transactions-table td:nth-child(8){width:10%!important}
+  .cash-transactions-table th:nth-child(9),.cash-transactions-table td:nth-child(9){width:10%!important}
+  .cash-transactions-table input:not([type="checkbox"]),
+  .cash-transactions-table select{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:28px!important;
+    min-height:28px!important;
+    margin:0!important;
+    padding:2px 1px!important;
+    border-radius:4px!important;
+    box-sizing:border-box!important;
+    font-size:7.5px!important;
+    line-height:1!important;
+    text-align:center!important;
+    text-align-last:center!important;
+    -webkit-appearance:none!important;
+    appearance:none!important;
+    background-image:none!important;
+  }
+  .cash-transactions-table input[type="date"]{
+    font-size:6.5px!important;
+    letter-spacing:-.2px!important;
+    padding:1px!important;
+  }
+  .cash-transactions-table input[type="date"]::-webkit-calendar-picker-indicator{
+    width:100%!important;
+    height:100%!important;
+    position:absolute!important;
+    inset:0!important;
+    opacity:0!important;
+    margin:0!important;
+  }
+  .cash-transactions-table .cash-select-col{
+    width:6%!important;
+    min-width:0!important;
+    max-width:none!important;
+    padding:2px 0!important;
+  }
+  .cash-transactions-table .cash-bulk-check{
+    width:13px!important;
+    min-width:13px!important;
+    max-width:13px!important;
+    height:13px!important;
+    margin:0 auto!important;
+  }
+  .cash-transactions-table .row-color-select{font-size:7px!important;padding:1px 0!important}
+  .cash-transactions-table .small{
+    width:100%!important;
+    min-width:0!important;
+    min-height:28px!important;
+    padding:2px 0!important;
+    border-radius:4px!important;
+    font-size:8px!important;
+    line-height:1!important;
+  }
+}
+
+@media(max-width:390px){
+  .account-summary-table{font-size:7.5px!important}
+  .account-summary-table th,.account-summary-table td{padding:3px 1px!important}
+  .account-summary-table input,.account-summary-table select{font-size:7px!important;padding:1px 0!important}
+  .account-summary-table td.computed{font-size:6.5px!important}
+  .cash-transactions-table{font-size:7.5px!important}
+  .cash-transactions-table th,.cash-transactions-table td{padding:3px .5px!important}
+  .cash-transactions-table input:not([type="checkbox"]),.cash-transactions-table select{font-size:7px!important;padding:1px 0!important}
+  .cash-transactions-table input[type="date"]{font-size:6px!important}
+}
