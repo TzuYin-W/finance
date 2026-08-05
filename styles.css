@@ -1995,3 +1995,147 @@ button,input,select,textarea{font-size:calc(13px * var(--app-font-scale))}
   .credit-transactions-table th:nth-child(9),.credit-transactions-table td:nth-child(9){width:9%}
   .credit-transactions-table th:nth-child(10),.credit-transactions-table td:nth-child(10){width:6%}
 }
+
+
+/* v40: landscape drawer interaction + compact filters/forms/columns */
+/* The fixed body already locks the underlying page. Keeping touch-action enabled
+   on the drawer prevents iOS landscape from cancelling taps after tiny finger movement. */
+html.sidebar-open,body.sidebar-open{touch-action:auto!important}
+.sidebar,.sidebar nav{pointer-events:auto!important}
+.sidebar .nav-btn{pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent}
+.sidebar nav{touch-action:pan-y!important}
+
+/* Fixed-credit action cells only; the merged empty-state cell remains a true colspan row. */
+.credit-template-table td.empty{
+  display:table-cell!important;width:auto!important;text-align:center!important;padding:14px 8px!important
+}
+.credit-template-table .credit-template-actions{white-space:normal!important}
+.credit-template-table .description-col,.credit-template-table .store-col,
+.credit-transactions-table .description-col,.credit-transactions-table .store-col,
+.cash-transactions-table .description-col,.mortgage-payments-table .description-col{
+  text-align:left!important;vertical-align:middle!important
+}
+.credit-template-table .description-col input,.credit-template-table .store-col input,
+.credit-transactions-table .description-col input,.credit-transactions-table .store-col input,
+.cash-transactions-table .description-col input,.mortgage-payments-table .description-col input{
+  text-align:left!important;text-align-last:left!important;vertical-align:middle!important
+}
+
+@media (max-width:760px), (orientation:landscape) and (max-height:600px){
+  .sidebar,
+  :root[data-theme="pikmin"] .sidebar,
+  :root[data-theme="pokemon"] .sidebar{
+    height:100svh!important;height:100dvh!important;max-height:100dvh!important;
+    overflow:hidden!important;touch-action:pan-y!important
+  }
+  .sidebar nav{
+    flex:1 1 0!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
+    padding-bottom:max(28px,calc(18px + env(safe-area-inset-bottom,0px)))!important;
+    overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important
+  }
+  .sidebar .nav-btn{flex:0 0 auto!important;position:relative!important;z-index:2!important}
+}
+
+@media (orientation:landscape) and (max-height:600px){
+  .sidebar .brand{flex:0 0 auto!important}
+  .sidebar nav{padding-bottom:max(34px,calc(24px + env(safe-area-inset-bottom,0px)))!important}
+  .sidebar .nav-btn{min-height:40px!important;padding:8px 10px!important}
+}
+
+@media (orientation:portrait) and (max-width:760px){
+  /* Cash entry: exact requested rows. */
+  form.cash-entry-form{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:8px!important}
+  form.cash-entry-form>.field{min-width:0!important;width:100%!important}
+  form.cash-entry-form .cash-entry-date,form.cash-entry-form .cash-entry-category{grid-column:span 6!important}
+  form.cash-entry-form .cash-entry-description{grid-column:span 8!important}
+  form.cash-entry-form .cash-entry-amount{grid-column:span 4!important}
+  form.cash-entry-form .cash-entry-account{grid-column:span 6!important}
+  form.cash-entry-form .cash-entry-report,form.cash-entry-form .cash-entry-color{grid-column:span 3!important}
+  form.cash-entry-form>button{grid-column:1/-1!important}
+
+  /* Start, end and undated-budget checkbox share one compact row. */
+  #cashTransactionList .cash-date-filter-bar,.credit-date-filter-bar{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(78px,.78fr)!important;
+    gap:6px!important;align-items:end!important;padding:8px!important
+  }
+  #cashTransactionList .cash-date-filter-bar>strong,.credit-date-filter-bar>strong{grid-column:1/-1!important}
+  #cashTransactionList .cash-date-filter-bar>label:not(.include-undated-toggle),
+  .credit-date-filter-bar>label:not(.include-undated-toggle){grid-column:auto!important;min-width:0!important;width:100%!important;gap:2px!important}
+  #cashTransactionList .cash-date-filter-bar .include-undated-toggle,
+  .credit-date-filter-bar .include-undated-toggle{
+    grid-column:auto!important;width:100%!important;min-width:0!important;min-height:38px!important;
+    padding:4px 5px!important;gap:4px!important;justify-content:center!important;box-sizing:border-box!important
+  }
+  #cashTransactionList .cash-date-filter-bar .include-undated-toggle span,
+  .credit-date-filter-bar .include-undated-toggle span{font-size:9px!important;white-space:nowrap!important}
+  #cashTransactionList .cash-date-filter-bar .include-undated-toggle input,
+  .credit-date-filter-bar .include-undated-toggle input{width:15px!important;height:15px!important;min-width:15px!important}
+  #cashTransactionList .cash-date-filter-bar>button,.credit-date-filter-bar>button{grid-column:1/-1!important;width:100%!important}
+  #cashTransactionList .cash-date-filter-bar .app-date-display,
+  .credit-date-filter-bar .app-date-display{font-size:10px!important;padding-left:5px!important;padding-right:16px!important}
+
+  /* Fixed credit templates: description largest, fee smallest, amount/store/card equal. */
+  .credit-template-wrap{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+  .credit-template-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important}
+  .credit-template-table th:nth-child(1),.credit-template-table td:nth-child(1){width:29%!important}
+  .credit-template-table th:nth-child(2),.credit-template-table td:nth-child(2){width:13%!important}
+  .credit-template-table th:nth-child(3),.credit-template-table td:nth-child(3){width:13%!important}
+  .credit-template-table th:nth-child(4),.credit-template-table td:nth-child(4){width:13%!important}
+  .credit-template-table th:nth-child(5),.credit-template-table td:nth-child(5){width:7%!important}
+  .credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:25%!important}
+  .credit-template-table th,.credit-template-table td{min-width:0!important;padding:3px 1px!important;vertical-align:middle!important}
+  .credit-template-table .credit-template-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px!important}
+  .credit-template-table .credit-template-actions button{width:100%!important;min-width:0!important;margin:0!important;padding:3px 0!important}
+  .credit-template-table td.empty{display:table-cell!important;width:auto!important;font-size:12px!important;padding:16px 6px!important}
+
+  /* Make every visible date column as compact as practical. */
+  .cash-transactions-table th:nth-child(2),.cash-transactions-table td:nth-child(2){width:9%!important}
+  .credit-transactions-table th:nth-child(1),.credit-transactions-table td:nth-child(1){width:8%!important}
+  .mortgage-payments-table th:nth-child(1),.mortgage-payments-table td:nth-child(1){width:10%!important}
+  .cash-transactions-table .app-date-display,.credit-transactions-table .app-date-display,
+  .mortgage-payments-table .app-date-display{justify-content:center!important;text-align:center!important;padding-left:0!important;padding-right:0!important}
+
+  /* Reassign the freed space to descriptive fields while keeping the fitted tables at 100%. */
+  .cash-transactions-table th:nth-child(4),.cash-transactions-table td:nth-child(4){width:24%!important}
+  .credit-transactions-table th:nth-child(2),.credit-transactions-table td:nth-child(2){width:24%!important}
+  .credit-transactions-table th:nth-child(4),.credit-transactions-table td:nth-child(4){width:14%!important}
+  .credit-transactions-table th:nth-child(3),.credit-transactions-table td:nth-child(3){width:9%!important}
+  .credit-transactions-table th:nth-child(5),.credit-transactions-table td:nth-child(5){width:10%!important}
+  .credit-transactions-table th:nth-child(6),.credit-transactions-table td:nth-child(6){width:7%!important}
+  .credit-transactions-table th:nth-child(7),.credit-transactions-table td:nth-child(7){width:7%!important}
+  .credit-transactions-table th:nth-child(8),.credit-transactions-table td:nth-child(8){width:6%!important}
+  .credit-transactions-table th:nth-child(9),.credit-transactions-table td:nth-child(9){width:9%!important}
+  .credit-transactions-table th:nth-child(10),.credit-transactions-table td:nth-child(10){width:6%!important}
+}
+
+
+/* v40.1: reliable iOS drawer taps + final compact alignment */
+.sidebar nav{-webkit-user-select:none;user-select:none}
+.sidebar .nav-btn{-webkit-touch-callout:none}
+.data-table .description-col,.data-table .store-col{
+  text-align:left!important;vertical-align:middle!important
+}
+.data-table .description-col input,.data-table .store-col input,
+.data-table .description-col select,.data-table .store-col select{
+  text-align:left!important;text-align-last:left!important;vertical-align:middle!important
+}
+.data-table .date-col{white-space:nowrap!important;vertical-align:middle!important}
+.data-table .date-col .app-date-control,.data-table .date-col .app-date-display{
+  min-width:0!important;max-width:100%!important
+}
+
+@media (orientation:landscape) and (max-height:600px){
+  .sidebar{pointer-events:auto!important}
+  .sidebar nav{pointer-events:auto!important;overflow-y:scroll!important;scrollbar-width:thin!important}
+  .sidebar .nav-btn{pointer-events:auto!important;cursor:pointer!important}
+}
+
+@media (orientation:portrait) and (max-width:760px){
+  /* Cash table totals exactly 100%; account receives the remaining space. */
+  .cash-transactions-table th:nth-child(6),.cash-transactions-table td:nth-child(6){width:18%!important}
+
+  /* Other dated tables also keep their date cells at the practical minimum. */
+  .asset-card .data-table .date-col{width:30%!important;max-width:30%!important}
+  .installment-history-table .date-col{width:12%!important;max-width:12%!important}
+  .lunch-table .date-col{width:72px!important;min-width:72px!important;max-width:72px!important}
+}
