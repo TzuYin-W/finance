@@ -171,6 +171,7 @@
     Object.keys(s.cardFees.yearBooks).forEach(y=>years.add(Number(y)));
     Object.keys(s.homeExpenses.yearBooks).forEach(y=>years.add(Number(y)));
     s.meta.years=[...years].filter(y=>y>=1900&&y<=2200).sort((a,b)=>b-a);
+    sortAllDatedCollections(s);
     return s;
   }
   function loadState(){
@@ -205,6 +206,26 @@
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
   }
   function uid(prefix='id'){ return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`; }
+  function compareDateAscValues(aDate,bDate){
+    const a=String(aDate||'').trim(),b=String(bDate||'').trim();
+    if(!a&&!b)return 0;
+    if(!a)return 1;
+    if(!b)return -1;
+    return a.localeCompare(b);
+  }
+  function sortDatedArray(items,key='date'){
+    if(Array.isArray(items))items.sort((a,b)=>compareDateAscValues(a?.[key],b?.[key]));
+    return items;
+  }
+  function sortAllDatedCollections(target){
+    const s=target&&typeof target==='object'?target:null;if(!s)return;
+    sortDatedArray(s.cash?.transactions);
+    (s.creditCards||[]).forEach(card=>sortDatedArray(card?.transactions));
+    sortDatedArray(s.mortgage?.payments);
+    sortDatedArray(s.installmentHistory,'completedAt');
+    (s.taxesInvestments?.investments||[]).forEach(asset=>sortDatedArray(asset?.transactions));
+    sortDatedArray(s.lunch?.rows);
+  }
   function getPath(path){ return path.split('.').reduce((o,k)=>o?.[k], state); }
   function setPath(path,value){
     const parts=path.split('.'); let o=state;
@@ -401,7 +422,7 @@
   }
   function filteredDataRows(items,q,key,dateFn=x=>x.date,includeUndated=false){
     const f=ui.dateFilters[key]||{};
-    return dataRows(items,q).filter(({item})=>{const date=String(dateFn(item)||'').trim();return date?dateInRange(date,f.from,f.to):!!includeUndated;});
+    return dataRows(items,q).filter(({item})=>{const date=String(dateFn(item)||'').trim();return date?dateInRange(date,f.from,f.to):!!includeUndated;}).sort((a,b)=>compareDateAscValues(dateFn(a.item),dateFn(b.item)));
   }
   function undatedToggle(scope){
     if(!scope)return '';
@@ -601,7 +622,7 @@
       .filter(({item})=>!vf.description||String(item.description||'')===vf.description)
       .filter(({item})=>!vf.account||String(item.account||'')===vf.account)
       .filter(({item})=>vf.rowColor==='__none__'?!validRowColor(item.rowColor):(!vf.rowColor||validRowColor(item.rowColor)===vf.rowColor))
-      .sort((a,b)=>String(a.item.date||'').localeCompare(String(b.item.date||''))||a.index-b.index);
+      .sort((a,b)=>compareDateAscValues(a.item.date,b.item.date)||a.index-b.index);
   }
   function updateCashSelectionControls(){
     const count=ui.cashSelection.size;
@@ -832,7 +853,7 @@
       .filter(({item})=>!vf.year||txYear(item.date)===Number(vf.year))
       .filter(({item})=>!vf.account||String(item.account||'')===vf.account)
       .filter(({item})=>!vf.loanType||String(item.loanType||'')===vf.loanType)
-      .sort((a,b)=>String(a.item.date||'').localeCompare(String(b.item.date||''))||a.index-b.index);
+      .sort((a,b)=>compareDateAscValues(a.item.date,b.item.date)||a.index-b.index);
     const p=paged(rows,'mortgage',70);
     const filteredPayments=rows.map(x=>x.item);
     const filterBar=viewFilterBar('mortgage',[
@@ -883,7 +904,7 @@
       const assetNameMatches=q&&String(a.name||'').toLowerCase().includes(q.toLowerCase());
       const rows=filteredDataRows(a.transactions,assetNameMatches?'':q,investFilter)
         .filter(({item})=>!vf.year||txYear(item.date)===Number(vf.year))
-        .sort((x,y)=>String(y.item.date||'').localeCompare(String(x.item.date||''))||y.index-x.index);
+        .sort((x,y)=>compareDateAscValues(x.item.date,y.item.date)||x.index-y.index);
       const histories=yearTotals(a.transactions);
       const filteredTotal=sum(rows,x=>x.item.amount);
       const totalCaption=vf.year?`${vf.year} 年總計`:(dateSelection.from||dateSelection.to||q?'篩選總計':'全部年度總計');
@@ -1067,6 +1088,7 @@
       tx.reportMonth=value?(Number(String(value).slice(5,7))||0):0;
       if(String(value||'')>today())tx.monthlyFlow='neutral';
     }
+    if(el.type==='date')sortAllDatedCollections(state);
     scheduleSave();
     if(/^cash\.transactions\.\d+\.rowColor$/.test(el.dataset.path)){
       const tr=el.closest('tr');if(tr)tr.dataset.rowColor=validRowColor(value);
@@ -1095,6 +1117,7 @@
     }
     if(form.dataset.form==='credit'){const date=String(fd.date||'').trim();state.creditCards[ui.activeCard].transactions.push({id:uid('cc'),date,description:fd.description,amount:n(fd.amount),store:fd.store,card:fd.card,fee:n(fd.fee),paid:false,monthlyFlow:'auto',rowColor:''});if(!date)ui.includeUndated.credit=true;}
     if(form.dataset.form==='mortgage'){ const acc=state.mortgage.accounts.find(a=>a.name===fd.account); state.mortgage.payments.push({id:uid('mort'),date:fd.date,category:'貸款還款',description:fd.description,amount:n(fd.amount),account:fd.account,loanType:String(fd.loanType||acc?.loanType||'').trim()}); }
+    sortAllDatedCollections(state);
     scheduleSave(); toast('已新增'); render();
     if(addedCashId)requestAnimationFrame(()=>{
       const row=[...main.querySelectorAll('[data-cash-id]')].find(x=>x.dataset.cashId===addedCashId);
@@ -1153,6 +1176,7 @@
       if(!it){toast('找不到這筆分期，請重新開啟分期頁');render();return;}
       state.installments.splice(index,1);
       const archived=clone(it);archived.completedAt=defaultDateForYear();archived.year=currentYear();state.installmentHistory.unshift(archived);
+      sortAllDatedCollections(state);
       scheduleSave();toast('已移入歷史紀錄，可在下方恢復');render();return;
     }
     if(a==='restore-installment'){
@@ -1187,6 +1211,7 @@
     if(a==='set-theme'){const theme=b.dataset.theme;if(THEMES.some(t=>t.id===theme)){state.meta.theme=theme;applyTheme();toast(`已套用 ${THEMES.find(t=>t.id===theme).name}`);}}
     if(a==='switch-year'){const y=normalizeYear(b.dataset.year);if(y){state.meta.currentYear=y;state.meta.year=y;ensureYearStructure(y);ui.page={};toast(`已切換到 ${y} 年`);}}
     if(a==='add-year'){const raw=prompt('輸入西元年份，例如 2027');const y=normalizeYear(raw);if(!y||y<1900||y>2200){if(raw!==null)alert('請輸入 1900～2200 的西元年份。');return;}ensureYearStructure(y);state.meta.currentYear=y;state.meta.year=y;ui.page={};toast(`已建立並切換到 ${y} 年`);}
+    sortAllDatedCollections(state);
     scheduleSave(); render();
   });
 
