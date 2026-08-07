@@ -4,7 +4,7 @@
   const APP_CONFIG = window.FINANCE_APP_CONFIG || {};
   const STORAGE_KEY = APP_CONFIG.storageKey || 'finance-tracker-2026-v1';
   const IMPORT_ROLLBACK_KEY = `${STORAGE_KEY}-pre-import-backup`;
-  const DELETE_UNDO_KEY = `${STORAGE_KEY}-last-delete-undo-v1`;
+  const UNDO_KEY = `${STORAGE_KEY}-last-action-undo-v1`;
   const UI_STORAGE_KEY = `${STORAGE_KEY}-ui-state-v1`;
   const CLOUD_ROLLBACK_KEY = `${STORAGE_KEY}-pre-cloud-sync-backup`;
   const TABS = [
@@ -73,7 +73,7 @@
   const pageSearchBox = document.getElementById('pageSearchBox');
   if(resetButton)resetButton.textContent=APP_CONFIG.resetLabel||'還原原始 Excel';
   let saveTimer;
-  let memoryDeleteUndo = null;
+  let memoryUndo = null;
 
   function migrateState(source){
     const s = source && typeof source === 'object' ? source : {};
@@ -198,36 +198,39 @@
       }
     }, 220);
   }
-  function readDeleteUndo(){
-    if(memoryDeleteUndo?.data)return memoryDeleteUndo;
-    try{const x=JSON.parse(localStorage.getItem(DELETE_UNDO_KEY)||'null');return x?.data?x:null;}catch(_){return null;}
+  function readUndo(){
+    if(memoryUndo?.data)return memoryUndo;
+    try{const x=JSON.parse(localStorage.getItem(UNDO_KEY)||'null');return x?.data?x:null;}catch(_){return null;}
   }
-  function updateUndoDeleteButton(){
+  function updateUndoButton(){
     if(!undoDeleteBtn)return;
-    const snapshot=readDeleteUndo();
+    const snapshot=readUndo();
     undoDeleteBtn.disabled=!snapshot;
-    undoDeleteBtn.title=snapshot?`復原：${snapshot.label||'上一次刪除'}`:'目前沒有可復原的刪除';
+    undoDeleteBtn.title=snapshot?`復原上一步：${snapshot.label||'最近一次操作'}`:'目前沒有可復原的操作';
   }
-  function captureDeleteUndo(label='刪除資料'){
+  function captureUndo(label='修改資料'){
     const snapshot={createdAt:new Date().toISOString(),label,data:clone(state)};
-    memoryDeleteUndo=snapshot;
-    try{localStorage.setItem(DELETE_UNDO_KEY,JSON.stringify(snapshot));}catch(_){}
-    updateUndoDeleteButton();
+    memoryUndo=snapshot;
+    try{localStorage.setItem(UNDO_KEY,JSON.stringify(snapshot));}catch(_){}
+    updateUndoButton();
   }
-  function clearDeleteUndo(){
-    memoryDeleteUndo=null;
-    try{localStorage.removeItem(DELETE_UNDO_KEY);}catch(_){}
-    updateUndoDeleteButton();
+  function clearUndo(){
+    memoryUndo=null;
+    try{localStorage.removeItem(UNDO_KEY);}catch(_){}
+    updateUndoButton();
   }
-  function undoLastDelete(){
-    const snapshot=readDeleteUndo();
-    if(!snapshot?.data){toast('目前沒有可復原的刪除');updateUndoDeleteButton();return;}
+  function undoLastAction(){
+    const snapshot=readUndo();
+    if(!snapshot?.data){toast('目前沒有可復原的操作');updateUndoButton();return;}
     state=migrateState(clone(snapshot.data));
     sortAllDatedCollections(state);
-    clearDeleteUndo();
+    ui.activeCard=Math.max(0,Math.min(ui.activeCard,state.creditCards.length-1));
+    ui.cashSelection.clear();
+    ui.revealCashId=null;
+    clearUndo();
     scheduleSave();
     render();
-    toast(`已復原：${snapshot.label||'上一次刪除'}`);
+    toast(`已復原上一步：${snapshot.label||'最近一次操作'}`);
   }
   function esc(v){ return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function n(v){ const x = Number(v); return Number.isFinite(x) ? x : 0; }
@@ -404,6 +407,7 @@
     downloadJson(before,`財務追蹤_匯入前自動備份_${fileStamp()}.json`);
     try{
       const incoming=migrateState(clone(pendingImport.raw));
+      captureUndo('安全匯入資料');
       localStorage.setItem(STORAGE_KEY,JSON.stringify(incoming));
       state=incoming;ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
       closeImportDialog();render();saveStatus.textContent='安全匯入完成並已儲存';toast('安全匯入完成，可復原匯入前資料');
@@ -422,6 +426,7 @@
     const current=clone(state);downloadJson(current,`財務追蹤_復原前自動備份_${fileStamp()}.json`);
     try{
       const restored=migrateState(clone(snapshot.data));
+      captureUndo('復原匯入前資料');
       localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));
       state=restored;localStorage.removeItem(IMPORT_ROLLBACK_KEY);
       ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
@@ -623,7 +628,7 @@
     stashGlobalControls();
     applyTheme();
     if(restoreImportBtn)restoreImportBtn.hidden=!localStorage.getItem(IMPORT_ROLLBACK_KEY);
-    updateUndoDeleteButton();
+    updateUndoButton();
     renderNav();
     const tab=TABS.find(t=>t[0]===ui.tab);
     const year=currentYear();
@@ -664,13 +669,17 @@
   function currentCashFilteredRows(){
     const y=currentYear(),q=ui.search.cash||'',vf=ui.viewFilters.cash||{};
     const includeUndated=!!ui.includeUndated.cash;
-    return filteredDataRows(state.cash.transactions,q,'cash',x=>x.date,includeUndated)
+    const rows=filteredDataRows(state.cash.transactions,q,'cash',x=>x.date,includeUndated)
       .filter(({item})=>yearMatch(item.date,y)||(includeUndated&&!String(item.date||'').trim()))
       .filter(({item})=>!vf.category||String(item.category||'')===vf.category)
       .filter(({item})=>!vf.description||String(item.description||'')===vf.description)
       .filter(({item})=>!vf.account||String(item.account||'')===vf.account)
-      .filter(({item})=>vf.rowColor==='__none__'?!validRowColor(item.rowColor):(!vf.rowColor||validRowColor(item.rowColor)===vf.rowColor))
-      .sort((a,b)=>compareDateAscValues(a.item.date,b.item.date)||a.index-b.index);
+      .filter(({item})=>vf.rowColor==='__none__'?!validRowColor(item.rowColor):(!vf.rowColor||validRowColor(item.rowColor)===vf.rowColor));
+    if(ui.revealCashId&&!rows.some(({item})=>item.id===ui.revealCashId)){
+      const index=state.cash.transactions.findIndex(item=>item.id===ui.revealCashId);
+      if(index>=0)rows.push({item:state.cash.transactions[index],index});
+    }
+    return rows.sort((a,b)=>compareDateAscValues(a.item.date,b.item.date)||a.index-b.index);
   }
   function updateCashSelectionControls(){
     const count=ui.cashSelection.size;
@@ -832,13 +841,35 @@
     </div>`;
   }
 
-  function cashMonth(month){
-    const tx=state.cash.transactions.filter(t=>yearMatch(t.date)&&Number(String(t.date||'').slice(5,7))===month);
-    return {expense:sum(tx.filter(t=>cashFlow(t)==='expense'),t=>t.amount),income:sum(tx.filter(t=>cashFlow(t)==='income'),t=>Math.abs(n(t.amount)))};
+  function transactionDateParts(value){
+    const raw=String(value||'').trim();
+    const match=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+    if(match){
+      const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
+      if(year>=1900&&month>=1&&month<=12&&day>=1&&day<=31)return {year,month,day};
+    }
+    const parsed=new Date(raw);
+    if(!raw||Number.isNaN(parsed.getTime()))return null;
+    return {year:parsed.getFullYear(),month:parsed.getMonth()+1,day:parsed.getDate()};
+  }
+  function cashMonthlyTotals(year=currentYear()){
+    const totals=Array.from({length:12},(_,index)=>({month:index+1,expense:0,income:0}));
+    (state.cash?.transactions||[]).forEach(transaction=>{
+      const parts=transactionDateParts(transaction?.date);
+      if(!parts||parts.year!==Number(year))return;
+      const flow=cashFlow(transaction);
+      if(flow==='expense')totals[parts.month-1].expense+=Math.max(0,n(transaction.amount));
+      if(flow==='income')totals[parts.month-1].income+=Math.abs(Math.min(0,n(transaction.amount)));
+    });
+    return totals;
+  }
+  function cashMonth(month,year=currentYear()){
+    return cashMonthlyTotals(year)[Number(month)-1]||{month:Number(month)||0,expense:0,income:0};
   }
   function renderCardFees(){
     const y=currentYear(), months=state.meta.months, book=currentCardFeeBook();
     const monthTotals=months.map((_,m)=>sum(book.banks,r=>r.months[m]));
+    const cashMonths=cashMonthlyTotals(y);
     return `<div class="page-stack">
       <section class="card">
         <div class="section-head"><div><h2>${y} 年各銀行卡費</h2><p>目前年度由「設定」切換；每月總計由各銀行列自動加總。</p></div><button data-action="add-fee-bank">新增銀行</button></div>
@@ -855,9 +886,9 @@
       </section>
       <section class="card">
         <div class="section-head"><div><h2>${y} 年每月開銷</h2><p>現金／轉帳與收入依 ${y} 年「現金花費」日期自動歸月。</p></div></div>
-        <div class="formula-note">現金／轉帳＝本月現金支出合計；每月餘額＝收入－現金／轉帳－刷卡。</div>
+        <div class="formula-note">現金／轉帳＝該月列入月報的正值交易合計；收入＝該月列入月報的負值交易絕對值合計；每月餘額＝收入－現金／轉帳－刷卡。</div>
         <div class="table-wrap monthly-expense-wrap"><table class="data-table matrix-table monthly-expense-table"><thead><tr><th>月份</th><th class="numeric">現金／轉帳</th><th class="numeric">刷卡</th><th class="numeric">收入</th><th class="numeric">每月餘額</th><th class="numeric">總薪水</th><th class="numeric">喜樂薪水</th></tr></thead><tbody>
-          ${book.monthlyInputs.map((r,i)=>{const c=cashMonth(r.month);const cashNet=c.expense;const bal=c.income-cashNet-monthTotals[i];return `<tr><td>${months[i]}</td><td class="numeric computed">${money(cashNet)}</td><td class="numeric computed">${money(monthTotals[i])}</td><td class="numeric computed">${money(c.income)}</td><td class="numeric computed ${bal>=0?'income':'expense'}">${money(bal)}</td><td>${input(`cardFees.yearBooks.${y}.monthlyInputs.${i}.salary`,r.salary,'number')}</td><td>${input(`cardFees.yearBooks.${y}.monthlyInputs.${i}.musicSalary`,r.musicSalary,'number')}</td></tr>`}).join('')}
+          ${book.monthlyInputs.map((r,i)=>{const c=cashMonths[i]||{expense:0,income:0};const cashNet=c.expense;const bal=c.income-cashNet-monthTotals[i];return `<tr><td>${months[i]}</td><td class="numeric computed">${money(cashNet)}</td><td class="numeric computed">${money(monthTotals[i])}</td><td class="numeric computed">${money(c.income)}</td><td class="numeric computed ${bal>=0?'income':'expense'}">${money(bal)}</td><td>${input(`cardFees.yearBooks.${y}.monthlyInputs.${i}.salary`,r.salary,'number')}</td><td>${input(`cardFees.yearBooks.${y}.monthlyInputs.${i}.musicSalary`,r.musicSalary,'number')}</td></tr>`}).join('')}
         </tbody></table></div>
       </section>
     </div>`;
@@ -1103,10 +1134,10 @@
     const el=e.target;
     if(el.matches?.('.app-date-native'))updateDateControlDisplay(el);
     if(el.dataset.settingTheme!==undefined){
-      const theme=el.value;if(THEMES.some(t=>t.id===theme)){state.meta.theme=theme;scheduleSave();applyTheme();}return;
+      const theme=el.value;if(THEMES.some(t=>t.id===theme)){captureUndo('更改主題');state.meta.theme=theme;scheduleSave();applyTheme();}return;
     }
     if(el.dataset.settingYear!==undefined){
-      const y=normalizeYear(el.value);if(y){state.meta.currentYear=y;state.meta.year=y;ensureYearStructure(y);ui.page={};scheduleSave();renderPreservingAnchor(el);}return;
+      const y=normalizeYear(el.value);if(y){captureUndo('切換記帳年度');state.meta.currentYear=y;state.meta.year=y;ensureYearStructure(y);ui.page={};scheduleSave();renderPreservingAnchor(el);}return;
     }
     if(el.dataset.includeUndatedScope!==undefined){
       const scope=el.dataset.includeUndatedScope;ui.includeUndated[scope]=!!el.checked;
@@ -1115,6 +1146,7 @@
     }
     if(el.dataset.bulkPaid!==undefined){
       const cardIndex=Number(el.dataset.bulkPaid),card=state.creditCards[cardIndex];if(!card)return;
+      captureUndo(el.checked?'批次標記信用卡已繳':'批次取消信用卡已繳');
       const key=`credit-${cardIndex}`,q=ui.search.credit||'';
       const includeUndated=!!ui.includeUndated.credit;
       filteredDataRows(card.transactions,q,key,x=>x.date,includeUndated).filter(({item})=>yearMatch(item.date)||(includeUndated&&!String(item.date||'').trim())).forEach(({item})=>item.paid=el.checked);
@@ -1141,6 +1173,7 @@
       return;
     }
     if(!el.dataset.path)return;
+    captureUndo('修改資料');
     let value=el.type==='checkbox'?el.checked:el.value;
     if(el.type==='number') value=value===''?0:n(value);
     if(value==='true')value=true; else if(value==='false')value=false;
@@ -1164,10 +1197,12 @@
     if(form.dataset.form==='credit-card'){
       const bank=String(fd.bank||'').trim(),title=String(fd.title||'').trim();
       if(!bank||!title)return;
+      captureUndo('新增信用卡卡別');
       state.creditCards.push({id:uid('card'),bank,title,limit:n(fd.limit),transactions:[],templates:[]});
       ui.activeCard=state.creditCards.length-1;ui.showAddCard=false;ui.deleteCardIndex=null;
     }
     if(form.dataset.form==='cash'){
+      captureUndo('新增現金交易');
       const y=currentYear();
       const rawDate=String(fd.date||'').trim();
       let date=rawDate?normalizeDateValue(rawDate,defaultDateForYear()):'';
@@ -1177,10 +1212,15 @@
       state.meta.years=Array.from(new Set([...(state.meta.years||[]),y])).sort((a,b)=>b-a);
       ui.revealCashId=addedCashId;if(!date)ui.includeUndated.cash=true;
     }
-    if(form.dataset.form==='credit'){const date=String(fd.date||'').trim();state.creditCards[ui.activeCard].transactions.push({id:uid('cc'),date,description:fd.description,amount:n(fd.amount),store:fd.store,card:fd.card,fee:n(fd.fee),paid:false,monthlyFlow:'auto',rowColor:''});if(!date)ui.includeUndated.credit=true;}
-    if(form.dataset.form==='mortgage'){ const acc=state.mortgage.accounts.find(a=>a.name===fd.account); state.mortgage.payments.push({id:uid('mort'),date:fd.date,category:'貸款還款',description:fd.description,amount:n(fd.amount),account:fd.account,loanType:String(fd.loanType||acc?.loanType||'').trim()}); }
+    if(form.dataset.form==='credit'){captureUndo('新增信用卡交易');const date=String(fd.date||'').trim();state.creditCards[ui.activeCard].transactions.push({id:uid('cc'),date,description:fd.description,amount:n(fd.amount),store:fd.store,card:fd.card,fee:n(fd.fee),paid:false,monthlyFlow:'auto',rowColor:''});if(!date)ui.includeUndated.credit=true;}
+    if(form.dataset.form==='mortgage'){ captureUndo('新增貸款還款'); const acc=state.mortgage.accounts.find(a=>a.name===fd.account); state.mortgage.payments.push({id:uid('mort'),date:fd.date,category:'貸款還款',description:fd.description,amount:n(fd.amount),account:fd.account,loanType:String(fd.loanType||acc?.loanType||'').trim()}); }
     sortAllDatedCollections(state);
-    scheduleSave(); toast('已新增'); render();
+    if(addedCashId){
+      const revealRows=currentCashFilteredRows();
+      const revealIndex=revealRows.findIndex(({item})=>item.id===addedCashId);
+      if(revealIndex>=0)ui.page.cash=Math.floor(revealIndex/70)+1;
+    }
+    scheduleSave(); toast(addedCashId?'已新增並列入現金花費':'已新增'); render();
     if(addedCashId)requestAnimationFrame(()=>{
       const row=[...main.querySelectorAll('[data-cash-id]')].find(x=>x.dataset.cashId===addedCashId);
       if(row){
@@ -1196,6 +1236,7 @@
     if(a==='toggle-credit-total-mode'){
       const path=b.dataset.path;if(!path)return;
       const next=normalizeReportMode(b.dataset.mode)==='neutral'?'auto':'neutral';
+      captureUndo('切換信用卡統計');
       setPath(path,next);scheduleSave();b.dataset.mode=next;b.classList.toggle('neutral',next==='neutral');b.classList.toggle('auto',next==='auto');
       b.innerHTML=reportModeIcon(next);b.title=creditTotalModeLabel(next);b.setAttribute('aria-label',creditTotalModeLabel(next));
       renderPreservingAnchor(b);return;
@@ -1203,11 +1244,12 @@
     if(a==='toggle-report-mode'){
       const path=b.dataset.path;if(!path)return;
       const next=normalizeReportMode(b.dataset.mode)==='neutral'?'auto':'neutral';
+      captureUndo('切換月報處理');
       setPath(path,next);scheduleSave();b.dataset.mode=next;b.classList.toggle('neutral',next==='neutral');b.classList.toggle('auto',next==='auto');
       b.innerHTML=reportModeIcon(next);b.title=reportModeLabel(next);b.setAttribute('aria-label',reportModeLabel(next));return;
     }
     if(a==='delete'){
-      if(!confirm('確定刪除這筆資料？'))return; const arr=getPath(b.dataset.array); if(!Array.isArray(arr))return; captureDeleteUndo('刪除資料'); arr.splice(Number(b.dataset.index),1); scheduleSave(); render(); return;
+      if(!confirm('確定刪除這筆資料？'))return; const arr=getPath(b.dataset.array); if(!Array.isArray(arr))return; captureUndo('刪除資料'); arr.splice(Number(b.dataset.index),1); scheduleSave(); render(); return;
     }
     if(a==='page'){ui.page[b.dataset.key]=Number(b.dataset.page);render();return;}
     if(a==='clear-date-filter'){ui.dateFilters[b.dataset.key]={};ui.page[b.dataset.key]=1;render();return;}
@@ -1219,6 +1261,7 @@
       const report=main.querySelector('[data-bulk-cash-report]')?.value||'__keep__';
       const color=main.querySelector('[data-bulk-cash-color]')?.value||'__keep__';
       if(report==='__keep__'&&color==='__keep__'){toast('請選擇要修改的月報處理或顏色');return;}
+      captureUndo('批次修改現金交易');
       let changed=0;
       state.cash.transactions.forEach(t=>{
         if(!ui.cashSelection.has(t.id))return;
@@ -1228,15 +1271,16 @@
       });
       ui.cashSelection.clear();scheduleSave();toast(`已批次更新 ${changed} 筆資料`);renderPreservingAnchor(b);return;
     }
-    if(a==='add-cash-template')state.cash.templates.push({id:uid('cashtpl'),category:'固定支出',description:'',amount:0,account:state.cash.accounts[0]?.name||'',reportMode:'auto'});
+    if(a==='add-cash-template'){captureUndo('新增固定現金項目');state.cash.templates.push({id:uid('cashtpl'),category:'固定支出',description:'',amount:0,account:state.cash.accounts[0]?.name||'',reportMode:'auto'});}
     if(a==='use-cash-template'){const t=state.cash.templates[Number(b.dataset.index)];fillForm('cash',{category:t.category,description:t.description,amount:t.amount,account:t.account,reportMode:t.reportMode});toast('已帶入新增欄');return;}
     if(a==='copy-cash-template'){const t=state.cash.templates[Number(b.dataset.index)];copyText([t.category,t.description,t.amount,t.account,t.reportMode==='neutral'?'不列入月報':'依正負號'].join('\t'));return;}
-    if(a==='add-credit-template'){state.creditCards[ui.activeCard].templates.push({id:uid('cctpl'),description:'固定支出',amount:0,store:'',card:'',fee:0});}
+    if(a==='add-credit-template'){captureUndo('新增固定信用卡支出');state.creditCards[ui.activeCard].templates.push({id:uid('cctpl'),description:'固定支出',amount:0,store:'',card:'',fee:0});}
     if(a==='use-credit-template'){const t=state.creditCards[ui.activeCard].templates[Number(b.dataset.index)];fillForm('credit',{description:t.description,amount:t.amount,store:t.store,card:t.card,fee:t.fee});toast('已帶入新增欄');return;}
     if(a==='copy-credit-template'){const t=state.creditCards[ui.activeCard].templates[Number(b.dataset.index)];copyText([t.description,t.amount,t.store,t.card,t.fee].join('\t'));return;}
     if(a==='complete-installment'){
       const index=Number(b.dataset.index),it=state.installments[index];
       if(!it){toast('找不到這筆分期，請重新開啟分期頁');render();return;}
+      captureUndo('完成分期');
       state.installments.splice(index,1);
       const archived=clone(it);archived.completedAt=defaultDateForYear();archived.year=currentYear();state.installmentHistory.unshift(archived);
       sortAllDatedCollections(state);
@@ -1245,40 +1289,41 @@
     if(a==='restore-installment'){
       const index=Number(b.dataset.index),it=state.installmentHistory[index];
       if(!it){toast('找不到這筆歷史紀錄');render();return;}
+      captureUndo('恢復分期');
       state.installmentHistory.splice(index,1);const restored=clone(it);delete restored.completedAt;restored.year=currentYear();state.installments.push(restored);
       scheduleSave();toast('已恢復為進行中');render();return;
     }
     if(a==='set-card'){ui.activeCard=Number(b.dataset.index);ui.deleteCardIndex=null;render();return;}
-    if(a==='add-account'){const name=prompt('帳戶名稱');if(name)state.cash.accounts.push({id:uid('acc'),name,initial:0,initialByYear:{[String(currentYear())]:0},note:'',includeInTwdTotal:true});}
+    if(a==='add-account'){const name=prompt('帳戶名稱');if(name){captureUndo('新增現金帳戶');state.cash.accounts.push({id:uid('acc'),name,initial:0,initialByYear:{[String(currentYear())]:0},note:'',includeInTwdTotal:true});}}
     if(a==='add-card'){ui.showAddCard=true;ui.deleteCardIndex=null;render();setTimeout(()=>main.querySelector('[data-form="credit-card"] input[name="bank"]')?.focus(),0);return;}
     if(a==='cancel-add-card'){ui.showAddCard=false;render();return;}
     if(a==='delete-card'){ui.deleteCardIndex=Number(b.dataset.index);ui.showAddCard=false;render();return;}
     if(a==='cancel-delete-card'){ui.deleteCardIndex=null;render();return;}
-    if(a==='confirm-delete-card'){const index=Number(b.dataset.index);const title=state.creditCards[index]?.title||'此卡別';captureDeleteUndo(`刪除卡別「${title}」`);state.creditCards.splice(index,1);ui.activeCard=Math.max(0,Math.min(index-1,state.creditCards.length-1));ui.deleteCardIndex=null;toast(`已刪除 ${title}`);}
-    if(a==='add-fee-bank'){const name=prompt('銀行名稱');if(name)currentCardFeeBook().banks.push({id:uid('bank'),bank:name,months:Array(12).fill(0)});}
-    if(a==='add-fee-history'){const year=prompt('年度');if(year)state.cardFees.history.unshift({year,months:Array(12).fill(0)});}
-    if(a==='add-home-item'){const item=prompt('支出項目');if(item)currentHomeBook().items.push({id:uid('home'),item,months:Array(12).fill(0)});}
-    if(a==='add-home-history'){const year=prompt('年度');if(year)state.homeExpenses.history.unshift({year,months:Array(12).fill(0)});}
-    if(a==='add-installment')state.installments.push({id:uid('inst'),year:currentYear(),title:'新分期',total:0,account:'',plans:[{label:'一期',amount:0,schedule:''}],note:''});
-    if(a==='add-plan')state.installments[Number(b.dataset.index)].plans.push({label:'',amount:0,schedule:''});
-    if(a==='add-mortgage-account'){const name=prompt('貸款帳戶名稱');if(name)state.mortgage.accounts.push({id:uid('mortacc'),name,loanType:'',principal:0,note:''});}
-    if(a==='add-tax')state.taxesInvestments.taxes.push({id:uid('tax'),year:String(currentYear()),houseTax:0,insurance:0,incomeTax:0,landTax:0});
-    if(a==='add-asset'){const name=prompt('投資標的名稱');if(name)state.taxesInvestments.investments.push({id:uid('asset'),name,transactions:[]});}
-    if(a==='add-invest-tx')state.taxesInvestments.investments[Number(b.dataset.index)].transactions.push({id:uid('inv'),date:defaultDateForYear(),amount:0});
-    if(a==='add-lunch-row')state.lunch.rows.push({id:uid('lunch'),date:defaultDateForYear(),location:'',costs:Object.fromEntries(state.lunch.products.map(p=>[p.key,0]))});
-    if(a==='add-product'){const name=prompt('食材名稱');if(name){const key=uid('p').replaceAll('-','_');state.lunch.products.push({key,name});state.lunch.rows.forEach(r=>r.costs[key]=0);}}
-    if(a==='delete-product'){const i=Number(b.dataset.index),p=state.lunch.products[i];if(!confirm(`刪除「${p.name}」欄及其所有金額？`))return;captureDeleteUndo(`刪除食材欄「${p.name}」`);state.lunch.products.splice(i,1);state.lunch.rows.forEach(r=>delete r.costs[p.key]);}
-    if(a==='font-smaller'){state.meta.fontScale=Math.max(.85,Math.round(((Number(state.meta.fontScale)||1)-.05)*100)/100);scheduleSave();renderPreservingAnchor(b);return;}
-    if(a==='font-larger'){state.meta.fontScale=Math.min(1.30,Math.round(((Number(state.meta.fontScale)||1)+.05)*100)/100);scheduleSave();renderPreservingAnchor(b);return;}
-    if(a==='font-reset'){state.meta.fontScale=1;scheduleSave();renderPreservingAnchor(b);return;}
-    if(a==='set-theme'){const theme=b.dataset.theme;if(THEMES.some(t=>t.id===theme)){state.meta.theme=theme;applyTheme();toast(`已套用 ${THEMES.find(t=>t.id===theme).name}`);}}
-    if(a==='switch-year'){const y=normalizeYear(b.dataset.year);if(y){state.meta.currentYear=y;state.meta.year=y;ensureYearStructure(y);ui.page={};toast(`已切換到 ${y} 年`);}}
-    if(a==='add-year'){const raw=prompt('輸入西元年份，例如 2027');const y=normalizeYear(raw);if(!y||y<1900||y>2200){if(raw!==null)alert('請輸入 1900～2200 的西元年份。');return;}ensureYearStructure(y);state.meta.currentYear=y;state.meta.year=y;ui.page={};toast(`已建立並切換到 ${y} 年`);}
+    if(a==='confirm-delete-card'){const index=Number(b.dataset.index);const title=state.creditCards[index]?.title||'此卡別';captureUndo(`刪除卡別「${title}」`);state.creditCards.splice(index,1);ui.activeCard=Math.max(0,Math.min(index-1,state.creditCards.length-1));ui.deleteCardIndex=null;toast(`已刪除 ${title}`);}
+    if(a==='add-fee-bank'){const name=prompt('銀行名稱');if(name){captureUndo('新增卡費銀行');currentCardFeeBook().banks.push({id:uid('bank'),bank:name,months:Array(12).fill(0)});}}
+    if(a==='add-fee-history'){const year=prompt('年度');if(year){captureUndo('新增歷年卡費');state.cardFees.history.unshift({year,months:Array(12).fill(0)});}}
+    if(a==='add-home-item'){const item=prompt('支出項目');if(item){captureUndo('新增家庭支出項目');currentHomeBook().items.push({id:uid('home'),item,months:Array(12).fill(0)});}}
+    if(a==='add-home-history'){const year=prompt('年度');if(year){captureUndo('新增家庭支出年度');state.homeExpenses.history.unshift({year,months:Array(12).fill(0)});}}
+    if(a==='add-installment'){captureUndo('新增分期');state.installments.push({id:uid('inst'),year:currentYear(),title:'新分期',total:0,account:'',plans:[{label:'一期',amount:0,schedule:''}],note:''});}
+    if(a==='add-plan'){captureUndo('新增分期期別');state.installments[Number(b.dataset.index)].plans.push({label:'',amount:0,schedule:''});}
+    if(a==='add-mortgage-account'){const name=prompt('貸款帳戶名稱');if(name){captureUndo('新增貸款帳戶');state.mortgage.accounts.push({id:uid('mortacc'),name,loanType:'',principal:0,note:''});}}
+    if(a==='add-tax'){captureUndo('新增稅費資料');state.taxesInvestments.taxes.push({id:uid('tax'),year:String(currentYear()),houseTax:0,insurance:0,incomeTax:0,landTax:0});}
+    if(a==='add-asset'){const name=prompt('投資標的名稱');if(name){captureUndo('新增投資標的');state.taxesInvestments.investments.push({id:uid('asset'),name,transactions:[]});}}
+    if(a==='add-invest-tx'){captureUndo('新增投資配息');state.taxesInvestments.investments[Number(b.dataset.index)].transactions.push({id:uid('inv'),date:defaultDateForYear(),amount:0});}
+    if(a==='add-lunch-row'){captureUndo('新增午餐採買');state.lunch.rows.push({id:uid('lunch'),date:defaultDateForYear(),location:'',costs:Object.fromEntries(state.lunch.products.map(p=>[p.key,0]))});}
+    if(a==='add-product'){const name=prompt('食材名稱');if(name){captureUndo('新增午餐食材欄');const key=uid('p').replaceAll('-','_');state.lunch.products.push({key,name});state.lunch.rows.forEach(r=>r.costs[key]=0);}}
+    if(a==='delete-product'){const i=Number(b.dataset.index),p=state.lunch.products[i];if(!confirm(`刪除「${p.name}」欄及其所有金額？`))return;captureUndo(`刪除食材欄「${p.name}」`);state.lunch.products.splice(i,1);state.lunch.rows.forEach(r=>delete r.costs[p.key]);}
+    if(a==='font-smaller'){captureUndo('縮小字體');state.meta.fontScale=Math.max(.85,Math.round(((Number(state.meta.fontScale)||1)-.05)*100)/100);scheduleSave();renderPreservingAnchor(b);return;}
+    if(a==='font-larger'){captureUndo('放大字體');state.meta.fontScale=Math.min(1.30,Math.round(((Number(state.meta.fontScale)||1)+.05)*100)/100);scheduleSave();renderPreservingAnchor(b);return;}
+    if(a==='font-reset'){captureUndo('重設字體大小');state.meta.fontScale=1;scheduleSave();renderPreservingAnchor(b);return;}
+    if(a==='set-theme'){const theme=b.dataset.theme;if(THEMES.some(t=>t.id===theme)){captureUndo('更改主題');state.meta.theme=theme;applyTheme();toast(`已套用 ${THEMES.find(t=>t.id===theme).name}`);}}
+    if(a==='switch-year'){const y=normalizeYear(b.dataset.year);if(y){captureUndo('切換記帳年度');state.meta.currentYear=y;state.meta.year=y;ensureYearStructure(y);ui.page={};toast(`已切換到 ${y} 年`);}}
+    if(a==='add-year'){const raw=prompt('輸入西元年份，例如 2027');const y=normalizeYear(raw);if(!y||y<1900||y>2200){if(raw!==null)alert('請輸入 1900～2200 的西元年份。');return;}captureUndo('新增記帳年度');ensureYearStructure(y);state.meta.currentYear=y;state.meta.year=y;ui.page={};toast(`已建立並切換到 ${y} 年`);}
     sortAllDatedCollections(state);
     scheduleSave(); render();
   });
 
-  undoDeleteBtn?.addEventListener('click',undoLastDelete);
+  undoDeleteBtn?.addEventListener('click',undoLastAction);
 
   settingsToolbar.addEventListener('click',e=>{
     const b=e.target.closest('[data-global-action]'); if(!b)return;
@@ -1288,7 +1333,7 @@
     if(b.dataset.globalAction==='restore-import')restorePreImport();
     if(b.dataset.globalAction==='print')window.print();
     if(b.dataset.globalAction==='reset'){
-      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureDeleteUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false}; scheduleSave();render();
+      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false}; scheduleSave();render();
     }
   });
   document.getElementById('importFile').addEventListener('change',e=>{
@@ -1340,6 +1385,7 @@
       const validation=backupValidation(raw);
       if(!validation.compatible)throw new Error(validation.errors.join(' ')||'雲端資料格式不相容。');
       const incoming=migrateState(clone(raw));
+      captureUndo('載入雲端資料');
       if(remoteUpdatedAt)incoming.meta.updatedAt=remoteUpdatedAt;
       localStorage.setItem(STORAGE_KEY,JSON.stringify(incoming));
       state=incoming;
@@ -1352,6 +1398,7 @@
       try{snapshot=JSON.parse(localStorage.getItem(CLOUD_ROLLBACK_KEY)||'null');}catch(_){snapshot=null;}
       if(!snapshot?.data)throw new Error('找不到可復原的雲端同步前資料。');
       const restored=migrateState(clone(snapshot.data));
+      captureUndo('復原雲端同步前資料');
       localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));
       state=restored;localStorage.removeItem(CLOUD_ROLLBACK_KEY);
       ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
