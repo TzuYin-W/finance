@@ -677,10 +677,24 @@
     requestAnimationFrame(()=>window.scrollTo(0,scrollY));
   }
 
+  function accountSummaryIncludesDate(date,year=currentYear()){
+    const iso=normalizeDateValue(date,'');
+    if(!iso||txYear(iso)!==Number(year))return false;
+    const now=today(),nowYear=txYear(now),y=Number(year);
+    if(y<nowYear)return true;
+    if(y>nowYear)return false;
+    return iso<=now;
+  }
+  function accountIncludedInTwdTotal(account){
+    const text=`${account?.name||''} ${account?.note||''}`.toLowerCase();
+    if(/(?:日幣|英鎊|美元|美金|歐元|jpy|gbp|usd|eur)/i.test(text))return false;
+    if(String(account?.name||'').trim()==='現金(航)')return false;
+    return account?.includeInTwdTotal!==false;
+  }
   function accountStats(){
-    const y=currentYear(),includeUndated=!!ui.includeUndated.cash;
+    const y=currentYear();
     return state.cash.accounts.map((a,i)=>{
-      const movement=sum(state.cash.transactions.filter(t=>t.account===a.name&&(yearMatch(t.date,y)||(includeUndated&&!String(t.date||'').trim()))),t=>t.amount);
+      const movement=sum(state.cash.transactions.filter(t=>t.account===a.name&&accountSummaryIncludesDate(t.date,y)),t=>t.amount);
       const opening=n(a.initialByYear?.[String(y)]);
       return {a,i,opening,movement,balance:opening-movement};
     });
@@ -716,7 +730,11 @@
     const cashDefaultReportMode=cashDefaultDate>today()?'neutral':'auto';
     const includeUndated=!!ui.includeUndated.cash;
     const yearTx=state.cash.transactions.filter(t=>yearMatch(t.date,y)||(includeUndated&&!String(t.date||'').trim()));
-    const totalTwd=sum(stats.filter(x=>x.a.includeInTwdTotal),x=>x.balance);
+    const totalTwd=sum(stats.filter(x=>accountIncludedInTwdTotal(x.a)),x=>x.balance);
+    const calendarYear=txYear(today());
+    const accountMovementLabel=y===calendarYear?'截至今日交易總和':(y<calendarYear?'全年交易總和':'交易總和');
+    const accountBalanceLabel=y===calendarYear?'目前餘額':(y<calendarYear?'年末餘額':'期初餘額');
+    const accountTotalLabel=y===calendarYear?`${y} 年截至今日台幣帳戶餘額總計`:(y<calendarYear?`${y} 年末台幣帳戶餘額總計`:`${y} 年台幣帳戶期初餘額總計`);
     const incomes=yearTx.filter(t=>cashFlow(t)==='income');
     const expenses=yearTx.filter(t=>cashFlow(t)==='expense');
     const income=sum(incomes,t=>Math.abs(n(t.amount))), expense=sum(expenses,t=>n(t.amount));
@@ -740,15 +758,15 @@
     ].join(''));
     return `<div class="page-stack">
       <section class="kpis">
-        <div class="kpi accent"><span>${y} 年納入台幣總額的帳戶餘額</span><strong>${money(totalTwd)}</strong></div>
+        <div class="kpi accent"><span>${accountTotalLabel}</span><strong>${money(totalTwd)}</strong></div>
         <div class="kpi positive"><span>${y} 年收入（負值）${includeUndated?'＋空白日期預估':''}</span><strong>${money(income)}</strong></div>
         <div class="kpi negative"><span>${y} 年支出（正值）${includeUndated?'＋空白日期預估':''}</span><strong>${money(expense)}</strong></div>
         <div class="kpi"><span>${y} 年交易筆數</span><strong>${plain(yearTx.length)}</strong></div>
       </section>
       <section class="card">
-        <div class="section-head"><div><h2>${y} 年帳戶摘要</h2><p>餘額＝本年度期初現金－本年度交易金額。正值為支出、負值為收入。</p></div><button data-action="add-account">新增帳戶</button></div>
-        <div class="table-wrap account-summary-wrap"><table class="data-table account-summary-table fit-table"><thead><tr><th><span class="desktop-label">帳戶</span><span class="mobile-label">帳戶</span></th><th class="numeric"><span class="desktop-label">${y} 年期初現金</span><span class="mobile-label">期初</span></th><th class="numeric"><span class="desktop-label">本年交易總和</span><span class="mobile-label">交易</span></th><th class="numeric"><span class="desktop-label">本年期末餘額</span><span class="mobile-label">期末</span></th><th>備註</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th></tr></thead><tbody>
-          ${stats.map(({a,i,opening,movement,balance})=>`<tr><td data-label="帳戶">${input(`cash.accounts.${i}.name`,a.name)}</td><td data-label="${y} 年期初現金">${input(`cash.accounts.${i}.initialByYear.${y}`,opening,'number')}</td><td data-label="本年交易總和" class="numeric computed">${money(movement,2)}</td><td data-label="本年期末餘額" class="numeric computed">${money(balance,2)}</td><td data-label="備註">${input(`cash.accounts.${i}.note`,a.note)}</td><td data-label="操作"><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td></tr>`).join('')}
+        <div class="section-head"><div><h2>${y} 年帳戶摘要</h2><p>餘額＝期初現金－已發生交易金額；未來預先建立與空白日期的項目不會提前影響帳戶餘額。</p></div><button data-action="add-account">新增帳戶</button></div>
+        <div class="table-wrap account-summary-wrap"><table class="data-table account-summary-table fit-table"><thead><tr><th><span class="desktop-label">帳戶</span><span class="mobile-label">帳戶</span></th><th class="numeric"><span class="desktop-label">${y} 年期初現金</span><span class="mobile-label">期初</span></th><th class="numeric"><span class="desktop-label">${accountMovementLabel}</span><span class="mobile-label">交易</span></th><th class="numeric"><span class="desktop-label">${accountBalanceLabel}</span><span class="mobile-label">餘額</span></th><th>備註</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th></tr></thead><tbody>
+          ${stats.map(({a,i,opening,movement,balance})=>`<tr><td data-label="帳戶">${input(`cash.accounts.${i}.name`,a.name)}</td><td data-label="${y} 年期初現金">${input(`cash.accounts.${i}.initialByYear.${y}`,opening,'number')}</td><td data-label="${accountMovementLabel}" class="numeric computed">${money(movement,2)}</td><td data-label="${accountBalanceLabel}" class="numeric computed">${money(balance,2)}</td><td data-label="備註">${input(`cash.accounts.${i}.note`,a.note)}</td><td data-label="操作"><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td></tr>`).join('')}
         </tbody></table></div>
       </section>
       <section class="card no-print">
