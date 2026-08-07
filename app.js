@@ -12,7 +12,7 @@
     ['home','家的支出','🏠'],['installments','分期','💸'],['mortgage','貸款','🏦'],
     ['tax','稅費','🧮'],['investment','投資','📈'],['lunch','午餐花費','🥗'],['settings','設定','⚙️']
   ];
-  const CURRENT_SCHEMA = 8;
+  const CURRENT_SCHEMA = 9;
   const THEMES = [
     {id:'olive',name:'橄欖綠色調',colors:['#7b963f','#eaf2d7','#f5f7f4']},
     {id:'pink',name:'粉色調',colors:['#c97891','#f9e7ed','#fff7fa']},
@@ -105,6 +105,16 @@
       if(t.date) t.reportMonth = Number(String(t.date).slice(5,7)) || t.reportMonth || 1;
     });
     if(applyFutureMonthlyDefault) s.meta.futureMonthlyFlowDefaultVersion = 1;
+
+    /* Repair the earlier Excel import where every imported cash row was incorrectly marked neutral. */
+    const repairLegacyMonthlyCash = Number(s.meta.cashMonthlyImportRepairVersion || 0) < 1
+      && /2026財務追蹤\(3\)\.xlsx$/i.test(String(s.meta.source || ''));
+    if(repairLegacyMonthlyCash){
+      s.cash.transactions.forEach(t => {
+        if(/^cash-\d+$/.test(String(t.id || '')) && legacyImportedCashShouldAuto(t)) t.monthlyFlow = 'auto';
+      });
+      s.meta.cashMonthlyImportRepairVersion = 1;
+    }
     s.cash.templates.forEach(t => { t.reportMode = t.reportMode === 'neutral' ? 'neutral' : 'auto'; });
 
     s.creditCards = Array.isArray(s.creditCards) ? s.creditCards : [];
@@ -451,6 +461,15 @@
 
   function checkbox(path,checked,label=''){
     return `<label class="check-label"><input type="checkbox" data-path="${esc(path)}" ${checked?'checked':''}>${label?`<span>${esc(label)}</span>`:''}</label>`;
+  }
+  function legacyImportedCashShouldAuto(t){
+    const date=String(t?.date||'').trim();
+    if(!date || date > today() || n(t?.amount)===0) return false;
+    const category=String(t?.category||'').trim();
+    if(['卡費','轉存','家用支出','其他'].includes(category)) return false;
+    const account=String(t?.account||'');
+    if(/英鎊|日幣|美金|美元|JPY|GBP|USD|EUR|歐元/i.test(account)) return false;
+    return true;
   }
   function cashFlow(t){
     if(t.monthlyFlow === 'neutral') return 'neutral';
