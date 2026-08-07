@@ -2612,3 +2612,11 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   margin-left:auto!important;
   margin-right:auto!important;
 }
+
+/* v53: page-wide undo delete control and credit unpaid filter */
+.undo-delete-btn{margin-left:auto;white-space:nowrap;border-color:var(--green);color:var(--green-dark);background:var(--control);font-weight:700}
+.undo-delete-btn:disabled{opacity:.42;cursor:not-allowed;border-color:var(--line);color:var(--muted)}
+.credit-unpaid-filter.active{background:var(--green)!important;color:#fff!important;border-color:var(--green)!important}
+@media(max-width:760px){
+  .topbar .undo-delete-btn{margin-left:auto;padding:7px 9px;font-size:12px}
+}

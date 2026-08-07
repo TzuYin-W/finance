@@ -4,6 +4,7 @@
   const APP_CONFIG = window.FINANCE_APP_CONFIG || {};
   const STORAGE_KEY = APP_CONFIG.storageKey || 'finance-tracker-2026-v1';
   const IMPORT_ROLLBACK_KEY = `${STORAGE_KEY}-pre-import-backup`;
+  const DELETE_UNDO_KEY = `${STORAGE_KEY}-last-delete-undo-v1`;
   const UI_STORAGE_KEY = `${STORAGE_KEY}-ui-state-v1`;
   const CLOUD_ROLLBACK_KEY = `${STORAGE_KEY}-pre-cloud-sync-backup`;
   const TABS = [
@@ -38,7 +39,7 @@
     try{const x=JSON.parse(localStorage.getItem(UI_STORAGE_KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(_){return {};}
   }
   function saveUiPrefs(){
-    try{localStorage.setItem(UI_STORAGE_KEY,JSON.stringify({tab:ui.tab,search:ui.search,page:ui.page,activeCard:ui.activeCard,dateFilters:ui.dateFilters,viewFilters:ui.viewFilters,includeUndated:ui.includeUndated}));}catch(_){}
+    try{localStorage.setItem(UI_STORAGE_KEY,JSON.stringify({tab:ui.tab,search:ui.search,page:ui.page,activeCard:ui.activeCard,dateFilters:ui.dateFilters,viewFilters:ui.viewFilters,includeUndated:ui.includeUndated,creditUnpaidOnly:ui.creditUnpaidOnly}));}catch(_){}
   }
   const savedUi=loadUiPrefs();
   const ui = {
@@ -49,6 +50,7 @@
     dateFilters:savedUi.dateFilters&&typeof savedUi.dateFilters==='object'?savedUi.dateFilters:{},
     viewFilters:Object.assign({cash:{},mortgage:{},tax:{},investment:{}},savedUi.viewFilters&&typeof savedUi.viewFilters==='object'?savedUi.viewFilters:{}),
     includeUndated:Object.assign({cash:false,credit:false},savedUi.includeUndated&&typeof savedUi.includeUndated==='object'?savedUi.includeUndated:{}),
+    creditUnpaidOnly:savedUi.creditUnpaidOnly===true,
     cashSelection:new Set(), showAddCard:false, deleteCardIndex:null, revealCashId:null
   };
   if (ui.tab === 'taxInvest') ui.tab = 'tax';
@@ -57,6 +59,7 @@
   const nav = document.getElementById('nav');
   const main = document.getElementById('main');
   const pageTitle = document.getElementById('pageTitle');
+  const undoDeleteBtn = document.getElementById('undoDeleteBtn');
   const searchInput = document.getElementById('globalSearch');
   const saveStatus = document.getElementById('saveStatus');
   const toastEl = document.getElementById('toast');
@@ -70,6 +73,7 @@
   const pageSearchBox = document.getElementById('pageSearchBox');
   if(resetButton)resetButton.textContent=APP_CONFIG.resetLabel||'還原原始 Excel';
   let saveTimer;
+  let memoryDeleteUndo = null;
 
   function migrateState(source){
     const s = source && typeof source === 'object' ? source : {};
@@ -193,6 +197,37 @@
         saveStatus.textContent = '儲存失敗：瀏覽器空間不足';
       }
     }, 220);
+  }
+  function readDeleteUndo(){
+    if(memoryDeleteUndo?.data)return memoryDeleteUndo;
+    try{const x=JSON.parse(localStorage.getItem(DELETE_UNDO_KEY)||'null');return x?.data?x:null;}catch(_){return null;}
+  }
+  function updateUndoDeleteButton(){
+    if(!undoDeleteBtn)return;
+    const snapshot=readDeleteUndo();
+    undoDeleteBtn.disabled=!snapshot;
+    undoDeleteBtn.title=snapshot?`復原：${snapshot.label||'上一次刪除'}`:'目前沒有可復原的刪除';
+  }
+  function captureDeleteUndo(label='刪除資料'){
+    const snapshot={createdAt:new Date().toISOString(),label,data:clone(state)};
+    memoryDeleteUndo=snapshot;
+    try{localStorage.setItem(DELETE_UNDO_KEY,JSON.stringify(snapshot));}catch(_){}
+    updateUndoDeleteButton();
+  }
+  function clearDeleteUndo(){
+    memoryDeleteUndo=null;
+    try{localStorage.removeItem(DELETE_UNDO_KEY);}catch(_){}
+    updateUndoDeleteButton();
+  }
+  function undoLastDelete(){
+    const snapshot=readDeleteUndo();
+    if(!snapshot?.data){toast('目前沒有可復原的刪除');updateUndoDeleteButton();return;}
+    state=migrateState(clone(snapshot.data));
+    sortAllDatedCollections(state);
+    clearDeleteUndo();
+    scheduleSave();
+    render();
+    toast(`已復原：${snapshot.label||'上一次刪除'}`);
   }
   function esc(v){ return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function n(v){ const x = Number(v); return Number.isFinite(x) ? x : 0; }
@@ -429,9 +464,9 @@
     const checked=!!ui.includeUndated?.[scope];
     return `<label class="include-undated-toggle"><span class="undated-field-label">空白日期</span><span class="undated-check-control"><input type="checkbox" data-include-undated-scope="${esc(scope)}" ${checked?'checked':''}><span>納入總計</span></span></label>`;
   }
-  function dateFilterBar(key,undatedScope=''){
+  function dateFilterBar(key,undatedScope='',extraControls=''){
     const f=ui.dateFilters[key]||{};
-    return `<div class="filter-bar date-filter-bar ${esc(key)}-date-filter-bar ${undatedScope?`${esc(undatedScope)}-date-filter-bar`:''} no-print"><strong>日期篩選</strong><label>起日${filterDateInput(key,'from',f.from||'')}</label><label>迄日${filterDateInput(key,'to',f.to||'')}</label>${undatedToggle(undatedScope)}<button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button></div>`;
+    return `<div class="filter-bar date-filter-bar ${esc(key)}-date-filter-bar ${undatedScope?`${esc(undatedScope)}-date-filter-bar`:''} no-print"><strong>日期篩選</strong><label>起日${filterDateInput(key,'from',f.from||'')}</label><label>迄日${filterDateInput(key,'to',f.to||'')}</label>${undatedToggle(undatedScope)}${extraControls}<button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button></div>`;
   }
 
   function uniqueStrings(values){
@@ -588,6 +623,7 @@
     stashGlobalControls();
     applyTheme();
     if(restoreImportBtn)restoreImportBtn.hidden=!localStorage.getItem(IMPORT_ROLLBACK_KEY);
+    updateUndoDeleteButton();
     renderNav();
     const tab=TABS.find(t=>t[0]===ui.tab);
     const year=currentYear();
@@ -599,10 +635,22 @@
     searchInput.placeholder='搜尋目前分頁';
     const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,tax:renderTax,investment:renderInvestment,lunch:renderLunch,settings:renderSettings};
     const content=renderers[ui.tab]();
-    main.innerHTML=ui.tab==='settings'?content:`<section class="page-search-panel no-print"><div id="pageSearchSlot"></div></section>${content}`;
+    main.innerHTML=ui.tab==='settings'?content:`<section class="page-search-panel no-print"><div id="pageSearchSlot"></div></section><div id="pageContent">${content}</div>`;
     placeGlobalControls();
     location.hash=ui.tab;
     saveUiPrefs();
+  }
+
+  function renderSearchResults(){
+    const contentHost=document.getElementById('pageContent');
+    if(!contentHost||ui.tab==='settings'){render();return;}
+    const scrollY=window.scrollY;
+    const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,tax:renderTax,investment:renderInvestment,lunch:renderLunch,settings:renderSettings};
+    const renderer=renderers[ui.tab];
+    if(!renderer){render();return;}
+    contentHost.innerHTML=renderer();
+    saveUiPrefs();
+    requestAnimationFrame(()=>window.scrollTo(0,scrollY));
   }
 
   function accountStats(){
@@ -735,7 +783,9 @@
     const totals=cardTotals(card,y,includeUndated); let run=0; const balances={};
     card.transactions.forEach((t,i)=>{if((yearMatch(t.date,y)||(includeUndated&&!String(t.date||'').trim()))&&creditIncludedInTotal(t)){if(!t.paid)run+=n(t.amount)+n(t.fee);balances[i]=run;}});
     const q=ui.search.credit||''; const filterKey=`credit-${ui.activeCard}`;
-    const filtered=filteredDataRows(card.transactions,q,filterKey,x=>x.date,includeUndated).filter(({item})=>yearMatch(item.date,y)||(includeUndated&&!String(item.date||'').trim()));
+    const filtered=filteredDataRows(card.transactions,q,filterKey,x=>x.date,includeUndated)
+      .filter(({item})=>yearMatch(item.date,y)||(includeUndated&&!String(item.date||'').trim()))
+      .filter(({item})=>!ui.creditUnpaidOnly||!item.paid);
     const p=paged(filtered,filterKey,70);
     const allFilteredPaid=filtered.length>0&&filtered.every(({item})=>item.paid);
     return `<div class="page-stack">
@@ -774,7 +824,7 @@
         </form>
       </section>
       <section class="card">
-        <div class="section-head"><div><h2>${y} 年信用卡交易紀錄</h2><p>開啟「空白日期納入總計」可把尚未扣款、日期未定的固定支出列入預算。</p></div>${dateFilterBar(filterKey,'credit')}</div>
+        <div class="section-head"><div><h2>${y} 年信用卡交易紀錄</h2><p>開啟「空白日期納入總計」可把尚未扣款、日期未定的固定支出列入預算。</p></div>${dateFilterBar(filterKey,'credit',`<button type="button" class="small credit-unpaid-filter ${ui.creditUnpaidOnly?'active':''}" data-action="toggle-credit-unpaid" aria-pressed="${ui.creditUnpaidOnly?'true':'false'}">${ui.creditUnpaidOnly?'✓ 顯示未繳':'顯示未繳'}</button>`)}</div>
         <div class="table-wrap credit-transactions-wrap"><table class="data-table credit-transactions-table fit-table"><thead><tr><th class="date-col">日期</th><th class="description-col">描述</th><th class="numeric">金額</th><th class="store-col">商店名稱</th><th>卡片</th><th class="numeric fee-heading-col">手續費</th><th>統計</th><th class="paid-col" title="全選目前篩選結果"><input class="paid-check" type="checkbox" data-bulk-paid="${ui.activeCard}" ${allFilteredPaid?'checked':''} aria-label="全選已繳"></th><th class="numeric unpaid-heading-col">未繳累計</th><th><span class="mobile-label">刪</span></th></tr></thead><tbody>
           ${p.rows.length?p.rows.map(({item:t,index:i})=>`<tr class="${t.paid?'paid-row':''}"><td class="date-col">${input(`creditCards.${ui.activeCard}.transactions.${i}.date`,t.date,'date')}</td><td class="description-col">${input(`creditCards.${ui.activeCard}.transactions.${i}.description`,t.description)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.amount`,t.amount,'number')}</td><td class="store-col">${input(`creditCards.${ui.activeCard}.transactions.${i}.store`,t.store)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.card`,t.card)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.fee`,t.fee,'number')}</td><td class="credit-total-col">${creditTotalModeToggle(`creditCards.${ui.activeCard}.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td><td class="paid-col">${checkbox(`creditCards.${ui.activeCard}.transactions.${i}.paid`,t.paid,'')}</td><td class="numeric computed">${balances[i]===undefined?'—':money(balances[i])}</td><td><button class="small danger" data-action="delete" data-array="creditCards.${ui.activeCard}.transactions" data-index="${i}">刪除</button></td></tr>`).join(''):empty(10,`${y} 年目前沒有信用卡交易`)}
         </tbody><tfoot><tr><td>${y} 年交易${includeUndated?'＋預估':''}</td><td></td><td class="numeric">${money(totals.amount)}</td><td></td><td></td><td class="numeric">${money(totals.fee)}</td><td></td><td></td><td class="numeric">未繳 ${money(totals.outstanding)}</td><td></td></tr></tfoot></table></div>${pager(filterKey,p)}
@@ -1035,7 +1085,19 @@
     sidebarGesture=null;
   },{passive:true});
   document.addEventListener('touchcancel',()=>{sidebarGesture=null;},{passive:true});
-  searchInput.addEventListener('input',()=>{ ui.search[ui.tab]=searchInput.value; ui.page[ui.tab]=1; saveUiPrefs(); clearTimeout(searchInput._t); searchInput._t=setTimeout(render,180); });
+  let searchComposing=false;
+  function handleSearchInput(){
+    ui.search[ui.tab]=searchInput.value;
+    ui.page[ui.tab]=1;
+    saveUiPrefs();
+    clearTimeout(searchInput._t);
+    if(searchComposing)return;
+    const tabAtInput=ui.tab;
+    searchInput._t=setTimeout(()=>{if(ui.tab===tabAtInput)renderSearchResults();},180);
+  }
+  searchInput.addEventListener('compositionstart',()=>{searchComposing=true;clearTimeout(searchInput._t);});
+  searchInput.addEventListener('compositionend',()=>{searchComposing=false;handleSearchInput();});
+  searchInput.addEventListener('input',handleSearchInput);
 
   main.addEventListener('change',e=>{
     const el=e.target;
@@ -1145,10 +1207,11 @@
       b.innerHTML=reportModeIcon(next);b.title=reportModeLabel(next);b.setAttribute('aria-label',reportModeLabel(next));return;
     }
     if(a==='delete'){
-      if(!confirm('確定刪除這筆資料？'))return; const arr=getPath(b.dataset.array); arr.splice(Number(b.dataset.index),1); scheduleSave(); render(); return;
+      if(!confirm('確定刪除這筆資料？'))return; const arr=getPath(b.dataset.array); if(!Array.isArray(arr))return; captureDeleteUndo('刪除資料'); arr.splice(Number(b.dataset.index),1); scheduleSave(); render(); return;
     }
     if(a==='page'){ui.page[b.dataset.key]=Number(b.dataset.page);render();return;}
     if(a==='clear-date-filter'){ui.dateFilters[b.dataset.key]={};ui.page[b.dataset.key]=1;render();return;}
+    if(a==='toggle-credit-unpaid'){ui.creditUnpaidOnly=!ui.creditUnpaidOnly;ui.page[`credit-${ui.activeCard}`]=1;saveUiPrefs();render();return;}
     if(a==='clear-view-filters'){const page=b.dataset.page;ui.viewFilters[page]={};ui.page[page]=1;render();return;}
     if(a==='clear-cash-selection'){ui.cashSelection.clear();renderPreservingAnchor(b);return;}
     if(a==='apply-cash-bulk'){
@@ -1191,7 +1254,7 @@
     if(a==='cancel-add-card'){ui.showAddCard=false;render();return;}
     if(a==='delete-card'){ui.deleteCardIndex=Number(b.dataset.index);ui.showAddCard=false;render();return;}
     if(a==='cancel-delete-card'){ui.deleteCardIndex=null;render();return;}
-    if(a==='confirm-delete-card'){const index=Number(b.dataset.index);const title=state.creditCards[index]?.title||'此卡別';state.creditCards.splice(index,1);ui.activeCard=Math.max(0,Math.min(index-1,state.creditCards.length-1));ui.deleteCardIndex=null;toast(`已刪除 ${title}`);}
+    if(a==='confirm-delete-card'){const index=Number(b.dataset.index);const title=state.creditCards[index]?.title||'此卡別';captureDeleteUndo(`刪除卡別「${title}」`);state.creditCards.splice(index,1);ui.activeCard=Math.max(0,Math.min(index-1,state.creditCards.length-1));ui.deleteCardIndex=null;toast(`已刪除 ${title}`);}
     if(a==='add-fee-bank'){const name=prompt('銀行名稱');if(name)currentCardFeeBook().banks.push({id:uid('bank'),bank:name,months:Array(12).fill(0)});}
     if(a==='add-fee-history'){const year=prompt('年度');if(year)state.cardFees.history.unshift({year,months:Array(12).fill(0)});}
     if(a==='add-home-item'){const item=prompt('支出項目');if(item)currentHomeBook().items.push({id:uid('home'),item,months:Array(12).fill(0)});}
@@ -1204,7 +1267,7 @@
     if(a==='add-invest-tx')state.taxesInvestments.investments[Number(b.dataset.index)].transactions.push({id:uid('inv'),date:defaultDateForYear(),amount:0});
     if(a==='add-lunch-row')state.lunch.rows.push({id:uid('lunch'),date:defaultDateForYear(),location:'',costs:Object.fromEntries(state.lunch.products.map(p=>[p.key,0]))});
     if(a==='add-product'){const name=prompt('食材名稱');if(name){const key=uid('p').replaceAll('-','_');state.lunch.products.push({key,name});state.lunch.rows.forEach(r=>r.costs[key]=0);}}
-    if(a==='delete-product'){const i=Number(b.dataset.index),p=state.lunch.products[i];if(!confirm(`刪除「${p.name}」欄及其所有金額？`))return;state.lunch.products.splice(i,1);state.lunch.rows.forEach(r=>delete r.costs[p.key]);}
+    if(a==='delete-product'){const i=Number(b.dataset.index),p=state.lunch.products[i];if(!confirm(`刪除「${p.name}」欄及其所有金額？`))return;captureDeleteUndo(`刪除食材欄「${p.name}」`);state.lunch.products.splice(i,1);state.lunch.rows.forEach(r=>delete r.costs[p.key]);}
     if(a==='font-smaller'){state.meta.fontScale=Math.max(.85,Math.round(((Number(state.meta.fontScale)||1)-.05)*100)/100);scheduleSave();renderPreservingAnchor(b);return;}
     if(a==='font-larger'){state.meta.fontScale=Math.min(1.30,Math.round(((Number(state.meta.fontScale)||1)+.05)*100)/100);scheduleSave();renderPreservingAnchor(b);return;}
     if(a==='font-reset'){state.meta.fontScale=1;scheduleSave();renderPreservingAnchor(b);return;}
@@ -1215,6 +1278,8 @@
     scheduleSave(); render();
   });
 
+  undoDeleteBtn?.addEventListener('click',undoLastDelete);
+
   settingsToolbar.addEventListener('click',e=>{
     const b=e.target.closest('[data-global-action]'); if(!b)return;
     if(b.dataset.globalAction==='export'){
@@ -1223,7 +1288,7 @@
     if(b.dataset.globalAction==='restore-import')restorePreImport();
     if(b.dataset.globalAction==='print')window.print();
     if(b.dataset.globalAction==='reset'){
-      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false}; scheduleSave();render();
+      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureDeleteUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false}; scheduleSave();render();
     }
   });
   document.getElementById('importFile').addEventListener('change',e=>{
