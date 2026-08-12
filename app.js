@@ -93,6 +93,7 @@
     s.cash.templates = Array.isArray(s.cash.templates) ? s.cash.templates : [];
     s.cash.accounts.forEach(a => {
       a.initialByYear = a.initialByYear && typeof a.initialByYear === 'object' ? a.initialByYear : {};
+      a.historyYears = Array.isArray(a.historyYears) ? [...new Set(a.historyYears.map(normalizeYear).filter(Boolean))] : [];
       if(a.initialByYear[String(baseYear)] === undefined) a.initialByYear[String(baseYear)] = Number(a.initial) || 0;
     });
     const applyFutureMonthlyDefault = s.meta.futureMonthlyFlowDefaultVersion !== 1;
@@ -121,6 +122,7 @@
     s.creditCards.forEach(card => {
       card.transactions = Array.isArray(card.transactions) ? card.transactions : [];
       card.templates = Array.isArray(card.templates) ? card.templates : [];
+      card.historyYears = Array.isArray(card.historyYears) ? [...new Set(card.historyYears.map(normalizeYear).filter(Boolean))] : [];
       card.transactions.forEach(t => { t.id=t.id||uid('cc'); t.date=String(t.date||''); if(typeof t.paid !== 'boolean') t.paid = false; t.monthlyFlow=t.monthlyFlow==='neutral'?'neutral':'auto'; t.rowColor = validRowColor(t.rowColor); });
     });
 
@@ -375,6 +377,105 @@
       lunch:`${(s.lunch?.products||[]).length} 個品項／${(s.lunch?.rows||[]).length} 筆紀錄`
     };
   }
+  function isHistoryMergePackage(raw){
+    return String(raw?.meta?.importMode||'').toLowerCase()==='history-merge';
+  }
+  function historicalPackageYears(raw){
+    const preserve=normalizeYear(raw?.meta?.preserveFromYear)||2026;
+    const src=Array.isArray(raw?.meta?.historicalYears)?raw.meta.historicalYears:(raw?.meta?.years||[]);
+    return [...new Set(src.map(normalizeYear).filter(y=>y&&y<preserve))].sort((a,b)=>a-b);
+  }
+  function normalizedBankKey(value){
+    const s=String(value||'').trim();
+    for(const name of ['富邦','國泰','永豐','聯邦','台新','中信','第一','玉山','星展','花旗','兆豐'])if(s.includes(name))return name;
+    return s.replace(/[\d,（(].*$/,'').trim()||s;
+  }
+  function historyCashSignature(t){return [t?.date||'',t?.category||'',t?.description||'',n(t?.amount),t?.account||''].join('\u241f');}
+  function historyCreditSignature(t){return [t?.date||'',t?.description||'',n(t?.amount),t?.store||'',t?.card||'',n(t?.fee)].join('\u241f');}
+  function historyMortgageSignature(t){return [t?.date||'',t?.description||'',n(t?.amount),t?.account||''].join('\u241f');}
+  function historyInstallmentSignature(t){return [normalizeYear(t?.year)||'',t?.title||'',n(t?.total),t?.account||'',JSON.stringify(t?.plans||[])].join('\u241f');}
+  function historyAccountAvailableInYear(account,year=currentYear()){
+    const years=Array.isArray(account?.historyYears)?account.historyYears.map(normalizeYear).filter(Boolean):[];
+    return years.length===0||years.includes(Number(year));
+  }
+  function creditCardAvailableInYear(card,year=currentYear()){
+    const years=Array.isArray(card?.historyYears)?card.historyYears.map(normalizeYear).filter(Boolean):[];
+    return years.length===0||years.includes(Number(year));
+  }
+  function mergeHistoricalPackage(base,raw){
+    const target=migrateState(clone(base));
+    const incoming=migrateState(clone(raw));
+    const originalCurrent=normalizeYear(base?.meta?.currentYear||base?.meta?.year)||currentYear();
+    const originalTheme=base?.meta?.theme, originalFontScale=base?.meta?.fontScale;
+    const years=historicalPackageYears(raw), allowed=new Set(years), preserve=normalizeYear(raw?.meta?.preserveFromYear)||2026;
+    const allowedDate=d=>{const y=txYear(d);return Boolean(y&&allowed.has(y)&&y<preserve);};
+    const stats={cash:0,credit:0,cardFeeYears:0,homeYears:0,installments:0,mortgage:0,tax:0,investment:0,lunch:0};
+
+    // Cash accounts: write only historical opening balances. Old-only accounts are hidden outside their historical years.
+    (incoming.cash?.accounts||[]).forEach(src=>{
+      const histYears=Object.keys(src.initialByYear||{}).map(normalizeYear).filter(y=>allowed.has(y));
+      if(!histYears.length)return;
+      let dest=target.cash.accounts.find(a=>String(a.name||'').trim()===String(src.name||'').trim());
+      if(!dest){
+        dest=clone(src);dest.id=uid('histacc');dest.initial=0;dest.initialByYear={};dest.historyYears=[...histYears];
+        target.cash.accounts.push(dest);
+      }
+      dest.initialByYear=dest.initialByYear&&typeof dest.initialByYear==='object'?dest.initialByYear:{};
+      histYears.forEach(y=>{dest.initialByYear[String(y)]=n(src.initialByYear?.[String(y)]);});
+    });
+    const cashSeen=new Set((target.cash.transactions||[]).map(historyCashSignature));
+    (incoming.cash?.transactions||[]).forEach(src=>{
+      if(!allowedDate(src.date))return;const sig=historyCashSignature(src);if(cashSeen.has(sig))return;
+      const row=clone(src);row.id=uid('histcash');row.sourceKey=row.sourceKey||sig;target.cash.transactions.push(row);cashSeen.add(sig);stats.cash++;
+    });
+
+    // Credit: merge by bank. Historical-only banks are visible only in years that contain their transactions.
+    (incoming.creditCards||[]).forEach(srcCard=>{
+      const rows=(srcCard.transactions||[]).filter(t=>allowedDate(t.date));if(!rows.length)return;
+      const key=normalizedBankKey(srcCard.mergeKey||srcCard.bank||srcCard.title);
+      let dest=target.creditCards.find(c=>normalizedBankKey(c.bank||c.title)===key);
+      if(!dest){dest={id:uid('histcard'),bank:key,title:srcCard.title||key,limit:n(srcCard.limit),transactions:[],templates:[],historyYears:[...new Set(rows.map(t=>txYear(t.date)).filter(Boolean))]};target.creditCards.push(dest);}
+      const seen=new Set((dest.transactions||[]).map(historyCreditSignature));
+      rows.forEach(src=>{const sig=historyCreditSignature(src);if(seen.has(sig))return;const row=clone(src);row.id=uid('histcc');row.paid=true;dest.transactions.push(row);seen.add(sig);stats.credit++;});
+    });
+
+    // Historical year books never touch the current/future year.
+    years.forEach(y=>{
+      const fee=incoming.cardFees?.yearBooks?.[String(y)];if(fee){target.cardFees.yearBooks[String(y)]=clone(fee);stats.cardFeeYears++;}
+      const home=incoming.homeExpenses?.yearBooks?.[String(y)];if(home){target.homeExpenses.yearBooks[String(y)]=clone(home);stats.homeYears++;}
+    });
+
+    const instSeen=new Set((target.installments||[]).map(historyInstallmentSignature));
+    (incoming.installments||[]).forEach(src=>{const y=normalizeYear(src.year);if(!allowed.has(y))return;const sig=historyInstallmentSignature(src);if(instSeen.has(sig))return;const row=clone(src);row.id=uid('histinst');target.installments.push(row);instSeen.add(sig);stats.installments++;});
+
+    // Mortgage: preserve existing account definitions; add only missing historical account names.
+    (incoming.mortgage?.accounts||[]).forEach(src=>{if(target.mortgage.accounts.some(a=>String(a.name||'').trim()===String(src.name||'').trim()))return;const row=clone(src);row.id=uid('histmortacc');row.historyYears=[...years];target.mortgage.accounts.push(row);});
+    const mortSeen=new Set((target.mortgage.payments||[]).map(historyMortgageSignature));
+    (incoming.mortgage?.payments||[]).forEach(src=>{if(!allowedDate(src.date))return;const sig=historyMortgageSignature(src);if(mortSeen.has(sig))return;const row=clone(src);row.id=uid('histmort');target.mortgage.payments.push(row);mortSeen.add(sig);stats.mortgage++;});
+
+    // Taxes: Excel history is authoritative only for the historical year and cannot alter 2026+.
+    (incoming.taxesInvestments?.taxes||[]).forEach(src=>{const y=gregorianYear(src.year);if(!allowed.has(y))return;const idx=target.taxesInvestments.taxes.findIndex(x=>gregorianYear(x.year)===y);const row=clone(src);row.year=y;if(idx>=0)target.taxesInvestments.taxes[idx]=row;else target.taxesInvestments.taxes.push(row);stats.tax++;});
+    (incoming.taxesInvestments?.investments||[]).forEach(srcAsset=>{
+      let dest=target.taxesInvestments.investments.find(a=>String(a.name||'').trim()===String(srcAsset.name||'').trim());
+      if(!dest){dest={id:uid('histasset'),name:srcAsset.name,transactions:[]};target.taxesInvestments.investments.push(dest);}
+      const seen=new Set((dest.transactions||[]).map(t=>[t.date||'',n(t.amount)].join('\u241f')));
+      (srcAsset.transactions||[]).forEach(src=>{if(!allowedDate(src.date))return;const sig=[src.date||'',n(src.amount)].join('\u241f');if(seen.has(sig))return;const row=clone(src);row.id=uid('histinvest');dest.transactions.push(row);seen.add(sig);stats.investment++;});
+    });
+
+    // Lunch products are matched by name, then historical row costs are remapped to the current product keys.
+    const targetProductByName=new Map((target.lunch.products||[]).map(p=>[String(p.name||'').trim(),p]));
+    const keyMap={};
+    (incoming.lunch?.products||[]).forEach(p=>{const name=String(p.name||'').trim();if(!name)return;let dest=targetProductByName.get(name);if(!dest){dest={key:uid('histp').replaceAll('-','_'),name};target.lunch.products.push(dest);targetProductByName.set(name,dest);(target.lunch.rows||[]).forEach(r=>{r.costs=r.costs||{};r.costs[dest.key]=0;});}keyMap[p.key]=dest.key;});
+    const lunchSig=r=>{const parts=[r.date||'',r.location||''];[...(target.lunch.products||[])].sort((a,b)=>String(a.name).localeCompare(String(b.name))).forEach(p=>parts.push(`${p.name}:${n(r.costs?.[p.key])}`));return parts.join('\u241f');};
+    const lunchSeen=new Set((target.lunch.rows||[]).map(lunchSig));
+    (incoming.lunch?.rows||[]).forEach(src=>{if(!allowedDate(src.date))return;const costs=Object.fromEntries((target.lunch.products||[]).map(p=>[p.key,0]));Object.entries(src.costs||{}).forEach(([oldKey,val])=>{const newKey=keyMap[oldKey];if(newKey)costs[newKey]=n(val);});const row={id:uid('histlunch'),date:src.date,location:src.location||'',costs};const sig=lunchSig(row);if(lunchSeen.has(sig))return;target.lunch.rows.push(row);lunchSeen.add(sig);stats.lunch++;});
+
+    target.meta.currentYear=originalCurrent;target.meta.year=originalCurrent;if(originalTheme)target.meta.theme=originalTheme;if(originalFontScale)target.meta.fontScale=originalFontScale;
+    target.meta.historyMerge={source:raw?.meta?.source||'歷史資料合併包',years,mergedAt:new Date().toISOString(),stats};
+    target.meta.years=[...new Set([...(target.meta.years||[]),...years,originalCurrent])].map(normalizeYear).filter(Boolean).sort((a,b)=>b-a);
+    return {state:migrateState(target),stats,years};
+  }
+
   function closeImportDialog(clear=true){
     if(importDialog)importDialog.hidden=true;
     document.body.classList.remove('modal-open');
@@ -383,6 +484,7 @@
   function showImportPreview(){
     if(!pendingImport||!importDialog||!importPreview)return;
     const p=pendingImport,v=p.validation,cur=backupSummary(state),inc=backupSummary(p.normalized);
+    const historyMode=p.mode==='history-merge'||isHistoryMergePackage(p.raw);
     const rows=[['現金花費','cash'],['信用卡記錄','credit'],['卡費記錄','cardFees'],['家的支出','home'],['分期','installments'],['貸款','mortgage'],['稅費','tax'],['投資','investment'],['午餐花費','lunch']];
     const sourceVersion=v.sourceSchema===null?'未標示':String(v.sourceSchema);
     let statusClass='ok',statusText=`版本相容：可匯入至目前版本 ${CURRENT_SCHEMA}。`;
@@ -396,17 +498,18 @@
         <div><span>匯入年份</span><strong>${esc((p.normalized.meta?.years||[]).join('、')||'未辨識')}</strong></div>
       </div>
       <div class="import-status ${statusClass}">${esc(statusText)}${v.errors.length?`<ul class="import-error-list">${v.errors.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</div>
-      <div class="import-notice"><strong>這是覆蓋匯入，不是合併。</strong>確認後會先下載目前帳本的「匯入前自動備份」，並在瀏覽器保留一份可由「復原匯入前」取回的快照；在確認之前，現有資料不會被改動。</div>
+      <div class="import-notice">${historyMode?`<strong>這是歷史年度合併匯入。</strong>只會合併 ${esc(historicalPackageYears(p.raw).join('、'))} 年資料，${esc(p.raw?.meta?.preserveFromYear||2026)} 年及之後的現有資料不會被覆蓋；重複交易會自動略過。`:`<strong>這是覆蓋匯入，不是合併。</strong>確認後會先下載目前帳本的「匯入前自動備份」，並在瀏覽器保留一份可由「復原匯入前」取回的快照；在確認之前，現有資料不會被改動。`}</div>
       <div class="table-wrap"><table class="import-compare"><thead><tr><th>分頁</th><th>目前帳本</th><th>匯入檔</th></tr></thead><tbody>${rows.map(([label,key])=>`<tr><td>${label}</td><td>${esc(cur[key])}</td><td>${esc(inc[key])}</td></tr>`).join('')}</tbody></table></div>
       <p class="note">檔案大小：${esc(formatBytes(p.fileSize))}；備份來源：${esc(p.normalized.meta?.source||'未標示')}；匯入後目前年度：${esc(p.normalized.meta?.currentYear||p.normalized.meta?.year||'未辨識')}。</p>`;
     confirmImportBtn.disabled=!v.compatible;
-    confirmImportBtn.textContent=v.compatible?'先備份目前資料並覆蓋':'版本不相容，無法匯入';
+    confirmImportBtn.textContent=v.compatible?(historyMode?'先備份目前資料並合併歷史年度':'先備份目前資料並覆蓋'):'版本不相容，無法匯入';
     importDialog.hidden=false;document.body.classList.add('modal-open');
     setTimeout(()=>v.compatible?confirmImportBtn.focus():importDialog.querySelector('[data-import-action="cancel"]')?.focus(),0);
   }
   function performSafeImport(){
     if(!pendingImport?.validation?.compatible)return;
     const before=clone(state);
+    const historyMode=pendingImport.mode==='history-merge'||isHistoryMergePackage(pendingImport.raw);
     const rollback={createdAt:new Date().toISOString(),sourceFile:pendingImport.fileName,data:before};
     try{
       localStorage.setItem(IMPORT_ROLLBACK_KEY,JSON.stringify(rollback));
@@ -416,11 +519,19 @@
     }
     downloadJson(before,`財務追蹤_匯入前自動備份_${fileStamp()}.json`);
     try{
-      const incoming=migrateState(clone(pendingImport.raw));
-      captureUndo('安全匯入資料');
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(incoming));
-      state=incoming;ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
-      closeImportDialog();render();saveStatus.textContent='安全匯入完成並已儲存';toast('安全匯入完成，可復原匯入前資料');
+      if(historyMode){
+        const merged=mergeHistoricalPackage(before,pendingImport.raw);
+        captureUndo('匯入歷史年度');
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(merged.state));
+        state=merged.state;ui.page={};ui.showAddCard=false;ui.deleteCardIndex=null;
+        closeImportDialog();render();saveStatus.textContent='歷史年度合併完成並已儲存';toast(`已合併 ${merged.years.join('、')} 歷史資料，2026 資料已保留`);
+      }else{
+        const incoming=migrateState(clone(pendingImport.raw));
+        captureUndo('安全匯入資料');
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(incoming));
+        state=incoming;ui.dateFilters={};ui.page={};ui.activeCard=0;ui.showAddCard=false;ui.deleteCardIndex=null;
+        closeImportDialog();render();saveStatus.textContent='安全匯入完成並已儲存';toast('安全匯入完成，可復原匯入前資料');
+      }
     }catch(err){
       state=before;
       try{localStorage.setItem(STORAGE_KEY,JSON.stringify(before));}catch(_){}
@@ -693,7 +804,7 @@
   }
   function accountStats(){
     const y=currentYear();
-    return state.cash.accounts.map((a,i)=>{
+    return state.cash.accounts.map((a,i)=>({a,i})).filter(({a})=>historyAccountAvailableInYear(a,y)).map(({a,i})=>{
       const movement=sum(state.cash.transactions.filter(t=>t.account===a.name&&accountSummaryIncludesDate(t.date,y)),t=>t.amount);
       const opening=n(a.initialByYear?.[String(y)]);
       return {a,i,opening,movement,balance:opening-movement};
@@ -742,7 +853,7 @@
     const vf=ui.viewFilters.cash||{};
     const categoryOpts=uniqueStrings(yearTx.map(t=>t.category));
     const descriptionOpts=uniqueStrings(yearTx.map(t=>t.description));
-    const accountOpts=state.cash.accounts.map(a=>a.name);
+    const accountOpts=state.cash.accounts.filter(a=>historyAccountAvailableInYear(a,y)).map(a=>a.name);
     const validCashIds=new Set(state.cash.transactions.map(t=>t.id));
     [...ui.cashSelection].forEach(id=>{if(!validCashIds.has(id))ui.cashSelection.delete(id);});
     const cashRows=currentCashFilteredRows();
@@ -822,7 +933,8 @@
   }
   function renderCredit(){
     const y=currentYear();
-    ui.activeCard=Math.min(ui.activeCard,state.creditCards.length-1); if(ui.activeCard<0)ui.activeCard=0;
+    const visibleCards=state.creditCards.map((card,index)=>({card,index})).filter(({card})=>creditCardAvailableInYear(card,y));
+    if(!visibleCards.some(x=>x.index===ui.activeCard))ui.activeCard=visibleCards[0]?.index??0;
     const card=state.creditCards[ui.activeCard];
     if(!card) return `<div class="page-stack"><section class="card empty">目前沒有信用卡資料。<button type="button" data-action="add-card">新增卡別</button></section>${ui.showAddCard?creditCardCreateForm():''}</div>`;
     const includeUndated=!!ui.includeUndated.credit;
@@ -836,7 +948,7 @@
     const allFilteredPaid=filtered.length>0&&filtered.every(({item})=>item.paid);
     return `<div class="page-stack">
       <section class="summary-grid credit-summary-grid">
-        ${state.creditCards.map((c,i)=>{const x=cardTotals(c,y,includeUndated);return `<button class="summary-tile ${i===ui.activeCard?'active-card':''}" data-action="set-card" data-index="${i}"><h4>${esc(c.bank)}</h4><div class="big">${money(x.outstanding)}</div><small>${y} 未繳${includeUndated?'＋預估':''}｜${esc(c.title)}</small></button>`}).join('')}
+        ${visibleCards.map(({card:c,index:i})=>{const x=cardTotals(c,y,includeUndated);return `<button class="summary-tile ${i===ui.activeCard?'active-card':''}" data-action="set-card" data-index="${i}"><h4>${esc(c.bank)}</h4><div class="big">${money(x.outstanding)}</div><small>${y} 未繳${includeUndated?'＋預估':''}｜${esc(c.title)}</small></button>`}).join('')}
       </section>
       <section class="card">
         <div class="section-head"><div><h2>${y}｜${esc(card.title)}</h2><p>已繳勾選後不再計入未繳餘額；統計按鈕可決定該筆是否加入總計。</p></div><div class="chips"><button type="button" data-action="add-card">新增卡別</button><button type="button" class="danger" data-action="delete-card" data-index="${ui.activeCard}">刪除此卡別</button></div></div>
@@ -1373,22 +1485,21 @@
       if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false}; scheduleSave();render();
     }
   });
-  document.getElementById('importFile').addEventListener('change',e=>{
-    const file=e.target.files[0];if(!file)return;
-    const reader=new FileReader();
+  function loadImportFile(file,forcedMode=''){
+    if(!file)return;const reader=new FileReader();
     reader.onload=()=>{
       try{
-        const raw=JSON.parse(reader.result);
-        const validation=backupValidation(raw);
-        let normalized;
-        try{normalized=migrateState(clone(raw));}catch(err){validation.errors.push('資料轉換失敗，檔案可能已損壞。');validation.compatible=false;normalized=migrateState({meta:{year:new Date().getFullYear()},cash:{accounts:[],transactions:[]}});}
-        pendingImport={raw,normalized,validation,fileName:file.name,fileSize:file.size};
-        showImportPreview();
-      }catch(_){alert('無法解析這個檔案。請選擇由財務追蹤 App 下載的 JSON 備份。');}
+        const raw=JSON.parse(reader.result);const validation=backupValidation(raw);
+        const detected=isHistoryMergePackage(raw)?'history-merge':'overwrite';const mode=forcedMode||detected;
+        if(forcedMode==='history-merge'&&!isHistoryMergePackage(raw)){validation.errors.push('這不是「歷史資料合併包」，請改用一般「安全匯入」。');validation.compatible=false;}
+        let normalized;try{normalized=migrateState(clone(raw));}catch(err){validation.errors.push('資料轉換失敗，檔案可能已損壞。');validation.compatible=false;normalized=migrateState({meta:{year:new Date().getFullYear()},cash:{accounts:[],transactions:[]}});}
+        pendingImport={raw,normalized,validation,fileName:file.name,fileSize:file.size,mode};showImportPreview();
+      }catch(_){alert('無法解析這個檔案。請選擇財務追蹤 App 的 JSON 備份或歷史資料合併包。');}
     };
-    reader.onerror=()=>alert('讀取備份檔失敗，請重新選擇檔案。');
-    reader.readAsText(file);e.target.value='';
-  });
+    reader.onerror=()=>alert('讀取匯入檔失敗，請重新選擇檔案。');reader.readAsText(file);
+  }
+  document.getElementById('importFile')?.addEventListener('change',e=>{const file=e.target.files[0];loadImportFile(file);e.target.value='';});
+  document.getElementById('historyImportFile')?.addEventListener('change',e=>{const file=e.target.files[0];loadImportFile(file,'history-merge');e.target.value='';});
   importDialog?.addEventListener('click',e=>{
     const action=e.target.closest('[data-import-action]')?.dataset.importAction;
     if(action==='cancel')closeImportDialog();
