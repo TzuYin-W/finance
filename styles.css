@@ -2620,3 +2620,37 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 @media(max-width:760px){
   .topbar .undo-delete-btn{margin-left:auto;padding:7px 9px;font-size:12px}
 }
+
+
+/* v58: portrait fixed-credit action buttons evenly fill the 操作 column. */
+@media (orientation:portrait) and (max-width:760px){
+  .credit-template-table td.credit-template-actions{
+    display:table-cell!important;
+    width:25%!important;
+    min-width:0!important;
+    padding:3px 1px!important;
+    vertical-align:middle!important;
+  }
+  .credit-template-action-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:2px!important;
+    width:100%!important;
+    min-width:0!important;
+    align-items:stretch!important;
+  }
+  .credit-template-action-grid button{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:3px 0!important;
+    box-sizing:border-box!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    font-size:calc(7px * var(--app-font-scale))!important;
+  }
+}
