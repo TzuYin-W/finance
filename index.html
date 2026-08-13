@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v13-gundam-refine -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v14-gundam-portrait-fix -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -3432,7 +3432,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   opacity:1 !important;
   background-image:
     linear-gradient(180deg,rgba(7,14,27,.24),rgba(7,14,27,.12) 34%,rgba(255,255,255,.08) 72%),
-    url("./gundam-bg-v13.png") !important;
+    url("./gundam-bg-v14.png") !important;
   background-repeat:no-repeat !important;
   background-position:center center, center bottom !important;
   background-size:cover, contain !important;
@@ -3443,7 +3443,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
     left:230px !important;
     background-image:
       linear-gradient(180deg,rgba(7,14,27,.32),rgba(7,14,27,.14) 36%,rgba(255,255,255,.06) 74%),
-      url("./gundam-bg-landscape-v13.png") !important;
+      url("./gundam-bg-landscape-v14.png") !important;
     background-position:center center, center center !important;
     background-size:cover, contain !important;
   }
@@ -3469,7 +3469,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   right:14px !important;
   bottom:18px !important;
   height:92px !important;
-  background:url("./gundam-sidebar-v13.png") left bottom / auto 88px no-repeat,
+  background:url("./gundam-sidebar-v14.png") left bottom / auto 88px no-repeat,
              linear-gradient(90deg,rgba(86,123,177,.00),rgba(86,123,177,.10),rgba(232,195,107,.08)) !important;
   border-radius:12px !important;
   opacity:.96 !important;
@@ -3557,7 +3557,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] .settings-hero::after{display:none !important}
 :root[data-theme="pokemon"] .settings-hero{background-image:
     linear-gradient(135deg,rgba(18,35,62,.14),rgba(248,251,255,.56) 44%,rgba(255,255,255,.44)),
-    url("./gundam-sidebar-v13.png") !important;
+    url("./gundam-sidebar-v14.png") !important;
   background-repeat:no-repeat,no-repeat !important;
   background-size:auto,118px 118px !important;
   background-position:0 0,right 18px bottom 12px !important;
@@ -3567,6 +3567,83 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="pokemon"] .sidebar::after{left:12px !important; right:12px !important; bottom:14px !important; height:78px !important; background-size:auto 74px, auto !important}
   :root[data-theme="pokemon"] .privacy-note{padding-bottom:96px !important}
   :root[data-theme="pokemon"] .topbar{background:linear-gradient(180deg,rgba(248,251,255,.42),rgba(248,251,255,.24)) !important}
+}
+
+
+/* ===== 2026-08-13 gundam portrait layout fix v14 ===== */
+@media (max-width: 960px) and (orientation: portrait){
+  :root[data-theme="pokemon"] .app-shell{
+    display:block !important;
+    min-height:100vh !important;
+  }
+  :root[data-theme="pokemon"] .workspace{
+    display:block !important;
+    min-height:100vh !important;
+    overflow-x:hidden !important;
+    overflow-y:visible !important;
+    padding-bottom:88px !important;
+  }
+  :root[data-theme="pokemon"] .workspace::before{
+    position:absolute !important;
+    top:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    left:0 !important;
+    background-image:
+      linear-gradient(180deg,rgba(7,14,27,.18),rgba(7,14,27,.10) 30%,rgba(255,255,255,.08) 72%),
+      url("./gundam-bg-v14.png") !important;
+    background-repeat:no-repeat !important;
+    background-position:center top, center 88px !important;
+    background-size:cover, contain !important;
+    background-attachment:scroll, scroll !important;
+    opacity:1 !important;
+  }
+  :root[data-theme="pokemon"] .workspace>.topbar{
+    position:sticky !important;
+    top:0 !important;
+    z-index:20 !important;
+  }
+  :root[data-theme="pokemon"] .workspace>main,
+  :root[data-theme="pokemon"] main{
+    position:relative !important;
+    z-index:1 !important;
+    padding:12px !important;
+    padding-bottom:100px !important;
+    background:transparent !important;
+  }
+  :root[data-theme="pokemon"] .grid.two,
+  :root[data-theme="pokemon"] .grid.three,
+  :root[data-theme="pokemon"] .summary-grid,
+  :root[data-theme="pokemon"] .stats-grid,
+  :root[data-theme="pokemon"] .theme-grid{
+    grid-template-columns:1fr !important;
+  }
+  :root[data-theme="pokemon"] .card,
+  :root[data-theme="pokemon"] .kpi,
+  :root[data-theme="pokemon"] .summary-tile,
+  :root[data-theme="pokemon"] .installment-card,
+  :root[data-theme="pokemon"] .asset-card,
+  :root[data-theme="pokemon"] .filter-bar,
+  :root[data-theme="pokemon"] .formula-note,
+  :root[data-theme="pokemon"] .asset-totals>div,
+  :root[data-theme="pokemon"] .asset-totals details,
+  :root[data-theme="pokemon"] .provider-mark,
+  :root[data-theme="pokemon"] .import-file-meta>div{
+    width:100% !important;
+    max-width:100% !important;
+  }
+  :root[data-theme="pokemon"] .table-wrap{
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+  :root[data-theme="pokemon"] .sidebar::after{
+    height:72px !important;
+    background:url("./gundam-sidebar-v14.png") left bottom / auto 66px no-repeat,
+               linear-gradient(90deg,rgba(86,123,177,.00),rgba(86,123,177,.08),rgba(232,195,107,.06)) !important;
+  }
+  :root[data-theme="pokemon"] .privacy-note{
+    padding-bottom:88px !important;
+  }
 }
 
 </style>

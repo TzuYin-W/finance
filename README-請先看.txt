@@ -1,35 +1,14 @@
-這是「GitHub 根目錄安全覆蓋包 v12（鋼彈風格版）」。
+這是「GitHub 根目錄安全覆蓋包 v14（鋼彈風格直式修正版）」。
 
-用途：
-- 將原本的「寶可夢風格」主題替換成「鋼彈風格」
-- 手機直式背景：gundam-bg-v12.png
-- 手機橫式／電腦背景：gundam-bg-landscape-v12.png
-- 左側欄小圖：gundam-sidebar-v12.png
-- 已同步更新 service worker 快取版本，避免舊背景與舊主題殘留
+本次修正：
+- 修正手機直式版面跑掉。
+- 手機直式背景改為較穩定的 absolute 佈局，不再影響內容排版。
+- 直式主內容區、卡片與表格寬度重新校正。
+- 保留 v13 的鋼彈背景固定、左側欄小圖、較透明玻璃感與鋼彈風格視覺。
+- Service Worker 快取版本已升級。
 
-建議做法：
-1. 先備份 GitHub 專案根目錄原始檔。
-2. 將本壓縮檔內所有檔案覆蓋到專案根目錄。
-3. 重新部署。
-4. 部署後若畫面仍舊是舊版，請在手機或電腦上「強制重新整理 / 清除網站資料」再開啟。
-
-本包包含：
-- index.html
-- manifest.webmanifest
-- sw.js
-- icon-192-v11.png
-- icon-512-v11.png
-- apple-touch-icon-v11.png
-- pikmin-bg-v11.png
-- pikmin-bg-landscape-v11.png
-- pikmin-sidebar-v11.png
-- pokemon-bg-v11.png
-- pokemon-bg-landscape-v11.png
-- pokemon-sidebar-v11.png
-- gundam-bg-v12.png
-- gundam-bg-landscape-v12.png
-- gundam-sidebar-v12.png
-
-說明：
-- 內部主題代號仍沿用 pokemon，以避免既有設定與程式碼斷裂。
-- 但使用者介面顯示名稱已改為「鋼彈風格」。
+做法：
+1. 解壓縮。
+2. 將內容上傳到 GitHub repository 根目錄，同名檔案直接覆蓋。
+3. 等 GitHub Pages 更新後重新整理。
+4. 如果手機仍顯示舊版，刪除主畫面捷徑後重新加入。

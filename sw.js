@@ -1,10 +1,10 @@
-const CACHE='finance-tracker-20260813-github-root-v13-gundam-refine';
+const CACHE='finance-tracker-20260813-github-root-v14-gundam-portrait-fix';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v11.png','./icon-512-v11.png','./apple-touch-icon-v11.png',
   './monchhichi-bg.png','./monchhichi-bg-landscape.png','./monchhichi-sidebar.png',
   './pikmin-bg-v11.png','./pikmin-bg-landscape-v11.png','./pikmin-sidebar-v11.png',
-  './gundam-bg-v13.png','./gundam-bg-landscape-v13.png','./gundam-sidebar-v13.png'
+  './gundam-bg-v14.png','./gundam-bg-landscape-v14.png','./gundam-sidebar-v14.png'
 ];
 self.addEventListener('install',e=>e.waitUntil((async()=>{
   const c=await caches.open(CACHE);
