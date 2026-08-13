@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260813-github-root-v19-sidebar-dot-lighter-glass';
+const CACHE='finance-tracker-20260813-github-root-v20-gundam-sticky-topbar-fix';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v11.png','./icon-512-v11.png','./apple-touch-icon-v11.png',

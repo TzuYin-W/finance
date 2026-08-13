@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v19-sidebar-dot-lighter-glass -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v21-sidebar-art-drawer-close-fix -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -3859,6 +3859,76 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 @media (orientation:landscape) and (max-height:600px){
   :root[data-theme="pikmin"] .sidebar::after,
   :root[data-theme="pokemon"] .sidebar::after{width:122px !important;height:110px !important;left:auto !important;right:8px !important;bottom:6px !important;transform:none !important;opacity:.88 !important}
+}
+
+
+/* ===== 2026-08-13 v20 minimal fix: Gundam topbar sticky ===== */
+/* Restore the same frozen topbar behavior used by the other themes. */
+:root[data-theme="pokemon"] .workspace>.topbar{
+  position:sticky !important;
+  top:0 !important;
+  z-index:220 !important;
+}
+
+
+
+/* ===== 2026-08-13 v21 sidebar art + drawer close refinements ===== */
+/* 1) Gundam sidebar artwork: move upward so the full head is visible. */
+:root[data-theme="pokemon"] .sidebar::after{
+  bottom:92px !important;
+  width:176px !important;
+  height:152px !important;
+  background-position:center top !important;
+  background-size:contain !important;
+}
+@media(max-width:760px){
+  :root[data-theme="pokemon"] .sidebar::after{
+    width:164px !important;
+    height:144px !important;
+    bottom:26px !important;
+    background-position:center top !important;
+  }
+}
+@media (orientation:landscape) and (max-height:600px){
+  :root[data-theme="pokemon"] .sidebar::after{
+    width:118px !important;
+    height:104px !important;
+    right:8px !important;
+    left:auto !important;
+    bottom:16px !important;
+    transform:none !important;
+    background-position:center top !important;
+  }
+}
+
+/* 2) Monchhichi sidebar: add a small heart motif at the top-right. */
+:root[data-theme="monchhichi"] .sidebar::before{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  top:12px !important;
+  right:10px !important;
+  width:64px !important;
+  height:64px !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  opacity:.95 !important;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none'%3E%3Cpath d='M50 82C27 66 14 53 14 34c0-10 8-18 18-18 7 0 14 4 18 10 4-6 11-10 18-10 10 0 18 8 18 18 0 19-13 32-36 48Z' fill='%23f7b7cb'/%3E%3Cpath d='M50 82C27 66 14 53 14 34c0-10 8-18 18-18 7 0 14 4 18 10 4-6 11-10 18-10 10 0 18 8 18 18 0 19-13 32-36 48Z' stroke='%23e487a8' stroke-width='4'/%3E%3Ccircle cx='70' cy='20' r='6' fill='%23ffd6e3'/%3E%3Ccircle cx='78' cy='28' r='4' fill='%23ffd6e3'/%3E%3Ccircle cx='60' cy='24' r='3.5' fill='%23fff1f6'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat !important;
+  filter:drop-shadow(0 4px 8px rgba(210,123,156,.18)) !important;
+}
+:root[data-theme="monchhichi"] .sidebar>*{position:relative !important;z-index:1 !important}
+@media(max-width:760px){
+  :root[data-theme="monchhichi"] .sidebar::before{top:10px !important;right:10px !important;width:58px !important;height:58px !important}
+}
+@media (orientation:landscape) and (max-height:600px){
+  :root[data-theme="monchhichi"] .sidebar::before{top:8px !important;right:8px !important;width:50px !important;height:50px !important}
+}
+
+/* 3) In drawer mode, tapping the blank/content area closes the sidebar for every theme. */
+@media(max-width:760px), (orientation:landscape) and (max-height:600px){
+  .sidebar{z-index:500 !important}
+  .sidebar-backdrop{z-index:490 !important}
+  .sidebar-backdrop.open{display:block !important;opacity:1 !important;pointer-events:auto !important}
 }
 
 </style>
