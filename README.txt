@@ -1,17 +1,11 @@
-財務追蹤 App｜手機部署包（2026-08-13 修正版）
+財務追蹤 App — GitHub Pages 安全部署版
 
-ZIP 根目錄內容：
+此版本的 index.html 不內嵌任何個人記帳資料。
+GitHub repository 根目錄應直接包含：
 - index.html
 - manifest.webmanifest
 - sw.js
 - icons/
 
-部署方式：
-1. 將 ZIP 解壓後，把「裡面的檔案」整批上傳至同一個網站根目錄。
-2. 網站入口必須是 index.html。
-3. 使用 HTTPS 才能正常啟用 PWA / Service Worker。
-4. iPhone：Safari 開啟網址 → 分享 → 加入主畫面。
-5. Android：Chrome 開啟網址 → 安裝應用程式 / 加到主畫面。
-
-歷史資料：
-部署包不包含私人財務 JSON。進入 App 後再匯入「財務追蹤App_2019-2025歷史資料合併包.json」。
+不要將任何個人財務 JSON 備份檔上傳到公開 repository。
+若之前曾把含個人資料的 index.html push 到 GitHub，僅覆蓋目前檔案不足以清除 Git 歷史；請另行清理 repository history。
