@@ -1,14 +1,22 @@
-財務追蹤 GitHub 安全增量修補包 v11
+這是「GitHub 根目錄安全覆蓋包 v12（鋼彈風格版）」。
 
-這不是完整 repository，也不需要刪除 GitHub 現有檔案。
-請把本 ZIP 解壓後的 13 個檔案全部上傳到 TzuYin-W/finance 的「根目錄」。
+用途：
+- 將原本的「寶可夢風格」主題替換成「鋼彈風格」
+- 手機直式背景：gundam-bg-v12.png
+- 手機橫式／電腦背景：gundam-bg-landscape-v12.png
+- 左側欄小圖：gundam-sidebar-v12.png
+- 已同步更新 service worker 快取版本，避免舊背景與舊主題殘留
 
-會覆蓋：
+建議做法：
+1. 先備份 GitHub 專案根目錄原始檔。
+2. 將本壓縮檔內所有檔案覆蓋到專案根目錄。
+3. 重新部署。
+4. 部署後若畫面仍舊是舊版，請在手機或電腦上「強制重新整理 / 清除網站資料」再開啟。
+
+本包包含：
 - index.html
 - manifest.webmanifest
 - sw.js
-
-會新增：
 - icon-192-v11.png
 - icon-512-v11.png
 - apple-touch-icon-v11.png
@@ -18,6 +26,10 @@
 - pokemon-bg-v11.png
 - pokemon-bg-landscape-v11.png
 - pokemon-sidebar-v11.png
+- gundam-bg-v12.png
+- gundam-bg-landscape-v12.png
+- gundam-sidebar-v12.png
 
-不要刪除 app.js、cloud-sync.js、initial-data.js、styles.css、icon.svg 或其他既有檔案。
-不要建立 icons/ 或 assets/ 新資料夾，本版刻意全部使用 GitHub 根目錄。
+說明：
+- 內部主題代號仍沿用 pokemon，以避免既有設定與程式碼斷裂。
+- 但使用者介面顯示名稱已改為「鋼彈風格」。
