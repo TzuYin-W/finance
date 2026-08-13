@@ -2689,10 +2689,10 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="monchhichi"] .workspace::before{
   content:"";position:fixed;left:230px;right:0;top:0;bottom:0;z-index:0;
   pointer-events:none;
-  background-image:linear-gradient(90deg,rgba(223,242,242,.82) 0%,rgba(223,242,242,.46) 40%,rgba(255,250,250,.12) 100%),url("./assets/themes/monchhichi/monchhichi-bg.png");
+  background-image:linear-gradient(90deg,rgba(223,242,242,.76) 0%,rgba(236,248,248,.26) 42%,rgba(255,250,250,.10) 100%),url("./assets/themes/monchhichi/monchhichi-bg-landscape.png");
   background-repeat:no-repeat,no-repeat;
-  background-size:100% 100%,auto 100vh;
-  background-position:center,right bottom;
+  background-size:100% 100%,cover;
+  background-position:center,center center;
   opacity:.88
 }
 :root[data-theme="monchhichi"] .workspace>main{position:relative;z-index:1}
@@ -2763,7 +2763,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="monchhichi"] .credit-total-toggle.auto{border-color:#d994aa}
 
 @media(max-width:1100px) and (min-width:761px){
-  :root[data-theme="monchhichi"] .workspace::before{left:190px;background-size:100% 100%,auto 100vh;opacity:.84}
+  :root[data-theme="monchhichi"] .workspace::before{left:190px;background-size:100% 100%,cover;background-position:center,center center;opacity:.84}
   :root[data-theme="monchhichi"] .sidebar::after{width:156px;height:146px;bottom:72px}
 }
 @media(max-width:760px){
@@ -2848,6 +2848,148 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="monchhichi"] .summary-tile{background:rgba(255,253,251,.78)!important}
   :root[data-theme="monchhichi"] .data-table td{background:rgba(255,254,252,.72)}
   :root[data-theme="monchhichi"] .data-table tr:nth-child(even) td{background:rgba(247,244,241,.64)}
+}
+
+
+/* ===== 2026-08-13 theme refresh: icon + pokemon bg + glass layers ===== */
+:root[data-theme="pikmin"]{
+  --paper:rgba(255,253,249,.78);
+  --row:rgba(255,254,250,.68);
+  --row-alt:rgba(244,248,239,.58);
+  --computed:rgba(236,248,232,.70);
+  --topbar-bg:rgba(247,252,246,.76)
+}
+:root[data-theme="pokemon"]{
+  --paper:rgba(252,253,255,.78);
+  --row:rgba(255,255,255,.68);
+  --row-alt:rgba(239,246,252,.58);
+  --computed:rgba(232,242,255,.70);
+  --topbar-bg:rgba(245,250,255,.76)
+}
+:root[data-theme="pikmin"] .card,
+:root[data-theme="pikmin"] .kpi,
+:root[data-theme="pikmin"] .summary-tile,
+:root[data-theme="pikmin"] .installment-card,
+:root[data-theme="pikmin"] .asset-card,
+:root[data-theme="pokemon"] .card,
+:root[data-theme="pokemon"] .kpi,
+:root[data-theme="pokemon"] .summary-tile,
+:root[data-theme="pokemon"] .installment-card,
+:root[data-theme="pokemon"] .asset-card{
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)
+}
+:root[data-theme="pikmin"] .card,
+:root[data-theme="pikmin"] .kpi,
+:root[data-theme="pikmin"] .summary-tile,
+:root[data-theme="pikmin"] .installment-card,
+:root[data-theme="pikmin"] .asset-card{background:rgba(255,253,248,.74)!important}
+:root[data-theme="pokemon"] .card,
+:root[data-theme="pokemon"] .kpi,
+:root[data-theme="pokemon"] .summary-tile,
+:root[data-theme="pokemon"] .installment-card,
+:root[data-theme="pokemon"] .asset-card{background:rgba(252,253,255,.74)!important}
+:root[data-theme="pikmin"] .kpi.accent{background:rgba(236,247,227,.72)!important}
+:root[data-theme="pokemon"] .kpi.accent{background:rgba(232,242,255,.72)!important}
+:root[data-theme="pikmin"] .table-wrap,
+:root[data-theme="pokemon"] .table-wrap{background:rgba(255,255,255,.10)}
+:root[data-theme="pikmin"] .data-table td{background:rgba(255,254,250,.68)}
+:root[data-theme="pikmin"] .data-table tr:nth-child(even) td{background:rgba(244,248,239,.58)}
+:root[data-theme="pokemon"] .data-table td{background:rgba(255,255,255,.68)}
+:root[data-theme="pokemon"] .data-table tr:nth-child(even) td{background:rgba(239,246,252,.58)}
+:root[data-theme="pikmin"] .matrix-table td:first-child{background:rgba(255,254,250,.76)}
+:root[data-theme="pikmin"] .matrix-table tr:nth-child(even) td:first-child{background:rgba(244,248,239,.68)}
+:root[data-theme="pokemon"] .matrix-table td:first-child{background:rgba(255,255,255,.76)}
+:root[data-theme="pokemon"] .matrix-table tr:nth-child(even) td:first-child{background:rgba(239,246,252,.68)}
+:root[data-theme="pikmin"] .data-table input,
+:root[data-theme="pikmin"] .data-table select,
+:root[data-theme="pokemon"] .data-table input,
+:root[data-theme="pokemon"] .data-table select{background:rgba(255,255,255,.18)}
+:root[data-theme="pikmin"] .data-table input:hover,
+:root[data-theme="pikmin"] .data-table input:focus,
+:root[data-theme="pikmin"] .data-table select:hover,
+:root[data-theme="pikmin"] .data-table select:focus,
+:root[data-theme="pokemon"] .data-table input:hover,
+:root[data-theme="pokemon"] .data-table input:focus,
+:root[data-theme="pokemon"] .data-table select:hover,
+:root[data-theme="pokemon"] .data-table select:focus{background:rgba(255,255,255,.72)}
+:root[data-theme="pikmin"] input,
+:root[data-theme="pikmin"] select,
+:root[data-theme="pikmin"] textarea,
+:root[data-theme="pikmin"] .search-box,
+:root[data-theme="pokemon"] input,
+:root[data-theme="pokemon"] select,
+:root[data-theme="pokemon"] textarea,
+:root[data-theme="pokemon"] .search-box{background:rgba(255,255,255,.62)}
+:root[data-theme="pikmin"] .filter-bar,
+:root[data-theme="pikmin"] .formula-note,
+:root[data-theme="pikmin"] .asset-totals>div,
+:root[data-theme="pikmin"] .asset-totals details,
+:root[data-theme="pikmin"] .provider-mark,
+:root[data-theme="pikmin"] .import-file-meta>div,
+:root[data-theme="pokemon"] .filter-bar,
+:root[data-theme="pokemon"] .formula-note,
+:root[data-theme="pokemon"] .asset-totals>div,
+:root[data-theme="pokemon"] .asset-totals details,
+:root[data-theme="pokemon"] .provider-mark,
+:root[data-theme="pokemon"] .import-file-meta>div{background:rgba(255,250,249,.64)}
+:root[data-theme="pikmin"] .data-table tfoot td,
+:root[data-theme="pikmin"] .total-row td,
+:root[data-theme="pokemon"] .data-table tfoot td,
+:root[data-theme="pokemon"] .total-row td{background:rgba(255,241,191,.72)!important}
+:root[data-theme="pikmin"] .data-table .computed{background:rgba(236,248,232,.72)}
+:root[data-theme="pokemon"] .data-table .computed{background:rgba(232,242,255,.72)}
+:root[data-theme="pikmin"] .import-compare td:first-child,
+:root[data-theme="pokemon"] .import-compare td:first-child{background:rgba(247,244,241,.70)}
+:root[data-theme="pikmin"] .data-table tr[data-row-color="pink"] td,
+:root[data-theme="pokemon"] .data-table tr[data-row-color="pink"] td{background:rgba(253,231,239,.72)!important}
+:root[data-theme="pikmin"] .data-table tr[data-row-color="yellow"] td,
+:root[data-theme="pokemon"] .data-table tr[data-row-color="yellow"] td{background:rgba(255,244,191,.72)!important}
+:root[data-theme="pikmin"] .data-table tr[data-row-color="blue"] td,
+:root[data-theme="pokemon"] .data-table tr[data-row-color="blue"] td{background:rgba(227,241,251,.72)!important}
+:root[data-theme="pikmin"] .data-table tr[data-row-color="green"] td,
+:root[data-theme="pokemon"] .data-table tr[data-row-color="green"] td{background:rgba(229,243,223,.72)!important}
+:root[data-theme="pikmin"] .data-table tr[data-row-color="cream"] td,
+:root[data-theme="pokemon"] .data-table tr[data-row-color="cream"] td{background:rgba(248,237,216,.72)!important}
+:root[data-theme="pikmin"] .data-table tr[data-row-color="gray"] td,
+:root[data-theme="pokemon"] .data-table tr[data-row-color="gray"] td{background:rgba(236,239,241,.72)!important}
+:root[data-theme="pikmin"] .data-table tr[data-row-color]:not([data-row-color=""]) td input,
+:root[data-theme="pikmin"] .data-table tr[data-row-color]:not([data-row-color=""]) td select,
+:root[data-theme="pokemon"] .data-table tr[data-row-color]:not([data-row-color=""]) td input,
+:root[data-theme="pokemon"] .data-table tr[data-row-color]:not([data-row-color=""]) td select{background:rgba(255,255,255,.28)}
+
+:root[data-theme="pokemon"] .workspace{isolation:isolate}
+:root[data-theme="pokemon"] .workspace::before{
+  content:"";position:absolute;top:0;right:0;bottom:0;left:190px !important;
+  width:auto !important;height:auto !important;
+  background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02)),url("./assets/themes/pokemon/pokemon-bg.png") !important;
+  background-repeat:no-repeat,no-repeat;background-size:100% 100%,cover;background-position:center,center bottom;
+  opacity:.92;z-index:0;pointer-events:none !important
+}
+:root[data-theme="pokemon"] .workspace>.topbar,
+:root[data-theme="pokemon"] .workspace>main,
+:root[data-theme="pokemon"] main>*{position:relative;z-index:1}
+:root[data-theme="pokemon"] main{padding-right:24px !important;background:transparent}
+@media(min-width:900px){
+  :root[data-theme="pokemon"] .workspace::before{
+    background-image:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.01)),url("./assets/themes/pokemon/pokemon-bg-landscape.png") !important;
+    background-position:center,center bottom;
+  }
+}
+@media(max-width:960px){
+  :root[data-theme="pokemon"] .workspace::before{left:0 !important}
+}
+@media(max-width:760px){
+  :root[data-theme="pikmin"] .card,
+  :root[data-theme="pikmin"] .kpi,
+  :root[data-theme="pikmin"] .summary-tile{background:rgba(255,253,248,.78)!important}
+  :root[data-theme="pikmin"] .data-table td{background:rgba(255,254,250,.72)}
+  :root[data-theme="pikmin"] .data-table tr:nth-child(even) td{background:rgba(244,248,239,.64)}
+  :root[data-theme="pokemon"] .card,
+  :root[data-theme="pokemon"] .kpi,
+  :root[data-theme="pokemon"] .summary-tile{background:rgba(252,253,255,.78)!important}
+  :root[data-theme="pokemon"] .data-table td{background:rgba(255,255,255,.72)}
+  :root[data-theme="pokemon"] .data-table tr:nth-child(even) td{background:rgba(239,246,252,.64)}
+  :root[data-theme="pokemon"] main{padding-right:12px !important}
 }
 
 </style>
