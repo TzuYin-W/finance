@@ -2992,6 +2992,50 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="pokemon"] main{padding-right:12px !important}
 }
 
+
+/* ===== 2026-08-13 design-board asset apply ===== */
+:root[data-theme="pikmin"] .workspace,
+:root[data-theme="pokemon"] .workspace{isolation:isolate}
+:root[data-theme="pikmin"] .workspace::before,
+:root[data-theme="pokemon"] .workspace::before{
+  content:"";position:absolute;top:0;right:0;bottom:0;left:190px !important;
+  width:auto !important;height:auto !important;
+  background-repeat:no-repeat,no-repeat;background-size:100% 100%,cover;background-position:center,center bottom;
+  z-index:0;pointer-events:none !important;opacity:.92;
+}
+:root[data-theme="pikmin"] .workspace::before{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04)),url("./assets/themes/pikmin/pikmin-bg.png") !important;
+}
+:root[data-theme="pokemon"] .workspace::before{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),url("./assets/themes/pokemon/pokemon-bg.png") !important;
+}
+@media(min-width:900px){
+  :root[data-theme="pikmin"] .workspace::before{
+    background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),url("./assets/themes/pikmin/pikmin-bg-landscape.png") !important;
+  }
+  :root[data-theme="pokemon"] .workspace::before{
+    background-image:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),url("./assets/themes/pokemon/pokemon-bg-landscape.png") !important;
+  }
+}
+:root[data-theme="pikmin"] .workspace>.topbar,
+:root[data-theme="pikmin"] .workspace>main,
+:root[data-theme="pokemon"] .workspace>.topbar,
+:root[data-theme="pokemon"] .workspace>main{position:relative;z-index:1}
+:root[data-theme="pikmin"] main,
+:root[data-theme="pokemon"] main{background:transparent}
+:root[data-theme="pikmin"] .workspace::after,
+:root[data-theme="pikmin"] main::before,
+:root[data-theme="pikmin"] main::after,
+:root[data-theme="pikmin"] .topbar::after,
+:root[data-theme="pokemon"] .workspace::after,
+:root[data-theme="pokemon"] main::before,
+:root[data-theme="pokemon"] main::after,
+:root[data-theme="pokemon"] .topbar::after{display:none !important}
+@media(max-width:960px){
+  :root[data-theme="pikmin"] .workspace::before,
+  :root[data-theme="pokemon"] .workspace::before{left:0 !important}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
