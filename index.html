@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v14-gundam-portrait-fix -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v15-gundam-visual-only -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -3304,346 +3304,136 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="pokemon"] .sidebar::after{width:150px;height:92px;right:6px;left:auto;bottom:5px;transform:none}
 }
 
-/* ===== 2026-08-13 gundam theme override: replaces pokemon style ===== */
-:root[data-theme="pokemon"]{
-  --green:#2f5ea7 !important;
-  --green-dark:#173761 !important;
-  --green-soft:#edf3fb !important;
-  --mint:#e6eef8 !important;
-  --blue:#d7e4f6 !important;
-  --yellow:#f1cb75 !important;
-  --pink:#ffd7e4 !important;
-  --ink:#102036 !important;
-  --muted:#596b86 !important;
-  --line:#b7c5d8 !important;
-  --paper:#f8fbff !important;
-  --bg:#e9eff8 !important;
-  --control:rgba(248,251,255,.70) !important;
-  --row:rgba(255,255,255,.64) !important;
-  --row-alt:rgba(235,242,250,.60) !important;
-  --computed:rgba(224,233,247,.72) !important;
-  --sidebar:#0b1423 !important;
-  --sidebar-active:#f1cb75 !important;
-  --sidebar-text:#f8fbff !important;
-  --sidebar-nav:#e8eef8 !important;
-  --sidebar-muted:#9fb2d2 !important;
-  --sidebar-line:#2a3f62 !important;
-  --topbar-bg:rgba(13,24,43,.58) !important;
-  --shadow:0 18px 34px rgba(9,18,34,.20) !important;
-}
-:root[data-theme="pokemon"] body{
-  background-image:
-    radial-gradient(circle at 78% 16%,rgba(115,157,228,.18),transparent 20%),
-    radial-gradient(circle at 14% 85%,rgba(228,84,108,.12),transparent 20%),
-    linear-gradient(180deg,#dfe8f6 0,#eef3fb 46%,#f8fbff 100%) !important;
-}
-:root[data-theme="pokemon"] .sidebar{
-  background:
-    linear-gradient(180deg,rgba(6,15,29,.97),rgba(15,32,59,.96) 46%,rgba(8,17,33,.98)) !important;
-  box-shadow:14px 0 34px rgba(0,0,0,.25) !important;
-}
-:root[data-theme="pokemon"] .brand,
-:root[data-theme="pokemon"] .brand small{color:#f8fbff !important}
-:root[data-theme="pokemon"] .brand-mark{
-  background:linear-gradient(135deg,#1d4a8d,#78a3ff) !important;
-  box-shadow:0 10px 22px rgba(37,91,173,.32) !important;
-}
-:root[data-theme="pokemon"] .nav-btn{color:#e9eef8 !important;font-weight:700 !important;letter-spacing:.02em}
-:root[data-theme="pokemon"] .nav-btn:hover{background:rgba(255,255,255,.10) !important;color:#fff !important}
-:root[data-theme="pokemon"] .nav-btn.active{background:linear-gradient(135deg,#ffe19b,#f0c96b) !important;color:#3a2d14 !important;box-shadow:0 12px 24px rgba(0,0,0,.22) !important}
-:root[data-theme="pokemon"] .privacy-note{color:#9fb2d2 !important;border-top-color:#263a5a !important}
-:root[data-theme="pokemon"] .workspace{isolation:isolate}
-:root[data-theme="pokemon"] .workspace::before{content:"" !important;position:absolute !important;inset:0 !important;background-image:linear-gradient(180deg,rgba(8,16,31,.38),rgba(8,16,31,.08) 34%,rgba(255,255,255,.06)),url("./gundam-bg-v12.png") !important;background-size:cover !important;background-position:center center !important;background-repeat:no-repeat !important;opacity:1 !important;z-index:0 !important}
-@media (orientation:landscape), (min-width: 961px){:root[data-theme="pokemon"] .workspace::before{background-image:linear-gradient(180deg,rgba(8,16,31,.42),rgba(8,16,31,.12) 38%,rgba(255,255,255,.05)),url("./gundam-bg-landscape-v12.png") !important;background-position:center center !important}}
-:root[data-theme="pokemon"] .workspace::after,:root[data-theme="pokemon"] main::before,:root[data-theme="pokemon"] main::after,:root[data-theme="pokemon"] .topbar::before,:root[data-theme="pokemon"] .topbar::after,:root[data-theme="pokemon"] .sidebar::after{display:none !important;content:none !important;background:none !important}
-:root[data-theme="pokemon"] .sidebar::before{content:"" !important;position:absolute !important;left:14px !important;bottom:18px !important;width:88px !important;height:88px !important;background:url("./gundam-sidebar-v12.png") center/contain no-repeat !important;filter:drop-shadow(0 10px 18px rgba(0,0,0,.28));opacity:.95 !important}
-:root[data-theme="pokemon"] .workspace>.topbar,:root[data-theme="pokemon"] .workspace>main,:root[data-theme="pokemon"] main>*{position:relative;z-index:1}
-:root[data-theme="pokemon"] .topbar{background:linear-gradient(180deg,rgba(248,251,255,.72),rgba(248,251,255,.54)) !important;border-bottom:1px solid rgba(255,255,255,.28) !important;backdrop-filter:blur(16px) saturate(120%)}
-:root[data-theme="pokemon"] .card,:root[data-theme="pokemon"] .kpi,:root[data-theme="pokemon"] .summary-tile,:root[data-theme="pokemon"] .installment-card,:root[data-theme="pokemon"] .asset-card,:root[data-theme="pokemon"] .filter-bar,:root[data-theme="pokemon"] .formula-note,:root[data-theme="pokemon"] .asset-totals>div,:root[data-theme="pokemon"] .asset-totals details,:root[data-theme="pokemon"] .provider-mark,:root[data-theme="pokemon"] .import-file-meta>div,:root[data-theme="pokemon"] .search-box,:root[data-theme="pokemon"] input,:root[data-theme="pokemon"] select,:root[data-theme="pokemon"] textarea{background:rgba(248,251,255,.66) !important;border:1px solid rgba(255,255,255,.42) !important;backdrop-filter:blur(14px) saturate(124%);box-shadow:0 12px 28px rgba(13,28,56,.12) !important}
-:root[data-theme="pokemon"] .table-wrap{background:rgba(255,255,255,.12) !important}
-:root[data-theme="pokemon"] .data-table th{background:linear-gradient(135deg,#23477f,#355fa1 56%,#5479bb) !important}
-:root[data-theme="pokemon"] .data-table td{background:rgba(255,255,255,.60) !important}
-:root[data-theme="pokemon"] .data-table tr:nth-child(even) td{background:rgba(231,238,248,.58) !important}
-:root[data-theme="pokemon"] .data-table tfoot td,:root[data-theme="pokemon"] .total-row td{background:rgba(241,203,117,.72) !important}
-:root[data-theme="pokemon"] .data-table .computed{background:rgba(219,229,245,.72) !important}
-:root[data-theme="pokemon"] .matrix-table td:first-child,:root[data-theme="pokemon"] .import-compare td:first-child{background:rgba(248,251,255,.72) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="pink"] td{background:rgba(255,222,233,.68) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="yellow"] td{background:rgba(250,236,185,.68) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="blue"] td{background:rgba(222,236,252,.70) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="green"] td{background:rgba(226,240,234,.68) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="cream"] td{background:rgba(244,236,222,.68) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="gray"] td{background:rgba(233,238,243,.68) !important}
-:root[data-theme="pokemon"] button.primary,:root[data-theme="pokemon"] .chip.active{background-image:linear-gradient(135deg,#24477b,#375b96 62%,#d74a5c) !important;border-color:#27497d !important;box-shadow:0 10px 22px rgba(22,53,102,.28) !important}
-:root[data-theme="pokemon"] .theme-option.active{box-shadow:0 0 0 3px rgba(47,94,167,.18) !important}
-:root[data-theme="pokemon"] .settings-hero{background-image:linear-gradient(135deg,rgba(18,35,62,.16),rgba(248,251,255,.92) 44%,rgba(255,255,255,.90)),url("./gundam-sidebar-v12.png") !important;background-repeat:no-repeat,no-repeat !important;background-size:auto,86px 86px !important;background-position:0 0,right 18px bottom 14px !important}
-:root[data-theme="pokemon"] .workspace,:root[data-theme="pokemon"] main,:root[data-theme="pokemon"] .app-shell{background:transparent !important}
-@media (max-width:960px){:root[data-theme="pokemon"] .sidebar::before{width:72px !important;height:72px !important;left:12px !important;bottom:14px !important;opacity:.92 !important}:root[data-theme="pokemon"] .topbar{background:linear-gradient(180deg,rgba(248,251,255,.78),rgba(248,251,255,.62)) !important}}
 
-
-/* ===== 2026-08-13 gundam refinement v13 ===== */
+/* ===== 2026-08-13 gundam visual-only override v15 =====
+   IMPORTANT: visual changes only. No layout/sidebar/drawer/page structure changes. */
 :root[data-theme="pokemon"]{
-  --green:#254a87 !important;
-  --green-dark:#18335c !important;
-  --green-soft:rgba(220,232,248,.42) !important;
-  --mint:rgba(223,232,244,.36) !important;
-  --blue:rgba(214,226,241,.34) !important;
+  --green:#315d9f !important;
+  --green-dark:#1c3b69 !important;
+  --green-soft:rgba(222,232,246,.48) !important;
+  --mint:rgba(229,237,247,.45) !important;
+  --blue:#d8e3f2 !important;
   --yellow:#e8c36b !important;
-  --pink:#e9a0ad !important;
-  --ink:#0f1d33 !important;
-  --muted:#50647e !important;
-  --line:rgba(176,193,215,.46) !important;
+  --pink:#e6a0ae !important;
+  --ink:#14243a !important;
+  --muted:#5f7088 !important;
+  --line:rgba(175,190,211,.56) !important;
   --paper:#f8fbff !important;
-  --bg:#e7eef7 !important;
-  --control:rgba(248,251,255,.34) !important;
-  --row:rgba(255,255,255,.30) !important;
-  --row-alt:rgba(237,243,250,.24) !important;
-  --computed:rgba(223,232,246,.28) !important;
-  --sidebar:#0a1322 !important;
-  --sidebar-active:#f0ca73 !important;
-  --sidebar-text:#f9fbff !important;
-  --sidebar-nav:#e7eef8 !important;
-  --sidebar-muted:#92a7c7 !important;
-  --sidebar-line:#203552 !important;
-  --topbar-bg:rgba(15,26,45,.38) !important;
-  --shadow:0 18px 34px rgba(8,18,34,.14) !important;
+  --bg:#eaf0f8 !important;
+  --control:rgba(249,251,255,.50) !important;
+  --row:rgba(255,255,255,.42) !important;
+  --row-alt:rgba(235,241,249,.36) !important;
+  --computed:rgba(222,232,246,.44) !important;
+  --sidebar:#0d1829 !important;
+  --sidebar-active:#e8c36b !important;
+  --sidebar-text:#f8fbff !important;
+  --sidebar-nav:#e7edf7 !important;
+  --sidebar-muted:#a3b3ca !important;
+  --sidebar-line:#30445f !important;
+  --topbar-bg:rgba(238,244,251,.58) !important;
+  --shadow:0 14px 30px rgba(14,29,52,.13) !important;
 }
 :root[data-theme="pokemon"] body{
-  background-image:linear-gradient(180deg,#dde8f5 0,#edf3fb 48%,#f7fbff 100%) !important;
+  background-image:linear-gradient(180deg,#e1e9f5 0,#eef3fa 46%,#f9fbfe 100%) !important;
 }
-/* suppress old pokemon decor completely */
+/* Keep the original workspace geometry; only change its background artwork. */
+:root[data-theme="pokemon"] .workspace::before{
+  background-image:
+    linear-gradient(180deg,rgba(8,16,31,.22),rgba(8,16,31,.08) 38%,rgba(255,255,255,.04)),
+    url("./gundam-bg-v15.png") !important;
+  background-repeat:no-repeat,no-repeat !important;
+  background-position:center center,center top !important;
+  background-size:100% 100%,contain !important;
+  opacity:.92 !important;
+}
+@media (orientation:landscape), (min-width:961px){
+  :root[data-theme="pokemon"] .workspace::before{
+    background-image:
+      linear-gradient(180deg,rgba(8,16,31,.26),rgba(8,16,31,.08) 42%,rgba(255,255,255,.04)),
+      url("./gundam-bg-landscape-v15.png") !important;
+    background-position:center center,center center !important;
+    background-size:100% 100%,contain !important;
+  }
+}
+/* Remove the old Pokemon decorative graphics, but do not touch layout. */
 :root[data-theme="pokemon"] .workspace::after,
 :root[data-theme="pokemon"] .topbar::before,
 :root[data-theme="pokemon"] .topbar::after,
 :root[data-theme="pokemon"] main::before,
-:root[data-theme="pokemon"] main::after,
-:root[data-theme="pokemon"] .settings-hero::before,
-:root[data-theme="pokemon"] .settings-hero::after{display:none !important; content:none !important; background:none !important; box-shadow:none !important}
-/* fixed non-scrolling background with contained sizing */
-:root[data-theme="pokemon"] .workspace{position:relative; isolation:isolate; overflow:hidden}
-:root[data-theme="pokemon"] .workspace::before{
+:root[data-theme="pokemon"] main::after{display:none !important;background:none !important;content:none !important}
+/* Gundam head stays at the lower part of the existing sidebar. */
+:root[data-theme="pokemon"] .sidebar::before{
   content:"" !important;
-  position:fixed !important;
-  top:0 !important;
-  right:0 !important;
-  bottom:0 !important;
-  left:230px !important;
-  z-index:0 !important;
-  pointer-events:none !important;
-  opacity:1 !important;
-  background-image:
-    linear-gradient(180deg,rgba(7,14,27,.24),rgba(7,14,27,.12) 34%,rgba(255,255,255,.08) 72%),
-    url("./gundam-bg-v14.png") !important;
-  background-repeat:no-repeat !important;
-  background-position:center center, center bottom !important;
-  background-size:cover, contain !important;
-  background-attachment:scroll, scroll !important;
-}
-@media (orientation:landscape), (min-width: 961px){
-  :root[data-theme="pokemon"] .workspace::before{
-    left:230px !important;
-    background-image:
-      linear-gradient(180deg,rgba(7,14,27,.32),rgba(7,14,27,.14) 36%,rgba(255,255,255,.06) 74%),
-      url("./gundam-bg-landscape-v14.png") !important;
-    background-position:center center, center center !important;
-    background-size:cover, contain !important;
-  }
-}
-:root[data-theme="pokemon"] .workspace>.topbar,
-:root[data-theme="pokemon"] .workspace>main,
-:root[data-theme="pokemon"] .workspace>main>*{position:relative; z-index:1}
-@media (max-width:960px){
-  :root[data-theme="pokemon"] .workspace::before{left:0 !important}
-}
-/* sidebar */
-:root[data-theme="pokemon"] .sidebar{
-  background:linear-gradient(180deg,rgba(7,15,28,.98),rgba(15,33,60,.97) 46%,rgba(8,18,34,.98)) !important;
-  box-shadow:14px 0 34px rgba(0,0,0,.28) !important;
-  position:sticky !important;
-}
-:root[data-theme="pokemon"] .sidebar::before{display:none !important; content:none !important}
-:root[data-theme="pokemon"] .sidebar::after{
-  content:"" !important;
-  display:block !important;
   position:absolute !important;
-  left:14px !important;
-  right:14px !important;
-  bottom:18px !important;
-  height:92px !important;
-  background:url("./gundam-sidebar-v14.png") left bottom / auto 88px no-repeat,
-             linear-gradient(90deg,rgba(86,123,177,.00),rgba(86,123,177,.10),rgba(232,195,107,.08)) !important;
-  border-radius:12px !important;
-  opacity:.96 !important;
+  left:50% !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:72px !important;
+  transform:translateX(-50%) !important;
+  width:104px !important;
+  height:88px !important;
+  background:url("./gundam-sidebar-v15.png") center/contain no-repeat !important;
+  opacity:.94 !important;
+  filter:drop-shadow(0 9px 16px rgba(0,0,0,.30)) !important;
   pointer-events:none !important;
-  z-index:0 !important;
 }
-:root[data-theme="pokemon"] .sidebar nav,
-:root[data-theme="pokemon"] .privacy-note,
-:root[data-theme="pokemon"] .brand{position:relative; z-index:1}
-:root[data-theme="pokemon"] .privacy-note{padding-bottom:112px !important; color:#90a6c6 !important; border-top-color:#223858 !important}
+:root[data-theme="pokemon"] .sidebar::after{display:none !important;background:none !important;content:none !important}
+:root[data-theme="pokemon"] .sidebar{
+  background:linear-gradient(180deg,#0a1424,#142845 52%,#0b1728) !important;
+}
 :root[data-theme="pokemon"] .brand,
 :root[data-theme="pokemon"] .brand small{color:#f8fbff !important}
-:root[data-theme="pokemon"] .brand-mark{background:linear-gradient(135deg,#1d4a8d,#76a2ff) !important; box-shadow:0 10px 22px rgba(37,91,173,.28) !important}
-:root[data-theme="pokemon"] .nav-btn{color:#e7eef8 !important; font-weight:700 !important; letter-spacing:.02em}
-:root[data-theme="pokemon"] .nav-btn:hover{background:rgba(255,255,255,.08) !important; color:#fff !important}
-:root[data-theme="pokemon"] .nav-btn.active{background:linear-gradient(135deg,#ffe19b,#efc768) !important; color:#3c2d14 !important; box-shadow:0 10px 22px rgba(0,0,0,.22) !important}
-/* more transparent glass */
-:root[data-theme="pokemon"] .topbar{
-  background:linear-gradient(180deg,rgba(248,251,255,.36),rgba(248,251,255,.22)) !important;
-  border-bottom:1px solid rgba(255,255,255,.18) !important;
-  backdrop-filter:blur(15px) saturate(120%);
+:root[data-theme="pokemon"] .brand-mark{
+  background:linear-gradient(135deg,#244d8c,#6e99e8) !important;
+  box-shadow:0 9px 20px rgba(31,77,145,.28) !important;
 }
+:root[data-theme="pokemon"] .nav-btn{color:#e7edf7 !important;font-weight:700 !important}
+:root[data-theme="pokemon"] .nav-btn:hover{background:rgba(255,255,255,.09) !important;color:#fff !important}
+:root[data-theme="pokemon"] .nav-btn.active{
+  background:linear-gradient(135deg,#f2d58c,#e3ba5d) !important;
+  color:#362b16 !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.18) !important;
+}
+:root[data-theme="pokemon"] .privacy-note{color:#9dafc7 !important;border-top-color:#30445f !important}
+/* More transparent glass, without changing sizing/flow. */
 :root[data-theme="pokemon"] .card,
 :root[data-theme="pokemon"] .kpi,
 :root[data-theme="pokemon"] .summary-tile,
 :root[data-theme="pokemon"] .installment-card,
-:root[data-theme="pokemon"] .asset-card,
+:root[data-theme="pokemon"] .asset-card{
+  background:rgba(248,251,255,.40) !important;
+  backdrop-filter:blur(12px) saturate(120%);
+  -webkit-backdrop-filter:blur(12px) saturate(120%);
+}
 :root[data-theme="pokemon"] .filter-bar,
 :root[data-theme="pokemon"] .formula-note,
 :root[data-theme="pokemon"] .asset-totals>div,
 :root[data-theme="pokemon"] .asset-totals details,
 :root[data-theme="pokemon"] .provider-mark,
 :root[data-theme="pokemon"] .import-file-meta>div,
-:root[data-theme="pokemon"] .search-box,
 :root[data-theme="pokemon"] input,
 :root[data-theme="pokemon"] select,
-:root[data-theme="pokemon"] textarea{
-  background:rgba(248,251,255,.28) !important;
-  border:1px solid rgba(255,255,255,.24) !important;
-  backdrop-filter:blur(16px) saturate(126%);
-  box-shadow:0 12px 26px rgba(12,26,50,.10) !important;
-}
-:root[data-theme="pokemon"] .table-wrap{background:rgba(255,255,255,.06) !important}
-:root[data-theme="pokemon"] .data-table th{background:linear-gradient(135deg,rgba(28,59,105,.84),rgba(45,82,137,.82) 56%,rgba(88,115,170,.76)) !important}
-:root[data-theme="pokemon"] .data-table td{background:rgba(255,255,255,.22) !important}
-:root[data-theme="pokemon"] .data-table tr:nth-child(even) td{background:rgba(231,238,248,.18) !important}
+:root[data-theme="pokemon"] textarea,
+:root[data-theme="pokemon"] .search-box{background:rgba(249,251,255,.44) !important}
+:root[data-theme="pokemon"] .table-wrap{background:rgba(255,255,255,.08) !important}
+:root[data-theme="pokemon"] .data-table th{background:linear-gradient(135deg,#234a82,#355f9e 62%,#567ab4) !important}
+:root[data-theme="pokemon"] .data-table td{background:rgba(255,255,255,.34) !important}
+:root[data-theme="pokemon"] .data-table tr:nth-child(even) td{background:rgba(232,239,248,.29) !important}
+:root[data-theme="pokemon"] .data-table .computed{background:rgba(219,229,244,.34) !important}
 :root[data-theme="pokemon"] .data-table tfoot td,
-:root[data-theme="pokemon"] .total-row td{background:rgba(240,202,115,.34) !important}
-:root[data-theme="pokemon"] .data-table .computed{background:rgba(217,228,244,.22) !important}
-:root[data-theme="pokemon"] .matrix-table td:first-child,
-:root[data-theme="pokemon"] .import-compare td:first-child{background:rgba(248,251,255,.28) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="pink"] td{background:rgba(255,222,233,.28) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="yellow"] td{background:rgba(250,236,185,.28) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="blue"] td{background:rgba(222,236,252,.30) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="green"] td{background:rgba(226,240,234,.26) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="cream"] td{background:rgba(244,236,222,.26) !important}
-:root[data-theme="pokemon"] .data-table tr[data-row-color="gray"] td{background:rgba(233,238,243,.24) !important}
-:root[data-theme="pokemon"] .data-table input,
-:root[data-theme="pokemon"] .data-table select{background:rgba(255,255,255,.12) !important}
-:root[data-theme="pokemon"] .data-table input:hover,
-:root[data-theme="pokemon"] .data-table input:focus,
-:root[data-theme="pokemon"] .data-table select:hover,
-:root[data-theme="pokemon"] .data-table select:focus{background:rgba(255,255,255,.24) !important}
+:root[data-theme="pokemon"] .total-row td{background:rgba(232,195,107,.45) !important}
 :root[data-theme="pokemon"] button.primary,
 :root[data-theme="pokemon"] .chip.active{
-  background-image:linear-gradient(135deg,#24477b,#375b96 62%,#d74a5c) !important;
-  border-color:#27497d !important;
-  box-shadow:0 10px 22px rgba(22,53,102,.22) !important;
+  background-image:linear-gradient(135deg,#244a82,#365e99 65%,#bd4659) !important;
+  border-color:#274b80 !important;
 }
-/* replace pokemon hero/pokeball vibe with mecha HUD */
 :root[data-theme="pokemon"] .settings-hero{
-  background:
-    linear-gradient(135deg,rgba(18,35,62,.12),rgba(248,251,255,.54) 44%,rgba(255,255,255,.42)),
-    linear-gradient(90deg,transparent 0 72%, rgba(26,52,95,.06) 72% 73%, transparent 73% 100%),
-    linear-gradient(0deg,transparent 0 82%, rgba(232,195,107,.10) 82% 83%, transparent 83% 100%),
-    rgba(248,251,255,.20) !important;
-  border-color:rgba(255,255,255,.20) !important;
-  position:relative;
-  overflow:hidden;
-}
-:root[data-theme="pokemon"] .settings-hero::marker{content:""}
-:root[data-theme="pokemon"] .settings-hero .gundam-hud-badge{display:none}
-:root[data-theme="pokemon"] .settings-hero .gundam-hud{display:none}
-:root[data-theme="pokemon"] .settings-hero::before,
-:root[data-theme="pokemon"] .settings-hero::after{display:none !important}
-:root[data-theme="pokemon"] .settings-hero{background-image:
-    linear-gradient(135deg,rgba(18,35,62,.14),rgba(248,251,255,.56) 44%,rgba(255,255,255,.44)),
-    url("./gundam-sidebar-v14.png") !important;
+  background-image:
+    linear-gradient(135deg,rgba(26,48,82,.10),rgba(248,251,255,.68) 46%,rgba(255,255,255,.62)),
+    url("./gundam-sidebar-v15.png") !important;
   background-repeat:no-repeat,no-repeat !important;
-  background-size:auto,118px 118px !important;
+  background-size:auto,92px 92px !important;
   background-position:0 0,right 18px bottom 12px !important;
-}
-:root[data-theme="pokemon"] .theme-option.active{box-shadow:0 0 0 3px rgba(47,94,167,.14) !important}
-@media (max-width:960px){
-  :root[data-theme="pokemon"] .sidebar::after{left:12px !important; right:12px !important; bottom:14px !important; height:78px !important; background-size:auto 74px, auto !important}
-  :root[data-theme="pokemon"] .privacy-note{padding-bottom:96px !important}
-  :root[data-theme="pokemon"] .topbar{background:linear-gradient(180deg,rgba(248,251,255,.42),rgba(248,251,255,.24)) !important}
-}
-
-
-/* ===== 2026-08-13 gundam portrait layout fix v14 ===== */
-@media (max-width: 960px) and (orientation: portrait){
-  :root[data-theme="pokemon"] .app-shell{
-    display:block !important;
-    min-height:100vh !important;
-  }
-  :root[data-theme="pokemon"] .workspace{
-    display:block !important;
-    min-height:100vh !important;
-    overflow-x:hidden !important;
-    overflow-y:visible !important;
-    padding-bottom:88px !important;
-  }
-  :root[data-theme="pokemon"] .workspace::before{
-    position:absolute !important;
-    top:0 !important;
-    right:0 !important;
-    bottom:0 !important;
-    left:0 !important;
-    background-image:
-      linear-gradient(180deg,rgba(7,14,27,.18),rgba(7,14,27,.10) 30%,rgba(255,255,255,.08) 72%),
-      url("./gundam-bg-v14.png") !important;
-    background-repeat:no-repeat !important;
-    background-position:center top, center 88px !important;
-    background-size:cover, contain !important;
-    background-attachment:scroll, scroll !important;
-    opacity:1 !important;
-  }
-  :root[data-theme="pokemon"] .workspace>.topbar{
-    position:sticky !important;
-    top:0 !important;
-    z-index:20 !important;
-  }
-  :root[data-theme="pokemon"] .workspace>main,
-  :root[data-theme="pokemon"] main{
-    position:relative !important;
-    z-index:1 !important;
-    padding:12px !important;
-    padding-bottom:100px !important;
-    background:transparent !important;
-  }
-  :root[data-theme="pokemon"] .grid.two,
-  :root[data-theme="pokemon"] .grid.three,
-  :root[data-theme="pokemon"] .summary-grid,
-  :root[data-theme="pokemon"] .stats-grid,
-  :root[data-theme="pokemon"] .theme-grid{
-    grid-template-columns:1fr !important;
-  }
-  :root[data-theme="pokemon"] .card,
-  :root[data-theme="pokemon"] .kpi,
-  :root[data-theme="pokemon"] .summary-tile,
-  :root[data-theme="pokemon"] .installment-card,
-  :root[data-theme="pokemon"] .asset-card,
-  :root[data-theme="pokemon"] .filter-bar,
-  :root[data-theme="pokemon"] .formula-note,
-  :root[data-theme="pokemon"] .asset-totals>div,
-  :root[data-theme="pokemon"] .asset-totals details,
-  :root[data-theme="pokemon"] .provider-mark,
-  :root[data-theme="pokemon"] .import-file-meta>div{
-    width:100% !important;
-    max-width:100% !important;
-  }
-  :root[data-theme="pokemon"] .table-wrap{
-    overflow-x:auto !important;
-    -webkit-overflow-scrolling:touch;
-  }
-  :root[data-theme="pokemon"] .sidebar::after{
-    height:72px !important;
-    background:url("./gundam-sidebar-v14.png") left bottom / auto 66px no-repeat,
-               linear-gradient(90deg,rgba(86,123,177,.00),rgba(86,123,177,.08),rgba(232,195,107,.06)) !important;
-  }
-  :root[data-theme="pokemon"] .privacy-note{
-    padding-bottom:88px !important;
-  }
 }
 
 </style>
@@ -3847,7 +3637,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     {id:'cream',name:'奶油色調',colors:['#b99a63','#f5ead6','#fbf7ef']},
     {id:'white',name:'全白色調',colors:['#5f6b74','#f2f4f5','#ffffff']},
     {id:'pikmin',name:'皮克敏風格',colors:['#34d27a','#fff6dc','#d9e4ea']},
-    {id:'pokemon',name:'鋼彈風格',colors:['#1f3f73','#d74a5c','#f2c96a']},
+    {id:'pokemon',name:'鋼彈風格',colors:['#284d87','#c6485d','#e8c36b']},
     {id:'monchhichi',name:'夢奇奇風格',colors:['#9fd9da','#f3bfd0','#7b5549']}
   ];
   const ROW_COLORS = [
