@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v15-gundam-visual-only -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v16-gundam-drawer-bg-monchhichi-fix -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -3340,7 +3340,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] .workspace::before{
   background-image:
     linear-gradient(180deg,rgba(8,16,31,.22),rgba(8,16,31,.08) 38%,rgba(255,255,255,.04)),
-    url("./gundam-bg-v15.png") !important;
+    url("./gundam-bg-v16.png") !important;
   background-repeat:no-repeat,no-repeat !important;
   background-position:center center,center top !important;
   background-size:100% 100%,contain !important;
@@ -3350,7 +3350,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="pokemon"] .workspace::before{
     background-image:
       linear-gradient(180deg,rgba(8,16,31,.26),rgba(8,16,31,.08) 42%,rgba(255,255,255,.04)),
-      url("./gundam-bg-landscape-v15.png") !important;
+      url("./gundam-bg-landscape-v16.png") !important;
     background-position:center center,center center !important;
     background-size:100% 100%,contain !important;
   }
@@ -3372,7 +3372,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   transform:translateX(-50%) !important;
   width:104px !important;
   height:88px !important;
-  background:url("./gundam-sidebar-v15.png") center/contain no-repeat !important;
+  background:url("./gundam-sidebar-v16.png") center/contain no-repeat !important;
   opacity:.94 !important;
   filter:drop-shadow(0 9px 16px rgba(0,0,0,.30)) !important;
   pointer-events:none !important;
@@ -3430,10 +3430,133 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] .settings-hero{
   background-image:
     linear-gradient(135deg,rgba(26,48,82,.10),rgba(248,251,255,.68) 46%,rgba(255,255,255,.62)),
-    url("./gundam-sidebar-v15.png") !important;
+    url("./gundam-sidebar-v16.png") !important;
   background-repeat:no-repeat,no-repeat !important;
   background-size:auto,92px 92px !important;
   background-position:0 0,right 18px bottom 12px !important;
+}
+
+
+/* ===== 2026-08-13 v16 targeted fixes: Gundam drawer/background + Monchhichi sidebar art ===== */
+/* Gundam: background is a fixed visual layer only. It must never cover or affect page layout. */
+:root[data-theme="pokemon"] .workspace{isolation:isolate !important;background:transparent !important}
+:root[data-theme="pokemon"] .workspace::before{
+  content:"" !important;
+  display:block !important;
+  position:fixed !important;
+  top:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  left:230px !important;
+  width:auto !important;
+  height:auto !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  background-image:
+    linear-gradient(180deg,rgba(235,242,251,.34),rgba(231,239,249,.20)),
+    url("./gundam-bg-v16.png") !important;
+  background-repeat:no-repeat,no-repeat !important;
+  background-position:center center,center center !important;
+  background-size:100% 100%,contain !important;
+  opacity:.78 !important;
+  transform:none !important;
+}
+:root[data-theme="pokemon"] .workspace>.topbar,
+:root[data-theme="pokemon"] .workspace>main,
+:root[data-theme="pokemon"] .workspace>main>*{position:relative !important;z-index:2 !important}
+@media (orientation:landscape), (min-width:1100px){
+  :root[data-theme="pokemon"] .workspace::before{
+    background-image:
+      linear-gradient(180deg,rgba(224,234,248,.28),rgba(230,237,247,.16)),
+      url("./gundam-bg-landscape-v16.png") !important;
+    background-position:center center,center center !important;
+    background-size:100% 100%,contain !important;
+  }
+}
+@media (max-width:1100px) and (min-width:761px){
+  :root[data-theme="pokemon"] .workspace::before{left:190px !important}
+}
+@media (max-width:760px), (orientation:landscape) and (max-height:600px){
+  :root[data-theme="pokemon"] .workspace::before{
+    left:0 !important;
+    top:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    background-size:100% 100%,contain !important;
+    opacity:.68 !important;
+  }
+  /* Gundam drawer: force the exact original mobile drawer geometry. */
+  :root[data-theme="pokemon"] .sidebar,
+  :root[data-theme="pokemon"] body:not(.sidebar-open) .sidebar{
+    position:fixed !important;
+    left:-250px !important;
+    right:auto !important;
+    top:0 !important;
+    width:230px !important;
+    min-width:230px !important;
+    height:100vh !important;
+    max-height:100vh !important;
+    transition:left .2s ease !important;
+    z-index:500 !important;
+    overflow-y:auto !important;
+    overscroll-behavior:contain !important;
+  }
+  :root[data-theme="pokemon"] .sidebar.open,
+  :root[data-theme="pokemon"] body.sidebar-open .sidebar{
+    left:0 !important;
+  }
+  :root[data-theme="pokemon"] .sidebar-backdrop{z-index:480 !important}
+  :root[data-theme="pokemon"] .sidebar-backdrop.open{display:block !important;opacity:1 !important;pointer-events:auto !important}
+}
+/* Keep the Gundam head below the navigation and non-interactive. */
+:root[data-theme="pokemon"] .sidebar::before{
+  pointer-events:none !important;
+  z-index:0 !important;
+  background-image:url("./gundam-sidebar-v16.png") !important;
+}
+:root[data-theme="pokemon"] .sidebar>*{position:relative !important;z-index:1 !important}
+/* Monchhichi: restore the original lower-sidebar artwork explicitly. */
+:root[data-theme="monchhichi"] .sidebar{overflow:hidden !important}
+:root[data-theme="monchhichi"] .sidebar::after{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  width:190px !important;
+  height:176px !important;
+  left:50% !important;
+  right:auto !important;
+  top:auto !important;
+  bottom:72px !important;
+  transform:translateX(-50%) !important;
+  background:url("./assets/themes/monchhichi/monchhichi-sidebar.png") center bottom/contain no-repeat !important;
+  filter:drop-shadow(0 9px 12px rgba(91,62,55,.14)) !important;
+  opacity:.98 !important;
+}
+:root[data-theme="monchhichi"] .sidebar>*{position:relative !important;z-index:1 !important}
+@media(max-width:760px){
+  :root[data-theme="monchhichi"] .sidebar{overflow-y:auto !important}
+  :root[data-theme="monchhichi"] .sidebar::after{
+    width:172px !important;
+    height:158px !important;
+    left:50% !important;
+    right:auto !important;
+    bottom:10px !important;
+    transform:translateX(-50%) !important;
+    opacity:.94 !important;
+  }
+}
+@media (orientation:landscape) and (max-height:600px){
+  :root[data-theme="monchhichi"] .sidebar::after{
+    width:122px !important;
+    height:112px !important;
+    left:auto !important;
+    right:8px !important;
+    bottom:6px !important;
+    transform:none !important;
+    opacity:.84 !important;
+  }
 }
 
 </style>
