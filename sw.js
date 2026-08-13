@@ -1,10 +1,10 @@
-const CACHE='finance-tracker-20260813-github-root-v16-gundam-drawer-bg-monchhichi-fix';
+const CACHE='finance-tracker-20260813-github-root-v17-gundam-portrait-root-monchhichi';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v11.png','./icon-512-v11.png','./apple-touch-icon-v11.png',
-  './assets/themes/monchhichi/monchhichi-bg.png','./assets/themes/monchhichi/monchhichi-bg-landscape.png','./assets/themes/monchhichi/monchhichi-sidebar.png',
+  './monchhichi-bg.png','./monchhichi-bg-landscape.png','./monchhichi-sidebar.png',
   './pikmin-bg-v11.png','./pikmin-bg-landscape-v11.png','./pikmin-sidebar-v11.png',
-  './gundam-bg-v16.png','./gundam-bg-landscape-v16.png','./gundam-sidebar-v16.png'
+  './gundam-bg-v17.png','./gundam-bg-landscape-v17.png','./gundam-sidebar-v17.png'
 ];
 self.addEventListener('install',e=>e.waitUntil((async()=>{
   const c=await caches.open(CACHE);

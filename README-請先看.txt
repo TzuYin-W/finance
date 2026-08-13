@@ -1,10 +1,19 @@
-財務追蹤 App v16 — 鋼彈側欄／直式背景＋夢奇奇小圖修正版
+這是「GitHub 根目錄安全覆蓋包 v17（鋼彈直式背景更新＋夢奇奇改根目錄版）」。
 
-只修三件事：
-1. 鋼彈主題：手機直式與橫式側邊欄恢復原本可收合行為。
-2. 鋼彈主題：背景改成固定在內容底層，不再蓋住記帳內容；圖以 contain 顯示，避免過度放大。
-3. 夢奇奇主題：補回遺漏的 assets/themes/monchhichi 資料夾與左側欄下方小圖。
+本次修正：
+- 鋼彈主題的手機直式背景改為你最新提供的圖片：gundam-bg-v17.png
+- 鋼彈主題手機橫式／電腦背景沿用前一版：gundam-bg-landscape-v17.png
+- 鋼彈主題左側欄小圖沿用前一版：gundam-sidebar-v17.png
+- 夢奇奇主題三張圖已改為放在根目錄，不再放在 assets/themes/monchhichi/ 資料夾內。
+- Service Worker 快取版本已更新。
 
-沒有修改記帳頁資料邏輯、Google Drive、歷史匯入、篩選、頁面結構或其他主題版面。
+這次根目錄會直接包含：
+- monchhichi-bg.png
+- monchhichi-bg-landscape.png
+- monchhichi-sidebar.png
 
-部署：將本 ZIP 解壓後的內容上傳到 GitHub repository 根目錄，同名檔案覆蓋；assets 資料夾也要一起上傳。
+部署方式：
+1. 解壓縮。
+2. 將全部檔案上傳到 GitHub repository 根目錄，同名覆蓋。
+3. 等待 GitHub Pages 更新後重新整理。
+4. 若仍顯示舊圖，請清除網站快取或刪除主畫面捷徑後重加。

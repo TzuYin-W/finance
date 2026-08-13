@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v16-gundam-drawer-bg-monchhichi-fix -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v17-gundam-portrait-root-monchhichi -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -2689,7 +2689,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="monchhichi"] .workspace::before{
   content:"";position:fixed;left:230px;right:0;top:0;bottom:0;z-index:0;
   pointer-events:none;
-  background-image:linear-gradient(90deg,rgba(223,242,242,.76) 0%,rgba(236,248,248,.26) 42%,rgba(255,250,250,.10) 100%),url("./assets/themes/monchhichi/monchhichi-bg-landscape.png");
+  background-image:linear-gradient(90deg,rgba(223,242,242,.76) 0%,rgba(236,248,248,.26) 42%,rgba(255,250,250,.10) 100%),url("./monchhichi-bg-landscape.png");
   background-repeat:no-repeat,no-repeat;
   background-size:100% 100%,cover;
   background-position:center,center center;
@@ -2715,7 +2715,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="monchhichi"] .sidebar::after{
   content:"";display:block;position:absolute;z-index:0;pointer-events:none;
   width:190px;height:176px;left:50%;bottom:72px;transform:translateX(-50%);
-  background:url("./assets/themes/monchhichi/monchhichi-sidebar.png") center bottom/contain no-repeat;
+  background:url("./monchhichi-sidebar.png") center bottom/contain no-repeat;
   filter:drop-shadow(0 9px 12px rgba(91,62,55,.14));opacity:.98
 }
 :root[data-theme="monchhichi"] .brand{color:#563f3b}
@@ -2768,7 +2768,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 }
 @media(max-width:760px){
   :root[data-theme="monchhichi"] .workspace::before{
-    left:0;background-image:linear-gradient(rgba(229,246,245,.43),rgba(255,248,250,.22)),url("./assets/themes/monchhichi/monchhichi-bg.png");
+    left:0;background-image:linear-gradient(rgba(229,246,245,.43),rgba(255,248,250,.22)),url("./monchhichi-bg.png");
     background-size:100% 100%,auto 100vh;background-position:center,center bottom;opacity:.66
   }
   :root[data-theme="monchhichi"] .sidebar{position:fixed;left:-250px;width:230px;height:100vh;transition:left .2s ease;overflow-y:auto}
@@ -2780,7 +2780,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 @media (orientation:landscape) and (max-height:600px){
   :root[data-theme="monchhichi"] .workspace::before{
     left:0;
-    background-image:linear-gradient(90deg,rgba(232,246,245,.42) 0%,rgba(236,248,248,.18) 42%,rgba(255,248,250,.08) 100%),url("./assets/themes/monchhichi/monchhichi-bg-landscape.png");
+    background-image:linear-gradient(90deg,rgba(232,246,245,.42) 0%,rgba(236,248,248,.18) 42%,rgba(255,248,250,.08) 100%),url("./monchhichi-bg-landscape.png");
     background-size:100% 100%,cover;
     background-position:center,center center;
     opacity:.72
@@ -3340,7 +3340,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] .workspace::before{
   background-image:
     linear-gradient(180deg,rgba(8,16,31,.22),rgba(8,16,31,.08) 38%,rgba(255,255,255,.04)),
-    url("./gundam-bg-v16.png") !important;
+    url("./gundam-bg-v17.png") !important;
   background-repeat:no-repeat,no-repeat !important;
   background-position:center center,center top !important;
   background-size:100% 100%,contain !important;
@@ -3350,7 +3350,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="pokemon"] .workspace::before{
     background-image:
       linear-gradient(180deg,rgba(8,16,31,.26),rgba(8,16,31,.08) 42%,rgba(255,255,255,.04)),
-      url("./gundam-bg-landscape-v16.png") !important;
+      url("./gundam-bg-landscape-v17.png") !important;
     background-position:center center,center center !important;
     background-size:100% 100%,contain !important;
   }
@@ -3372,7 +3372,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   transform:translateX(-50%) !important;
   width:104px !important;
   height:88px !important;
-  background:url("./gundam-sidebar-v16.png") center/contain no-repeat !important;
+  background:url("./gundam-sidebar-v17.png") center/contain no-repeat !important;
   opacity:.94 !important;
   filter:drop-shadow(0 9px 16px rgba(0,0,0,.30)) !important;
   pointer-events:none !important;
@@ -3430,7 +3430,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] .settings-hero{
   background-image:
     linear-gradient(135deg,rgba(26,48,82,.10),rgba(248,251,255,.68) 46%,rgba(255,255,255,.62)),
-    url("./gundam-sidebar-v16.png") !important;
+    url("./gundam-sidebar-v17.png") !important;
   background-repeat:no-repeat,no-repeat !important;
   background-size:auto,92px 92px !important;
   background-position:0 0,right 18px bottom 12px !important;
@@ -3454,7 +3454,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   pointer-events:none !important;
   background-image:
     linear-gradient(180deg,rgba(235,242,251,.34),rgba(231,239,249,.20)),
-    url("./gundam-bg-v16.png") !important;
+    url("./gundam-bg-v17.png") !important;
   background-repeat:no-repeat,no-repeat !important;
   background-position:center center,center center !important;
   background-size:100% 100%,contain !important;
@@ -3468,7 +3468,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="pokemon"] .workspace::before{
     background-image:
       linear-gradient(180deg,rgba(224,234,248,.28),rgba(230,237,247,.16)),
-      url("./gundam-bg-landscape-v16.png") !important;
+      url("./gundam-bg-landscape-v17.png") !important;
     background-position:center center,center center !important;
     background-size:100% 100%,contain !important;
   }
@@ -3512,7 +3512,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] .sidebar::before{
   pointer-events:none !important;
   z-index:0 !important;
-  background-image:url("./gundam-sidebar-v16.png") !important;
+  background-image:url("./gundam-sidebar-v17.png") !important;
 }
 :root[data-theme="pokemon"] .sidebar>*{position:relative !important;z-index:1 !important}
 /* Monchhichi: restore the original lower-sidebar artwork explicitly. */
@@ -3530,7 +3530,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   top:auto !important;
   bottom:72px !important;
   transform:translateX(-50%) !important;
-  background:url("./assets/themes/monchhichi/monchhichi-sidebar.png") center bottom/contain no-repeat !important;
+  background:url("./monchhichi-sidebar.png") center bottom/contain no-repeat !important;
   filter:drop-shadow(0 9px 12px rgba(91,62,55,.14)) !important;
   opacity:.98 !important;
 }
