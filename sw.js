@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260813-github-root-v17-gundam-portrait-root-monchhichi';
+const CACHE='finance-tracker-20260813-github-root-v18-theme-glass-sidebar-refine';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v11.png','./icon-512-v11.png','./apple-touch-icon-v11.png',

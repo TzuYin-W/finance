@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v17-gundam-portrait-root-monchhichi -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v18-theme-glass-sidebar-refine -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -3557,6 +3557,182 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
     transform:none !important;
     opacity:.84 !important;
   }
+}
+
+
+
+/* ===== 2026-08-13 v18 visual-only refinements ===== */
+/* Glass cards: make Pikmin / Gundam / Monchhichi more transparent. */
+:root[data-theme="pikmin"] .card,
+:root[data-theme="pikmin"] .kpi,
+:root[data-theme="pikmin"] .summary-tile,
+:root[data-theme="pikmin"] .installment-card,
+:root[data-theme="pikmin"] .asset-card,
+:root[data-theme="pokemon"] .card,
+:root[data-theme="pokemon"] .kpi,
+:root[data-theme="pokemon"] .summary-tile,
+:root[data-theme="pokemon"] .installment-card,
+:root[data-theme="pokemon"] .asset-card,
+:root[data-theme="monchhichi"] .card,
+:root[data-theme="monchhichi"] .kpi,
+:root[data-theme="monchhichi"] .summary-tile,
+:root[data-theme="monchhichi"] .installment-card,
+:root[data-theme="monchhichi"] .asset-card{
+  backdrop-filter:blur(13px) saturate(118%) !important;
+  -webkit-backdrop-filter:blur(13px) saturate(118%) !important;
+}
+:root[data-theme="pikmin"] .card,
+:root[data-theme="pikmin"] .kpi,
+:root[data-theme="pikmin"] .summary-tile,
+:root[data-theme="pikmin"] .installment-card,
+:root[data-theme="pikmin"] .asset-card{background:rgba(255,253,249,.54) !important}
+:root[data-theme="pikmin"] .filter-bar,
+:root[data-theme="pikmin"] .formula-note,
+:root[data-theme="pikmin"] .asset-totals>div,
+:root[data-theme="pikmin"] .asset-totals details,
+:root[data-theme="pikmin"] .provider-mark,
+:root[data-theme="pikmin"] .import-file-meta>div,
+:root[data-theme="pikmin"] input,
+:root[data-theme="pikmin"] select,
+:root[data-theme="pikmin"] textarea,
+:root[data-theme="pikmin"] .search-box{background:rgba(255,255,255,.42) !important}
+:root[data-theme="pikmin"] .table-wrap{background:rgba(255,255,255,.08) !important}
+:root[data-theme="pikmin"] .data-table td{background:rgba(255,255,255,.48) !important}
+:root[data-theme="pikmin"] .data-table tr:nth-child(even) td{background:rgba(247,250,244,.40) !important}
+:root[data-theme="pikmin"] .data-table .computed{background:rgba(238,245,233,.44) !important}
+:root[data-theme="pikmin"] .data-table tfoot td,
+:root[data-theme="pikmin"] .total-row td{background:rgba(255,241,191,.56) !important}
+
+:root[data-theme="pokemon"] .card,
+:root[data-theme="pokemon"] .kpi,
+:root[data-theme="pokemon"] .summary-tile,
+:root[data-theme="pokemon"] .installment-card,
+:root[data-theme="pokemon"] .asset-card{background:rgba(248,251,255,.30) !important}
+:root[data-theme="pokemon"] .filter-bar,
+:root[data-theme="pokemon"] .formula-note,
+:root[data-theme="pokemon"] .asset-totals>div,
+:root[data-theme="pokemon"] .asset-totals details,
+:root[data-theme="pokemon"] .provider-mark,
+:root[data-theme="pokemon"] .import-file-meta>div,
+:root[data-theme="pokemon"] input,
+:root[data-theme="pokemon"] select,
+:root[data-theme="pokemon"] textarea,
+:root[data-theme="pokemon"] .search-box{background:rgba(249,251,255,.32) !important}
+:root[data-theme="pokemon"] .table-wrap{background:rgba(255,255,255,.06) !important}
+:root[data-theme="pokemon"] .data-table td{background:rgba(255,255,255,.25) !important}
+:root[data-theme="pokemon"] .data-table tr:nth-child(even) td{background:rgba(232,239,248,.20) !important}
+:root[data-theme="pokemon"] .data-table .computed{background:rgba(219,229,244,.24) !important}
+:root[data-theme="pokemon"] .data-table tfoot td,
+:root[data-theme="pokemon"] .total-row td{background:rgba(232,195,107,.34) !important}
+
+:root[data-theme="monchhichi"] .card,
+:root[data-theme="monchhichi"] .kpi,
+:root[data-theme="monchhichi"] .summary-tile,
+:root[data-theme="monchhichi"] .installment-card,
+:root[data-theme="monchhichi"] .asset-card{background:rgba(255,253,251,.66) !important}
+:root[data-theme="monchhichi"] .filter-bar,
+:root[data-theme="monchhichi"] .formula-note,
+:root[data-theme="monchhichi"] .asset-totals>div,
+:root[data-theme="monchhichi"] .asset-totals details,
+:root[data-theme="monchhichi"] .provider-mark,
+:root[data-theme="monchhichi"] .import-file-meta>div,
+:root[data-theme="monchhichi"] input,
+:root[data-theme="monchhichi"] select,
+:root[data-theme="monchhichi"] textarea,
+:root[data-theme="monchhichi"] .search-box{background:rgba(255,255,255,.52) !important}
+:root[data-theme="monchhichi"] .table-wrap{background:rgba(255,255,255,.10) !important}
+:root[data-theme="monchhichi"] .data-table td{background:rgba(255,254,252,.56) !important}
+:root[data-theme="monchhichi"] .data-table tr:nth-child(even) td{background:rgba(247,244,241,.48) !important}
+:root[data-theme="monchhichi"] .data-table .computed{background:rgba(248,238,235,.52) !important}
+:root[data-theme="monchhichi"] .data-table tfoot td,
+:root[data-theme="monchhichi"] .total-row td{background:rgba(255,241,191,.62) !important}
+
+/* Sidebar lower artwork cards, matching Monchhichi style language. */
+:root[data-theme="pikmin"] .sidebar{overflow:hidden !important;background:linear-gradient(180deg,#f8fbf2,#eef6e8 58%,#e7efe2) !important}
+:root[data-theme="pikmin"] .brand{color:#547548 !important}
+:root[data-theme="pikmin"] .brand small{color:#75906f !important}
+:root[data-theme="pikmin"] .nav-btn{color:#58734e !important;background:rgba(255,255,255,.28) !important;border-color:rgba(159,187,151,.24) !important}
+:root[data-theme="pikmin"] .nav-btn:hover{background:rgba(255,255,255,.58) !important;color:#47653f !important}
+:root[data-theme="pikmin"] .nav-btn.active{background:linear-gradient(135deg,#fdfdf8,#fff8d9) !important;color:#46613f !important;box-shadow:0 8px 16px rgba(124,149,92,.16) !important}
+:root[data-theme="pikmin"] .privacy-note{color:#7d8e73 !important;border-top-color:rgba(157,180,148,.36) !important}
+:root[data-theme="pikmin"] .sidebar::before{display:none !important;content:none !important}
+:root[data-theme="pikmin"] .sidebar::after{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  left:50% !important;
+  bottom:72px !important;
+  transform:translateX(-50%) !important;
+  width:182px !important;
+  height:154px !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  border-radius:28px !important;
+  border:1px solid rgba(203,220,187,.72) !important;
+  box-shadow:0 12px 22px rgba(134,160,118,.18) !important;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cg transform='translate(18 18)'%3E%3Ccircle cx='10' cy='10' r='5' fill='%23f7c94c'/%3E%3Cpath d='M10 1v18M1 10h18M3.6 3.6l12.8 12.8M16.4 3.6L3.6 16.4' stroke='%23ffffff' stroke-width='4.8'/%3E%3C/g%3E%3Cg transform='translate(42 8) scale(.82)'%3E%3Ccircle cx='10' cy='10' r='5' fill='%23f7c94c'/%3E%3Cpath d='M10 1v18M1 10h18M3.6 3.6l12.8 12.8M16.4 3.6L3.6 16.4' stroke='%23ffffff' stroke-width='4.8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+    url("./pikmin-sidebar-v11.png"),
+    linear-gradient(180deg,rgba(254,255,251,.92),rgba(241,248,235,.78)) !important;
+  background-repeat:no-repeat,no-repeat,no-repeat !important;
+  background-position:left 12px top 10px,center bottom 8px,center center !important;
+  background-size:74px 74px,122px auto,100% 100% !important;
+}
+:root[data-theme="pikmin"] .sidebar>*{position:relative !important;z-index:1 !important}
+
+:root[data-theme="pokemon"] .sidebar{overflow:hidden !important;background:linear-gradient(180deg,#f2f6fb,#e6edf6 58%,#dfe8f3) !important}
+:root[data-theme="pokemon"] .brand{color:#32465d !important}
+:root[data-theme="pokemon"] .brand small{color:#60728a !important}
+:root[data-theme="pokemon"] .nav-btn{color:#3b5068 !important;background:rgba(255,255,255,.26) !important;border-color:rgba(143,165,188,.24) !important}
+:root[data-theme="pokemon"] .nav-btn:hover{background:rgba(255,255,255,.56) !important;color:#28394d !important}
+:root[data-theme="pokemon"] .nav-btn.active{background:linear-gradient(135deg,#fffdf8,#f2ead6) !important;color:#304056 !important;box-shadow:0 8px 16px rgba(91,112,145,.16) !important}
+:root[data-theme="pokemon"] .privacy-note{color:#74859b !important;border-top-color:rgba(126,144,171,.34) !important}
+:root[data-theme="pokemon"] .sidebar::before{display:none !important;content:none !important}
+:root[data-theme="pokemon"] .sidebar::after{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  left:50% !important;
+  bottom:72px !important;
+  transform:translateX(-50%) !important;
+  width:184px !important;
+  height:154px !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  border-radius:28px !important;
+  border:1px solid rgba(192,204,220,.82) !important;
+  box-shadow:0 14px 24px rgba(104,124,154,.18) !important;
+  background-image:
+    url("./gundam-sidebar-v17.png"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Ccircle cx='85' cy='24' r='18' fill='%23f6f8fb'/%3E%3Ccircle cx='92' cy='20' r='18' fill='%23d9e4f1'/%3E%3Cg fill='%23b9c6d8'%3E%3Ccircle cx='94' cy='18' r='2'/%3E%3Ccircle cx='84' cy='28' r='2.5'/%3E%3Ccircle cx='99' cy='29' r='1.8'/%3E%3C/g%3E%3Cg fill='%23cfdae8'%3E%3Ccircle cx='24' cy='16' r='1.5'/%3E%3Ccircle cx='30' cy='25' r='1.2'/%3E%3Ccircle cx='18' cy='29' r='1.8'/%3E%3Ccircle cx='46' cy='15' r='1.4'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(180deg,rgba(251,253,255,.92),rgba(234,241,249,.78)) !important;
+  background-repeat:no-repeat,no-repeat,no-repeat !important;
+  background-position:center bottom 8px,right 10px top 8px,center center !important;
+  background-size:118px auto,86px 58px,100% 100% !important;
+}
+:root[data-theme="pokemon"] .sidebar>*{position:relative !important;z-index:1 !important}
+/* remove old Pokémon-ball style decoration explicitly */
+:root[data-theme="pokemon"] .settings-hero{
+  background-image:
+    linear-gradient(135deg,rgba(26,48,82,.08),rgba(248,251,255,.62) 46%,rgba(255,255,255,.56)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Ccircle cx='86' cy='28' r='16' fill='%23f6f8fb'/%3E%3Ccircle cx='92' cy='24' r='16' fill='%23d8e3ef'/%3E%3Cg fill='%23bdcbdd'%3E%3Ccircle cx='93' cy='22' r='1.9'/%3E%3Ccircle cx='84' cy='31' r='2.3'/%3E%3Ccircle cx='99' cy='31' r='1.6'/%3E%3C/g%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat,no-repeat !important;
+  background-size:auto,84px 56px !important;
+  background-position:0 0,right 18px bottom 14px !important;
+}
+
+/* Mobile/short landscape sizing for lower sidebar cards. */
+@media (max-width:760px){
+  :root[data-theme="pikmin"] .sidebar::after,
+  :root[data-theme="pokemon"] .sidebar::after{width:170px !important;height:144px !important;bottom:10px !important}
+  :root[data-theme="pikmin"] .sidebar::after{background-size:66px 66px,112px auto,100% 100% !important}
+  :root[data-theme="pokemon"] .sidebar::after{background-size:108px auto,78px 52px,100% 100% !important}
+}
+@media (orientation:landscape) and (max-height:600px){
+  :root[data-theme="pikmin"] .sidebar::after,
+  :root[data-theme="pokemon"] .sidebar::after{width:124px !important;height:108px !important;bottom:6px !important;border-radius:22px !important}
+  :root[data-theme="pikmin"] .sidebar::after{left:auto !important;right:8px !important;transform:none !important;background-size:44px 44px,78px auto,100% 100% !important}
+  :root[data-theme="pokemon"] .sidebar::after{left:auto !important;right:8px !important;transform:none !important;background-size:76px auto,54px 36px,100% 100% !important}
 }
 
 </style>
