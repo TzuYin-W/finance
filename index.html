@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -2671,6 +2671,119 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   }
 }
 
+
+
+/* v22: Monchhichi-inspired pastel plush theme — original generated artwork only */
+:root[data-theme="monchhichi"]{
+  --green:#d992aa;--green-dark:#a45e78;--green-soft:#fdebf1;
+  --mint:#ddf3f1;--blue:#d9eef2;--yellow:#fff1bf;--pink:#f8d5df;
+  --ink:#503d39;--muted:#806c67;--line:#e6d7d5;
+  --paper:rgba(255,253,251,.94);--bg:#dff2f2;--control:rgba(255,255,255,.96);
+  --row:rgba(255,254,252,.96);--row-alt:rgba(249,246,243,.95);--computed:#f8eeeb;
+  --sidebar:#b9dfe1;--sidebar-active:#f4c5d4;--sidebar-text:#563f3b;
+  --sidebar-nav:#563f3b;--sidebar-muted:#806764;--sidebar-line:#93c5c8;
+  --topbar-bg:rgba(247,252,251,.91);--shadow:0 12px 30px rgba(99,72,66,.11)
+}
+:root[data-theme="monchhichi"] body{background:#dff2f2}
+:root[data-theme="monchhichi"] .workspace{position:relative;isolation:isolate;background:#dff2f2}
+:root[data-theme="monchhichi"] .workspace::before{
+  content:"";position:fixed;left:230px;right:0;top:0;bottom:0;z-index:0;
+  pointer-events:none;
+  background-image:linear-gradient(90deg,rgba(223,242,242,.82) 0%,rgba(223,242,242,.46) 40%,rgba(255,250,250,.12) 100%),url("./assets/themes/monchhichi/monchhichi-bg.png");
+  background-repeat:no-repeat,no-repeat;
+  background-size:100% 100%,auto 100vh;
+  background-position:center,right bottom;
+  opacity:.88
+}
+:root[data-theme="monchhichi"] .workspace>main{position:relative;z-index:1}
+:root[data-theme="monchhichi"] .topbar{z-index:20;border-bottom-color:rgba(197,155,166,.35);box-shadow:0 5px 18px rgba(92,67,62,.06)}
+:root[data-theme="monchhichi"] .card,
+:root[data-theme="monchhichi"] .kpi,
+:root[data-theme="monchhichi"] .summary-tile{
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  border-color:rgba(222,199,198,.88)
+}
+:root[data-theme="monchhichi"] .card{background-color:rgba(255,253,251,.93)}
+:root[data-theme="monchhichi"] .sidebar{
+  position:sticky;top:0;height:100vh;overflow:hidden;
+  background-color:#b9dfe1;
+  background-image:radial-gradient(circle,rgba(255,255,255,.46) 0 2px,transparent 2.4px),linear-gradient(180deg,#c7e8e7 0%,#b7dde0 58%,#afd5d8 100%);
+  background-size:22px 22px,auto;
+  color:var(--sidebar-text)
+}
+:root[data-theme="monchhichi"] .sidebar>*{position:relative;z-index:1}
+:root[data-theme="monchhichi"] .sidebar::after{
+  content:"";display:block;position:absolute;z-index:0;pointer-events:none;
+  width:190px;height:176px;left:50%;bottom:72px;transform:translateX(-50%);
+  background:url("./assets/themes/monchhichi/monchhichi-sidebar.png") center bottom/contain no-repeat;
+  filter:drop-shadow(0 9px 12px rgba(91,62,55,.14));opacity:.98
+}
+:root[data-theme="monchhichi"] .brand{color:#563f3b}
+:root[data-theme="monchhichi"] .brand small{color:#806764}
+:root[data-theme="monchhichi"] .brand-mark{
+  color:#fff;background:linear-gradient(135deg,#ef9fb8,#d982a0);
+  box-shadow:0 9px 18px rgba(207,116,147,.24)
+}
+:root[data-theme="monchhichi"] .nav-btn{
+  color:#563f3b;background:rgba(255,255,255,.34);border:1px solid rgba(255,255,255,.32);
+  font-weight:700;text-shadow:none
+}
+:root[data-theme="monchhichi"] .nav-btn:hover{color:#563f3b;background:rgba(255,245,248,.68);border-color:rgba(218,149,173,.32)}
+:root[data-theme="monchhichi"] .nav-btn.active{
+  color:#543b38;background:linear-gradient(135deg,#f8d3de,#f3c1d1);
+  box-shadow:inset 4px 0 #d57f9b,0 5px 12px rgba(110,78,71,.10)
+}
+:root[data-theme="monchhichi"] .privacy-note{
+  color:#715b57;border-top-color:rgba(117,168,171,.55);
+  background:rgba(211,239,239,.72);border-radius:10px
+}
+:root[data-theme="monchhichi"] .data-table th{
+  color:#4e3936;background:linear-gradient(135deg,#a9dfe0,#f1bfd0);border-bottom-color:#d7a8b8
+}
+:root[data-theme="monchhichi"] button,
+:root[data-theme="monchhichi"] .button{border-color:#e4d3d2;background:rgba(255,253,251,.96)}
+:root[data-theme="monchhichi"] button.primary,
+:root[data-theme="monchhichi"] .chip.active{
+  color:#fff;background:linear-gradient(135deg,#eb9bb4,#d982a0);border-color:#cf7895;
+  box-shadow:0 8px 18px rgba(201,111,143,.20)
+}
+:root[data-theme="monchhichi"] input:focus,
+:root[data-theme="monchhichi"] select:focus,
+:root[data-theme="monchhichi"] textarea:focus{box-shadow:0 0 0 3px rgba(224,140,168,.16);border-color:#d792aa}
+:root[data-theme="monchhichi"] .theme-option.active{box-shadow:0 0 0 3px rgba(217,146,170,.20)}
+:root[data-theme="monchhichi"] .settings-hero{
+  background:linear-gradient(135deg,rgba(255,238,244,.92),rgba(227,246,245,.95) 48%,rgba(255,253,250,.95));
+  border-color:#e3c9d0
+}
+:root[data-theme="monchhichi"] .settings-hero::after{
+  content:"♡";position:absolute;right:28px;top:12px;font-size:58px;line-height:1;
+  color:rgba(224,139,168,.26);font-family:Georgia,serif;pointer-events:none
+}
+:root[data-theme="monchhichi"] .report-mode-toggle.auto,
+:root[data-theme="monchhichi"] .credit-total-toggle.auto{border-color:#d994aa}
+
+@media(max-width:1100px) and (min-width:761px){
+  :root[data-theme="monchhichi"] .workspace::before{left:190px;background-size:100% 100%,auto 100vh;opacity:.84}
+  :root[data-theme="monchhichi"] .sidebar::after{width:156px;height:146px;bottom:72px}
+}
+@media(max-width:760px){
+  :root[data-theme="monchhichi"] .workspace::before{
+    left:0;background-image:linear-gradient(rgba(229,246,245,.43),rgba(255,248,250,.22)),url("./assets/themes/monchhichi/monchhichi-bg.png");
+    background-size:100% 100%,auto 100vh;background-position:center,center bottom;opacity:.66
+  }
+  :root[data-theme="monchhichi"] .sidebar{position:fixed;left:-250px;width:230px;height:100vh;transition:left .2s ease;overflow-y:auto}
+  :root[data-theme="monchhichi"] .sidebar.open{left:0;box-shadow:12px 0 30px rgba(79,58,53,.22)}
+  :root[data-theme="monchhichi"] .sidebar::after{width:172px;height:158px;bottom:10px;opacity:.94}
+  :root[data-theme="monchhichi"] .card{background-color:rgba(255,253,251,.95)}
+  :root[data-theme="monchhichi"] .settings-hero::after{font-size:42px;right:14px;top:10px}
+}
+@media (orientation:landscape) and (max-height:600px){
+  :root[data-theme="monchhichi"] .workspace::before{left:0;background-size:100% 100%,auto 118vh;background-position:center,right bottom;opacity:.58}
+  :root[data-theme="monchhichi"] .sidebar{position:fixed;left:-250px;width:230px;height:100vh;transition:left .2s ease;overflow-y:auto}
+  :root[data-theme="monchhichi"] .sidebar.open{left:0}
+  :root[data-theme="monchhichi"] .sidebar::after{width:122px;height:112px;left:auto;right:8px;bottom:6px;transform:none;opacity:.84}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -2872,7 +2985,8 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     {id:'cream',name:'奶油色調',colors:['#b99a63','#f5ead6','#fbf7ef']},
     {id:'white',name:'全白色調',colors:['#5f6b74','#f2f4f5','#ffffff']},
     {id:'pikmin',name:'皮克敏風格',colors:['#34d27a','#fff6dc','#d9e4ea']},
-    {id:'pokemon',name:'寶可夢風格',colors:['#4aa8ff','#ef4b4d','#ffd24a']}
+    {id:'pokemon',name:'寶可夢風格',colors:['#4aa8ff','#ef4b4d','#ffd24a']},
+    {id:'monchhichi',name:'夢奇奇風格',colors:['#9fd9da','#f3bfd0','#7b5549']}
   ];
   const ROW_COLORS = [
     {id:'',name:'無'},
