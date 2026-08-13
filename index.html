@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -2788,6 +2788,66 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="monchhichi"] .sidebar{position:fixed;left:-250px;width:230px;height:100vh;transition:left .2s ease;overflow-y:auto}
   :root[data-theme="monchhichi"] .sidebar.open{left:0}
   :root[data-theme="monchhichi"] .sidebar::after{width:122px;height:112px;left:auto;right:8px;bottom:6px;transform:none;opacity:.84}
+}
+
+
+/* v23: Monchhichi theme glass layers — reveal artwork beneath tables/cards */
+:root[data-theme="monchhichi"]{
+  --paper:rgba(255,253,251,.76);
+  --control:rgba(255,255,255,.62);
+  --row:rgba(255,254,252,.68);
+  --row-alt:rgba(247,244,241,.58);
+  --computed:rgba(248,238,235,.68);
+  --topbar-bg:rgba(247,252,251,.76)
+}
+:root[data-theme="monchhichi"] .card,
+:root[data-theme="monchhichi"] .kpi,
+:root[data-theme="monchhichi"] .summary-tile,
+:root[data-theme="monchhichi"] .installment-card,
+:root[data-theme="monchhichi"] .asset-card{
+  background:rgba(255,253,251,.74)!important;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)
+}
+:root[data-theme="monchhichi"] .kpi.accent{background:rgba(253,235,241,.72)!important}
+:root[data-theme="monchhichi"] .table-wrap{background:rgba(255,255,255,.10)}
+:root[data-theme="monchhichi"] .data-table td{background:rgba(255,254,252,.68)}
+:root[data-theme="monchhichi"] .data-table tr:nth-child(even) td{background:rgba(247,244,241,.58)}
+:root[data-theme="monchhichi"] .matrix-table td:first-child{background:rgba(255,254,252,.76)}
+:root[data-theme="monchhichi"] .matrix-table tr:nth-child(even) td:first-child{background:rgba(247,244,241,.68)}
+:root[data-theme="monchhichi"] .data-table input,
+:root[data-theme="monchhichi"] .data-table select{background:rgba(255,255,255,.18)}
+:root[data-theme="monchhichi"] .data-table input:hover,
+:root[data-theme="monchhichi"] .data-table input:focus,
+:root[data-theme="monchhichi"] .data-table select:hover,
+:root[data-theme="monchhichi"] .data-table select:focus{background:rgba(255,255,255,.72)}
+:root[data-theme="monchhichi"] input,
+:root[data-theme="monchhichi"] select,
+:root[data-theme="monchhichi"] textarea,
+:root[data-theme="monchhichi"] .search-box{background:rgba(255,255,255,.62)}
+:root[data-theme="monchhichi"] .filter-bar,
+:root[data-theme="monchhichi"] .formula-note,
+:root[data-theme="monchhichi"] .asset-totals>div,
+:root[data-theme="monchhichi"] .asset-totals details,
+:root[data-theme="monchhichi"] .provider-mark,
+:root[data-theme="monchhichi"] .import-file-meta>div{background:rgba(255,250,249,.64)}
+:root[data-theme="monchhichi"] .data-table tfoot td,
+:root[data-theme="monchhichi"] .total-row td{background:rgba(255,241,191,.72)!important}
+:root[data-theme="monchhichi"] .data-table .computed{background:rgba(248,238,235,.72)}
+:root[data-theme="monchhichi"] .import-compare td:first-child{background:rgba(247,244,241,.70)}
+:root[data-theme="monchhichi"] .data-table tr[data-row-color="pink"] td{background:rgba(253,231,239,.72)!important}
+:root[data-theme="monchhichi"] .data-table tr[data-row-color="yellow"] td{background:rgba(255,244,191,.72)!important}
+:root[data-theme="monchhichi"] .data-table tr[data-row-color="blue"] td{background:rgba(227,241,251,.72)!important}
+:root[data-theme="monchhichi"] .data-table tr[data-row-color="green"] td{background:rgba(229,243,223,.72)!important}
+:root[data-theme="monchhichi"] .data-table tr[data-row-color="cream"] td{background:rgba(248,237,216,.72)!important}
+:root[data-theme="monchhichi"] .data-table tr[data-row-color="gray"] td{background:rgba(236,239,241,.72)!important}
+:root[data-theme="monchhichi"] .data-table tr[data-row-color]:not([data-row-color=""]) td input,
+:root[data-theme="monchhichi"] .data-table tr[data-row-color]:not([data-row-color=""]) td select{background:rgba(255,255,255,.28)}
+@media(max-width:760px){
+  :root[data-theme="monchhichi"] .card,
+  :root[data-theme="monchhichi"] .kpi,
+  :root[data-theme="monchhichi"] .summary-tile{background:rgba(255,253,251,.78)!important}
+  :root[data-theme="monchhichi"] .data-table td{background:rgba(255,254,252,.72)}
+  :root[data-theme="monchhichi"] .data-table tr:nth-child(even) td{background:rgba(247,244,241,.64)}
 }
 
 </style>
