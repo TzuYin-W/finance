@@ -2778,7 +2778,13 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   :root[data-theme="monchhichi"] .settings-hero::after{font-size:42px;right:14px;top:10px}
 }
 @media (orientation:landscape) and (max-height:600px){
-  :root[data-theme="monchhichi"] .workspace::before{left:0;background-size:100% 100%,auto 118vh;background-position:center,right bottom;opacity:.58}
+  :root[data-theme="monchhichi"] .workspace::before{
+    left:0;
+    background-image:linear-gradient(90deg,rgba(232,246,245,.42) 0%,rgba(236,248,248,.18) 42%,rgba(255,248,250,.08) 100%),url("./assets/themes/monchhichi/monchhichi-bg-landscape.png");
+    background-size:100% 100%,cover;
+    background-position:center,center center;
+    opacity:.72
+  }
   :root[data-theme="monchhichi"] .sidebar{position:fixed;left:-250px;width:230px;height:100vh;transition:left .2s ease;overflow-y:auto}
   :root[data-theme="monchhichi"] .sidebar.open{left:0}
   :root[data-theme="monchhichi"] .sidebar::after{width:122px;height:112px;left:auto;right:8px;bottom:6px;transform:none;opacity:.84}
