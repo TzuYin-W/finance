@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v23-wallet-icon-fullbleed -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v24-touch-drawer-fixed-scroll -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -3931,6 +3931,157 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   .sidebar-backdrop.open{display:block !important;opacity:1 !important;pointer-events:auto !important}
 }
 
+
+
+/* ===== 2026-08-20 v24 device-aware drawer + fixed app viewport =====
+   Layout behavior only: themes/data logic remain unchanged. */
+html,body{
+  width:100% !important;
+  height:100% !important;
+  max-height:100% !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  overscroll-behavior:none !important;
+}
+body{
+  min-height:0 !important;
+  overscroll-behavior-x:none !important;
+  overscroll-behavior-y:none !important;
+}
+.app-shell{
+  height:100vh !important;
+  height:100dvh !important;
+  min-height:0 !important;
+  max-height:100dvh !important;
+  overflow:hidden !important;
+}
+.workspace{
+  min-width:0 !important;
+  min-height:0 !important;
+  height:100vh !important;
+  height:100dvh !important;
+  max-height:100dvh !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+.workspace>.topbar{
+  flex:0 0 auto !important;
+  position:sticky !important;
+  top:0 !important;
+  z-index:220 !important;
+}
+.workspace>main{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  overscroll-behavior-x:none !important;
+  overscroll-behavior-y:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+  touch-action:pan-y !important;
+}
+.sidebar{
+  max-height:100dvh !important;
+  overscroll-behavior-y:contain !important;
+}
+.sidebar nav{
+  min-height:0 !important;
+  overscroll-behavior-y:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+body.sidebar-open .workspace>main{
+  overflow-y:hidden !important;
+  touch-action:none !important;
+}
+
+/* Touch-primary devices: portrait AND landscape always use the drawer. */
+html.touch-drawer-mode .app-shell{
+  display:block !important;
+  grid-template-columns:none !important;
+}
+html.touch-drawer-mode .mobile-only{display:inline-block !important}
+html.touch-drawer-mode .sidebar,
+html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar,
+html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar,
+html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar{
+  position:fixed !important;
+  top:0 !important;
+  right:auto !important;
+  bottom:auto !important;
+  left:-310px !important;
+  width:min(82vw,280px) !important;
+  min-width:0 !important;
+  height:100vh !important;
+  height:100dvh !important;
+  max-height:100dvh !important;
+  z-index:500 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  transition:left .2s ease !important;
+  overscroll-behavior:contain !important;
+  touch-action:pan-y !important;
+}
+html.touch-drawer-mode .sidebar.open,
+html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar.open,
+html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar.open,
+html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar.open{
+  left:0 !important;
+}
+html.touch-drawer-mode .sidebar nav{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  overscroll-behavior-y:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+  touch-action:pan-y !important;
+}
+html.touch-drawer-mode .sidebar-backdrop{
+  display:block !important;
+  z-index:490 !important;
+}
+html.touch-drawer-mode .sidebar-backdrop.open{
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+
+/* Fine-pointer / hover-capable desktop: sidebar stays present regardless of viewport width. */
+html.desktop-sidebar-mode .app-shell{
+  display:grid !important;
+  grid-template-columns:230px minmax(0,1fr) !important;
+}
+html.desktop-sidebar-mode .sidebar,
+html.desktop-sidebar-mode :root[data-theme="pikmin"] .sidebar,
+html.desktop-sidebar-mode :root[data-theme="pokemon"] .sidebar,
+html.desktop-sidebar-mode :root[data-theme="monchhichi"] .sidebar{
+  position:relative !important;
+  top:0 !important;
+  left:auto !important;
+  right:auto !important;
+  width:230px !important;
+  min-width:230px !important;
+  height:100vh !important;
+  height:100dvh !important;
+  max-height:100dvh !important;
+  z-index:30 !important;
+}
+html.desktop-sidebar-mode .mobile-only{display:none !important}
+html.desktop-sidebar-mode .sidebar-backdrop{display:none !important;pointer-events:none !important}
+html.desktop-sidebar-mode .sidebar nav{
+  flex:1 1 auto !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+}
+
+@media print{
+  html,body{height:auto !important;max-height:none !important;overflow:visible !important}
+  .app-shell,.workspace{height:auto !important;max-height:none !important;overflow:visible !important;display:block !important}
+  .workspace>main{overflow:visible !important;max-height:none !important}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4870,7 +5021,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   }
   function renderPreservingAnchor(source,afterRender){
     const top=source?.getBoundingClientRect?.().top;
-    const scrollY=window.scrollY;
+    const scrollY=main.scrollTop;
     const wrap=source?.closest?.('.table-wrap');
     const wrapLeft=wrap?.scrollLeft||0;
     const anchor={
@@ -4893,9 +5044,9 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       else if(anchor.settingYear)next=candidates.find(x=>x.dataset.settingYear!==undefined);
       if(next&&Number.isFinite(top)){
         const delta=next.getBoundingClientRect().top-top;
-        if(Math.abs(delta)>.5)window.scrollBy(0,delta);
+        if(Math.abs(delta)>.5)main.scrollBy({top:delta,left:0,behavior:'auto'});
         const nextWrap=next.closest('.table-wrap');if(nextWrap)nextWrap.scrollLeft=wrapLeft;
-      }else window.scrollTo(0,scrollY);
+      }else main.scrollTop=scrollY;
       if(typeof afterRender==='function')afterRender(next);
     });
   }
@@ -4924,13 +5075,13 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   function renderSearchResults(){
     const contentHost=document.getElementById('pageContent');
     if(!contentHost||ui.tab==='settings'){render();return;}
-    const scrollY=window.scrollY;
+    const scrollY=main.scrollTop;
     const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,tax:renderTax,investment:renderInvestment,lunch:renderLunch,settings:renderSettings};
     const renderer=renderers[ui.tab];
     if(!renderer){render();return;}
     contentHost.innerHTML=renderer();
     saveUiPrefs();
-    requestAnimationFrame(()=>window.scrollTo(0,scrollY));
+    requestAnimationFrame(()=>{main.scrollTop=scrollY;});
   }
 
   function accountSummaryIncludesDate(date,year=currentYear()){
@@ -5323,19 +5474,30 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
 
   const sidebar=document.querySelector('.sidebar');
   const sidebarBackdrop=document.getElementById('sidebarBackdrop');
-  const drawerMedia=window.matchMedia('(max-width: 760px), (orientation: landscape) and (max-height: 600px)');
+  const drawerMedia=window.matchMedia('(hover: none) and (pointer: coarse)');
+  function syncSidebarDeviceMode(){
+    const drawer=drawerMedia.matches;
+    document.documentElement.classList.toggle('touch-drawer-mode',drawer);
+    document.documentElement.classList.toggle('desktop-sidebar-mode',!drawer);
+    document.body.classList.toggle('touch-drawer-mode',drawer);
+    document.body.classList.toggle('desktop-sidebar-mode',!drawer);
+    if(!drawer){
+      sidebar.classList.remove('open');
+      sidebarBackdrop?.classList.remove('open');
+      sidebarBackdrop?.setAttribute('aria-hidden','true');
+      document.body.classList.remove('sidebar-open');
+      document.documentElement.classList.remove('sidebar-open');
+      document.getElementById('menuBtn')?.setAttribute('aria-expanded','false');
+    }
+  }
+  syncSidebarDeviceMode();
   let sidebarScrollLock=null;
   function lockPageForSidebar(){
-    if(sidebarScrollLock)return;
-    const body=document.body,scrollY=window.scrollY||document.documentElement.scrollTop||0;
-    sidebarScrollLock={scrollY,position:body.style.position,top:body.style.top,left:body.style.left,right:body.style.right,width:body.style.width,overflow:body.style.overflow};
-    body.style.position='fixed';body.style.top=`-${scrollY}px`;body.style.left='0';body.style.right='0';body.style.width='100%';body.style.overflow='hidden';
+    if(sidebarScrollLock!==null)return;
+    sidebarScrollLock=main.scrollTop;
   }
   function unlockPageForSidebar(){
-    if(!sidebarScrollLock)return;
-    const body=document.body,lock=sidebarScrollLock;sidebarScrollLock=null;
-    body.style.position=lock.position;body.style.top=lock.top;body.style.left=lock.left;body.style.right=lock.right;body.style.width=lock.width;body.style.overflow=lock.overflow;
-    window.scrollTo(0,lock.scrollY);
+    sidebarScrollLock=null;
   }
   function setSidebarOpen(open){
     const shouldOpen=Boolean(open&&drawerMedia.matches);
@@ -5353,7 +5515,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     const nextTab=btn.dataset.tab;if(!TABS.some(t=>t[0]===nextTab))return;
     const changed=ui.tab!==nextTab;ui.tab=nextTab;setSidebarOpen(false);render();
     if(changed)requestAnimationFrame(()=>{
-      window.scrollTo({top:0,left:0,behavior:'auto'});
+      main.scrollTo({top:0,left:0,behavior:'auto'});
       main.querySelectorAll('.table-wrap').forEach(w=>{w.scrollLeft=0;});
     });
   });
@@ -5377,7 +5539,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   nav.addEventListener('touchcancel',()=>{navTouchTap=null;},{passive:true});
   document.getElementById('menuBtn').addEventListener('click',toggleSidebar);
   sidebarBackdrop?.addEventListener('click',()=>setSidebarOpen(false));
-  drawerMedia.addEventListener?.('change',()=>setSidebarOpen(false));
+  drawerMedia.addEventListener?.('change',()=>{syncSidebarDeviceMode();setSidebarOpen(false);});
 
   let sidebarGesture=null;
   document.addEventListener('touchstart',e=>{
@@ -5385,7 +5547,9 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     const target=e.target instanceof Element?e.target:null;
     if(target?.closest('button,a,input,select,textarea,label,[role="button"]')){sidebarGesture=null;return;}
     const t=e.touches[0];
-    sidebarGesture={x:t.clientX,y:t.clientY,open:sidebar.classList.contains('open'),fromLeftEdge:t.clientX<=30};
+    const fromLeftEdge=t.clientX<=36;
+    const fromWorkspace=Boolean(target?.closest('.workspace'))&&!Boolean(target?.closest('.table-wrap,.toolbar,.theme-grid,.asset-tabs,.tab-strip'));
+    sidebarGesture={x:t.clientX,y:t.clientY,open:sidebar.classList.contains('open'),canOpen:fromLeftEdge||fromWorkspace};
   },{passive:true});
   document.addEventListener('touchmove',e=>{
     if(!drawerMedia.matches||!sidebarGesture||e.touches.length!==1)return;
@@ -5394,7 +5558,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(sidebar.classList.contains('open')){
       if(!targetInSidebar)e.preventDefault();
       else if(Math.abs(dx)>24&&Math.abs(dx)>Math.abs(dy)*1.25)e.preventDefault();
-    }else if(sidebarGesture.fromLeftEdge&&Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.15){
+    }else if(sidebarGesture.canOpen&&dx>12&&Math.abs(dx)>Math.abs(dy)*1.15){
       e.preventDefault();
     }
   },{passive:false});
@@ -5404,7 +5568,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     const horizontal=Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.15;
     if(horizontal){
       if(sidebarGesture.open&&dx<0)setSidebarOpen(false);
-      else if(!sidebarGesture.open&&sidebarGesture.fromLeftEdge&&dx>0)setSidebarOpen(true);
+      else if(!sidebarGesture.open&&sidebarGesture.canOpen&&dx>0)setSidebarOpen(true);
     }
     sidebarGesture=null;
   },{passive:true});
@@ -5519,7 +5683,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       if(row){
         const topbar=document.querySelector('.topbar');
         const offset=(topbar?.getBoundingClientRect().height||0)+12;
-        window.scrollBy({top:row.getBoundingClientRect().top-offset,left:0,behavior:'auto'});
+        main.scrollTo({top:Math.max(0,main.scrollTop+row.getBoundingClientRect().top-main.getBoundingClientRect().top-12),left:0,behavior:'auto'});
       }
       ui.revealCashId=null;
     });

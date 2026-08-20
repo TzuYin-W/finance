@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260820-wallet-icon-fullbleed-v23';
+const CACHE='finance-tracker-20260820-v24-touch-drawer-fixed-scroll';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',
