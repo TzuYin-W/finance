@@ -1,7 +1,7 @@
-const CACHE='finance-tracker-20260813-github-root-v20-gundam-sticky-topbar-fix';
+const CACHE='finance-tracker-20260820-wallet-icon-fullbleed-v23';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
-  './icon-192-v11.png','./icon-512-v11.png','./apple-touch-icon-v11.png',
+  './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',
   './monchhichi-bg.png','./monchhichi-bg-landscape.png','./monchhichi-sidebar.png',
   './pikmin-bg-v11.png','./pikmin-bg-landscape-v11.png','./pikmin-sidebar-v11.png',
   './gundam-bg-v17.png','./gundam-bg-landscape-v17.png','./gundam-sidebar-v17.png'
