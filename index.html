@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v26-date-collapse-wide-fix -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v27-edit-right-row-color-fix -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4150,6 +4150,54 @@ html.desktop-sidebar-mode .sidebar nav{
   width:100%!important;
   max-width:none!important;
   box-sizing:border-box!important;
+}
+
+
+
+/* ===== v27 edit-button placement + consecutive row-color fix ===== */
+/* Keep each edit toggle at the far right of the tool row directly above its editable table. */
+.section-head-tools > button[data-action="toggle-edit-mode"]{
+  order:999 !important;
+  margin-left:auto !important;
+  height:36px !important;
+  min-height:36px !important;
+  padding:8px 12px !important;
+  border-radius:10px !important;
+  box-sizing:border-box !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  font-size:inherit !important;
+  flex:0 0 auto !important;
+}
+/* Adjacent action buttons use the same vertical sizing. */
+.section-head-tools > button:not(.collapse-card-btn){
+  height:36px !important;
+  min-height:36px !important;
+  box-sizing:border-box !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  border-radius:10px !important;
+}
+@media(max-width:760px){
+  .section-head-tools{width:100% !important;align-items:center !important}
+  .section-head-tools > button[data-action="toggle-edit-mode"]{margin-left:auto !important}
+}
+
+/* Manual cash-row colors must override zebra striping in every theme, even on consecutive rows. */
+.cash-transactions-table tbody tr[data-row-color="pink"] > td{background:rgba(253,231,239,.86) !important}
+.cash-transactions-table tbody tr[data-row-color="yellow"] > td{background:rgba(255,244,191,.86) !important}
+.cash-transactions-table tbody tr[data-row-color="blue"] > td{background:rgba(227,241,251,.86) !important}
+.cash-transactions-table tbody tr[data-row-color="green"] > td{background:rgba(229,243,223,.86) !important}
+.cash-transactions-table tbody tr[data-row-color="cream"] > td{background:rgba(248,237,216,.86) !important}
+.cash-transactions-table tbody tr[data-row-color="gray"] > td{background:rgba(236,239,241,.86) !important}
+/* Keep controls translucent so the chosen row color remains visible. */
+.cash-transactions-table tbody tr[data-row-color]:not([data-row-color=""]) > td input:not([type="checkbox"]),
+.cash-transactions-table tbody tr[data-row-color]:not([data-row-color=""]) > td select{
+  background:rgba(255,255,255,.22) !important;
 }
 
 </style>
