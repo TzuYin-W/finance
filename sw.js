@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260825-v31-custom-background-cash-edit-row';
+const CACHE='finance-tracker-20260825-v32-custom-bg-color-large-cards';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',

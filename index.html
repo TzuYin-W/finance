@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v31-custom-background-cash-edit-row -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v32-custom-bg-color-large-card-transparency -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4387,8 +4387,8 @@ html.has-custom-background .custom-background-layer{
   background-repeat:no-repeat!important;
   background-position:center center!important;
   background-size:cover!important;
-  filter:saturate(.52) contrast(.86) brightness(1.06)!important;
-  opacity:.70!important;
+  filter:none!important;
+  opacity:1!important;
 }
 /* Hide the theme's own right-side artwork while the user's background is active. */
 html.has-custom-background .workspace::before,
@@ -4408,9 +4408,31 @@ html.has-custom-background .workspace>#globalControlHost{position:relative!impor
   .custom-background-controls{align-items:stretch}
   .custom-background-controls>.chips{width:100%}
   .custom-background-controls>.chips>*{flex:1 1 auto;justify-content:center}
-  html.has-custom-background .custom-background-layer{opacity:.64!important;background-position:center center!important}
+  html.has-custom-background .custom-background-layer{opacity:1!important;background-position:center center!important}
 }
 @media print{.custom-background-layer{display:none!important}}
+
+
+/* ===== 2026-08-25 v32 custom background color + large-card transparency ===== */
+/* Keep the uploaded image's original saturation/contrast. The soft look comes only from the neutral overlay. */
+html.has-custom-background .custom-background-layer{
+  filter:none!important;
+  opacity:1!important;
+}
+
+/* Make large page blocks 20% more transparent while leaving table cells and compact controls unchanged. */
+:root[data-theme] body main .card,
+:root[data-theme] body main .installment-card,
+:root[data-theme] body main .asset-card{
+  background-color:color-mix(in srgb,var(--paper) 80%,transparent)!important;
+}
+:root[data-theme] body main .kpi,
+:root[data-theme] body main .summary-tile{
+  background-color:color-mix(in srgb,var(--control) 80%,transparent)!important;
+}
+:root[data-theme] body main .kpi.accent{
+  background-color:color-mix(in srgb,var(--green-soft) 80%,transparent)!important;
+}
 
 </style>
 
@@ -5891,7 +5913,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       </section>
       <section class="card"><div class="section-head"><div><h2>字體大小</h2><p>調整會套用到整個 App，尤其是手機版的自適應表格。</p></div></div><div class="font-scale-control"><button type="button" data-action="font-smaller" aria-label="縮小字體">－</button><strong>${Math.round((Number(state.meta.fontScale)||1)*100)}%</strong><button type="button" data-action="font-larger" aria-label="放大字體">＋</button><button type="button" class="small" data-action="font-reset">重設</button></div></section>
       <section class="card"><div class="section-head"><div><h2>記帳表顏色</h2><p>顏色設定會儲存在這台裝置，所有分頁立即套用。</p></div></div><div class="theme-grid">${THEMES.map(t=>`<button type="button" class="theme-option ${state.meta.theme===t.id?'active':''}" data-action="set-theme" data-theme="${t.id}" aria-pressed="${state.meta.theme===t.id}"><span class="theme-swatches">${t.colors.map(c=>`<i style="background:${c}"></i>`).join('')}</span><strong>${t.name}</strong><small>${state.meta.theme===t.id?'目前使用':'點選套用'}</small></button>`).join('')}</div></section>
-      <section class="card no-print custom-background-settings"><div class="section-head"><div><h2>自訂背景圖片</h2><p>上傳後會持續使用自訂背景；切換主題顏色不會移除。只有按「移除背景圖片」才會恢復主題原本背景。</p></div></div><div class="custom-background-controls"><div class="custom-background-status"><strong>${customBackgroundActive?'已套用自訂背景':'目前使用主題背景'}</strong><span>${customBackgroundActive?'圖片已自動降低飽和度與對比，並加上淡色遮罩，避免影響表格閱讀。':'可上傳 JPG、PNG 等圖片；圖片會儲存在這台裝置，不會寫入財務資料 JSON。'}</span></div><div class="chips"><label class="button custom-background-upload">上傳背景圖片<input type="file" accept="image/*" data-custom-background-input hidden></label><button type="button" class="danger-ghost" data-action="remove-custom-background" ${customBackgroundActive?'':'disabled'}>移除背景圖片</button></div></div></section>
+      <section class="card no-print custom-background-settings"><div class="section-head"><div><h2>自訂背景圖片</h2><p>上傳後會持續使用自訂背景；切換主題顏色不會移除。只有按「移除背景圖片」才會恢復主題原本背景。</p></div></div><div class="custom-background-controls"><div class="custom-background-status"><strong>${customBackgroundActive?'已套用自訂背景':'目前使用主題背景'}</strong><span>${customBackgroundActive?'圖片保留原本飽和度與對比，只加上淡色遮罩，讓背景維持柔和並避免影響表格閱讀。':'可上傳 JPG、PNG 等圖片；圖片會儲存在這台裝置，不會寫入財務資料 JSON。'}</span></div><div class="chips"><label class="button custom-background-upload">上傳背景圖片<input type="file" accept="image/*" data-custom-background-input hidden></label><button type="button" class="danger-ghost" data-action="remove-custom-background" ${customBackgroundActive?'':'disabled'}>移除背景圖片</button></div></div></section>
       <section class="card no-print settings-utility-card"><div class="section-head"><div><h2>App 工具與雲端</h2><p>Google Drive、備份、匯入與列印集中放在這裡，頁面頂部只保留目前分頁名稱。</p></div></div><div id="settingsUtilitySlot" class="settings-utility-slot"></div></section>
       <section class="card"><div class="section-head"><div><h2>可用年度</h2><p>以下年份由既有日期資料與已建立的年度帳本自動整理。</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年份</th><th class="numeric">現金交易</th><th class="numeric">信用卡交易</th><th class="numeric">貸款還款</th><th class="numeric">投資配息</th><th></th></tr></thead><tbody>${counts.map(x=>`<tr class="${x.year===y?'active-year-row':''}"><td><strong>${x.year}</strong></td><td class="numeric">${x.cash}</td><td class="numeric">${x.credit}</td><td class="numeric">${x.mortgage}</td><td class="numeric">${x.invest}</td><td><button class="small ${x.year===y?'primary':''}" data-action="switch-year" data-year="${x.year}">${x.year===y?'目前年度':'切換'}</button></td></tr>`).join('')}</tbody></table></div></section>
     </div>`;
@@ -6325,7 +6347,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     }
   };
 
-  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js?v=20260825-v31-custom-background').catch(()=>{});
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js?v=20260825-v32-custom-background-cards').catch(()=>{});
   render();
   initCustomBackground().then(()=>{if(ui.tab==='settings')render();});
 })();
