@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v32-custom-bg-color-large-card-transparency -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v33-large-card-more-transparent -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4420,18 +4420,18 @@ html.has-custom-background .custom-background-layer{
   opacity:1!important;
 }
 
-/* Make large page blocks 20% more transparent while leaving table cells and compact controls unchanged. */
+/* v33: make large page blocks about 40% more transparent than v32, while leaving table cells and compact controls unchanged. */
 :root[data-theme] body main .card,
 :root[data-theme] body main .installment-card,
 :root[data-theme] body main .asset-card{
-  background-color:color-mix(in srgb,var(--paper) 80%,transparent)!important;
+  background-color:color-mix(in srgb,var(--paper) 48%,transparent)!important;
 }
 :root[data-theme] body main .kpi,
 :root[data-theme] body main .summary-tile{
-  background-color:color-mix(in srgb,var(--control) 80%,transparent)!important;
+  background-color:color-mix(in srgb,var(--control) 48%,transparent)!important;
 }
 :root[data-theme] body main .kpi.accent{
-  background-color:color-mix(in srgb,var(--green-soft) 80%,transparent)!important;
+  background-color:color-mix(in srgb,var(--green-soft) 48%,transparent)!important;
 }
 
 </style>
@@ -6347,7 +6347,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     }
   };
 
-  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js?v=20260825-v32-custom-background-cards').catch(()=>{});
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js?v=20260825-v33-large-card-transparency').catch(()=>{});
   render();
   initCustomBackground().then(()=>{if(ui.tab==='settings')render();});
 })();
