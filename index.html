@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v24-touch-drawer-fixed-scroll -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v25-edit-lock-fee-collapse -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4082,6 +4082,24 @@ html.desktop-sidebar-mode .sidebar nav{
   .workspace>main{overflow:visible !important;max-height:none !important}
 }
 
+
+
+/* ===== v25 edit-lock + fee-history collapse ===== */
+.section-head-tools{display:flex;align-items:flex-start;justify-content:flex-end;gap:8px;flex-wrap:wrap;min-width:0}
+.section-head-tools>.filter-stack{min-width:0}
+.record-readonly input[readonly],
+.record-readonly .app-date-native[readonly]{pointer-events:none!important;cursor:default!important;opacity:1!important}
+.record-readonly select:disabled{pointer-events:none!important;cursor:default!important;opacity:1!important;color:var(--ink)!important;-webkit-text-fill-color:var(--ink)!important}
+.record-readonly input[readonly],.record-readonly select:disabled{box-shadow:none!important}
+.collapse-card-btn{min-width:36px!important;width:36px!important;height:36px!important;padding:0!important;display:grid!important;place-items:center!important;font-size:22px!important;line-height:1!important;border-radius:10px!important}
+.fee-history-card.is-collapsed{padding-bottom:14px!important}
+.fee-history-card.is-collapsed .section-head{margin-bottom:0!important}
+@media(max-width:760px){
+  .section-head-tools{width:100%;justify-content:flex-start}
+  .section-head-tools>.filter-stack{width:100%}
+  .fee-history-head .section-head-tools{width:auto;margin-left:auto}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4303,7 +4321,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     try{const x=JSON.parse(localStorage.getItem(UI_STORAGE_KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(_){return {};}
   }
   function saveUiPrefs(){
-    try{localStorage.setItem(UI_STORAGE_KEY,JSON.stringify({tab:ui.tab,search:ui.search,page:ui.page,activeCard:ui.activeCard,dateFilters:ui.dateFilters,viewFilters:ui.viewFilters,includeUndated:ui.includeUndated,creditUnpaidOnly:ui.creditUnpaidOnly}));}catch(_){}
+    try{localStorage.setItem(UI_STORAGE_KEY,JSON.stringify({tab:ui.tab,search:ui.search,page:ui.page,activeCard:ui.activeCard,dateFilters:ui.dateFilters,viewFilters:ui.viewFilters,includeUndated:ui.includeUndated,creditUnpaidOnly:ui.creditUnpaidOnly,feeHistoryCollapsed:ui.feeHistoryCollapsed}));}catch(_){}
   }
   const savedUi=loadUiPrefs();
   const ui = {
@@ -4315,6 +4333,8 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     viewFilters:Object.assign({cash:{},mortgage:{},tax:{},investment:{}},savedUi.viewFilters&&typeof savedUi.viewFilters==='object'?savedUi.viewFilters:{}),
     includeUndated:Object.assign({cash:false,credit:false},savedUi.includeUndated&&typeof savedUi.includeUndated==='object'?savedUi.includeUndated:{}),
     creditUnpaidOnly:savedUi.creditUnpaidOnly===true,
+    feeHistoryCollapsed:savedUi.feeHistoryCollapsed===true,
+    editModes:{cash:false,credit:false,cardFees:false},
     cashSelection:new Set(), showAddCard:false, deleteCardIndex:null, revealCashId:null
   };
   if (ui.tab === 'taxInvest') ui.tab = 'tax';
@@ -4568,6 +4588,14 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     return `<select data-path="${esc(path)}" ${extra}>${options.map(o=>{
       const pair=Array.isArray(o)?o:[o,o]; return `<option value="${esc(pair[0])}" ${String(pair[0])===String(value)?'selected':''}>${esc(pair[1])}</option>`;
     }).join('')}</select>`;
+  }
+  function editInput(path,value,type='text',editable=false,extra=''){
+    const lock=editable?'':`readonly aria-readonly="true"`;
+    return input(path,value,type,`${lock} ${extra}`.trim());
+  }
+  function editSelect(path,value,options,editable=false,extra=''){
+    const lock=editable?'':`disabled aria-disabled="true"`;
+    return select(path,value,options,`${lock} ${extra}`.trim());
   }
   function validRowColor(value){ return ROW_COLORS.some(c=>c.id===String(value||'')) ? String(value||'') : ''; }
   function rowColorOptions(value=''){
@@ -5133,6 +5161,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   }
   function renderCash(){
     const y=currentYear(); const stats=accountStats();
+    const cashEditing=ui.editModes.cash===true;
     const cashDefaultDate=defaultDateForYear();
     const cashDefaultReportMode=cashDefaultDate>today()?'neutral':'auto';
     const includeUndated=!!ui.includeUndated.cash;
@@ -5196,16 +5225,16 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
         </form>
       </section>
       <section class="card" id="cashTransactionList">
-        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="filter-stack">${dateFilterBar('cash','cash')}${cashFilters}</div></div>
+        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="section-head-tools"><button type="button" class="small ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button><div class="filter-stack">${dateFilterBar('cash','cash')}${cashFilters}</div></div></div>
         <div class="cash-bulk-toolbar no-print">
           <strong data-cash-selected-count>已選 ${ui.cashSelection.size} 筆</strong>
           <label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">× 不列入月報</option></select></label>
-          <label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>
+          ${cashEditing?`<label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>`:''}
           <button class="small primary" type="button" data-action="apply-cash-bulk">套用到已選資料</button>
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
         </div>
-        <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table"><thead><tr><th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th><th class="date-col">日期</th><th>科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th><th class="row-color-cell">顏色</th><th><span class="mobile-label">刪</span></th></tr></thead><tbody>
-          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}"><td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td><td class="date-col">${input(`cash.transactions.${i}.date`,t.date,'date')}</td><td>${input(`cash.transactions.${i}.category`,t.category)}</td><td class="description-col">${input(`cash.transactions.${i}.description`,t.description)}</td><td>${input(`cash.transactions.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.transactions.${i}.account`,t.account,accountOpts)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td><td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td></tr>`}).join(''):empty(9,`${y} 年目前沒有符合條件的交易`)}
+        <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table"><thead><tr><th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th><th class="date-col">日期</th><th>科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th>${cashEditing?`<th class="row-color-cell">顏色</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>`:''}</tr></thead><tbody>
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}" class="${cashEditing?'record-editing':'record-readonly'}"><td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td><td class="date-col">${editInput(`cash.transactions.${i}.date`,t.date,'date',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.category`,t.category,'text',cashEditing)}</td><td class="description-col">${editInput(`cash.transactions.${i}.description`,t.description,'text',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.amount`,t.amount,'number',cashEditing)}</td><td>${editSelect(`cash.transactions.${i}.account`,t.account,accountOpts,cashEditing)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td>${cashEditing?`<td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`}).join(''):empty(cashEditing?9:7,`${y} 年目前沒有符合條件的交易`)}
         </tbody></table></div>${pager('cash',p)}
       </section>
     </div>`;
@@ -5229,6 +5258,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   }
   function renderCredit(){
     const y=currentYear();
+    const creditEditing=ui.editModes.credit===true;
     ui.activeCard=Math.min(ui.activeCard,state.creditCards.length-1); if(ui.activeCard<0)ui.activeCard=0;
     const card=state.creditCards[ui.activeCard];
     if(!card) return `<div class="page-stack"><section class="card empty">目前沒有信用卡資料。<button type="button" data-action="add-card">新增卡別</button></section>${ui.showAddCard?creditCardCreateForm():''}</div>`;
@@ -5277,9 +5307,9 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
         </form>
       </section>
       <section class="card">
-        <div class="section-head"><div><h2>${y} 年信用卡交易紀錄</h2><p>開啟「空白日期納入總計」可把尚未扣款、日期未定的固定支出列入預算。</p></div>${dateFilterBar(filterKey,'credit',`<button type="button" class="small credit-unpaid-filter ${ui.creditUnpaidOnly?'active':''}" data-action="toggle-credit-unpaid" aria-pressed="${ui.creditUnpaidOnly?'true':'false'}">${ui.creditUnpaidOnly?'✓ 顯示未繳':'顯示未繳'}</button>`)}</div>
+        <div class="section-head"><div><h2>${y} 年信用卡交易紀錄</h2><p>開啟「空白日期納入總計」可把尚未扣款、日期未定的固定支出列入預算。</p></div><div class="section-head-tools"><button type="button" class="small ${creditEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="credit" aria-pressed="${creditEditing?'true':'false'}">${creditEditing?'完成':'編輯'}</button>${dateFilterBar(filterKey,'credit',`<button type="button" class="small credit-unpaid-filter ${ui.creditUnpaidOnly?'active':''}" data-action="toggle-credit-unpaid" aria-pressed="${ui.creditUnpaidOnly?'true':'false'}">${ui.creditUnpaidOnly?'✓ 顯示未繳':'顯示未繳'}</button>`)}</div></div>
         <div class="table-wrap credit-transactions-wrap"><table class="data-table credit-transactions-table fit-table"><thead><tr><th class="date-col">日期</th><th class="description-col">描述</th><th class="numeric">金額</th><th class="store-col">商店名稱</th><th>卡片</th><th class="numeric fee-heading-col">手續費</th><th>統計</th><th class="paid-col" title="全選目前篩選結果"><input class="paid-check" type="checkbox" data-bulk-paid="${ui.activeCard}" ${allFilteredPaid?'checked':''} aria-label="全選已繳"></th><th class="numeric unpaid-heading-col">未繳累計</th><th><span class="mobile-label">刪</span></th></tr></thead><tbody>
-          ${p.rows.length?p.rows.map(({item:t,index:i})=>`<tr class="${t.paid?'paid-row':''}"><td class="date-col">${input(`creditCards.${ui.activeCard}.transactions.${i}.date`,t.date,'date')}</td><td class="description-col">${input(`creditCards.${ui.activeCard}.transactions.${i}.description`,t.description)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.amount`,t.amount,'number')}</td><td class="store-col">${input(`creditCards.${ui.activeCard}.transactions.${i}.store`,t.store)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.card`,t.card)}</td><td>${input(`creditCards.${ui.activeCard}.transactions.${i}.fee`,t.fee,'number')}</td><td class="credit-total-col">${creditTotalModeToggle(`creditCards.${ui.activeCard}.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td><td class="paid-col">${checkbox(`creditCards.${ui.activeCard}.transactions.${i}.paid`,t.paid,'')}</td><td class="numeric computed">${balances[i]===undefined?'—':money(balances[i])}</td><td><button class="small danger" data-action="delete" data-array="creditCards.${ui.activeCard}.transactions" data-index="${i}">刪除</button></td></tr>`).join(''):empty(10,`${y} 年目前沒有信用卡交易`)}
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>`<tr class="${t.paid?'paid-row ':''}${creditEditing?'record-editing':'record-readonly'}"><td class="date-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.date`,t.date,'date',creditEditing)}</td><td class="description-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.description`,t.description,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.amount`,t.amount,'number',creditEditing)}</td><td class="store-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.store`,t.store,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.card`,t.card,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.fee`,t.fee,'number',creditEditing)}</td><td class="credit-total-col">${creditTotalModeToggle(`creditCards.${ui.activeCard}.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td><td class="paid-col">${checkbox(`creditCards.${ui.activeCard}.transactions.${i}.paid`,t.paid,'')}</td><td class="numeric computed">${balances[i]===undefined?'—':money(balances[i])}</td><td><button class="small danger" data-action="delete" data-array="creditCards.${ui.activeCard}.transactions" data-index="${i}">刪除</button></td></tr>`).join(''):empty(10,`${y} 年目前沒有信用卡交易`)}
         </tbody><tfoot><tr><td>${y} 年交易${includeUndated?'＋預估':''}</td><td></td><td class="numeric">${money(totals.amount)}</td><td></td><td></td><td class="numeric">${money(totals.fee)}</td><td></td><td></td><td class="numeric">未繳 ${money(totals.outstanding)}</td><td></td></tr></tfoot></table></div>${pager(filterKey,p)}
       </section>
     </div>`;
@@ -5312,27 +5342,29 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   }
   function renderCardFees(){
     const y=currentYear(), months=state.meta.months, book=currentCardFeeBook();
+    const feeEditing=ui.editModes.cardFees===true;
+    const historyCollapsed=ui.feeHistoryCollapsed===true;
     const monthTotals=months.map((_,m)=>sum(book.banks,r=>r.months[m]));
     const cashMonths=cashMonthlyTotals(y);
     return `<div class="page-stack">
       <section class="card">
-        <div class="section-head"><div><h2>${y} 年各銀行卡費</h2><p>目前年度由「設定」切換；每月總計由各銀行列自動加總。</p></div><button data-action="add-fee-bank">新增銀行</button></div>
+        <div class="section-head"><div><h2>${y} 年各銀行卡費</h2><p>目前年度由「設定」切換；每月總計由各銀行列自動加總。</p></div><div class="section-head-tools"><button type="button" class="small ${feeEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cardFees" aria-pressed="${feeEditing?'true':'false'}">${feeEditing?'完成':'編輯'}</button><button data-action="add-fee-bank">新增銀行</button></div></div>
         <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>銀行</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
-          ${book.banks.map((r,i)=>`<tr><td>${input(`cardFees.yearBooks.${y}.banks.${i}.bank`,r.bank)}</td>${r.months.map((v,m)=>`<td>${input(`cardFees.yearBooks.${y}.banks.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="cardFees.yearBooks.${y}.banks" data-index="${i}">刪除</button></td></tr>`).join('')}
+          ${book.banks.map((r,i)=>`<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${editInput(`cardFees.yearBooks.${y}.banks.${i}.bank`,r.bank,'text',feeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`cardFees.yearBooks.${y}.banks.${i}.months.${m}`,v,'number',feeEditing)}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="cardFees.yearBooks.${y}.banks" data-index="${i}">刪除</button></td></tr>`).join('')}
           <tr class="total-row"><td>總計</td>${monthTotals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}<td></td></tr>
         </tbody></table></div>
       </section>
-      <section class="card">
-        <div class="section-head"><div><h2>歷年卡費</h2><p>保留原 Excel 的歷年月份比較資料；詳細年度內容請從「設定」切換年份。</p></div><button data-action="add-fee-history">新增年度</button></div>
-        <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
-          ${state.cardFees.history.map((r,i)=>`<tr><td>${input(`cardFees.history.${i}.year`,r.year)}</td>${r.months.map((v,m)=>`<td>${input(`cardFees.history.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="cardFees.history" data-index="${i}">刪除</button></td></tr>`).join('')}
-        </tbody></table></div>
+      <section class="card fee-history-card ${historyCollapsed?'is-collapsed':''}">
+        <div class="section-head fee-history-head"><div><h2>歷年卡費</h2>${historyCollapsed?'':`<p>保留原 Excel 的歷年月份比較資料；詳細年度內容請從「設定」切換年份。</p>`}</div><div class="section-head-tools">${historyCollapsed?'':`<button data-action="add-fee-history">新增年度</button>`}<button type="button" class="icon-btn collapse-card-btn" data-action="toggle-fee-history" aria-expanded="${historyCollapsed?'false':'true'}" aria-label="${historyCollapsed?'展開歷年卡費':'收起歷年卡費'}">${historyCollapsed?'＋':'−'}</button></div></div>
+        ${historyCollapsed?'':`<div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
+          ${state.cardFees.history.map((r,i)=>`<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${editInput(`cardFees.history.${i}.year`,r.year,'text',feeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`cardFees.history.${i}.months.${m}`,v,'number',feeEditing)}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="cardFees.history" data-index="${i}">刪除</button></td></tr>`).join('')}
+        </tbody></table></div>`}
       </section>
       <section class="card">
         <div class="section-head"><div><h2>${y} 年每月開銷</h2><p>現金／轉帳與收入依 ${y} 年「現金花費」日期自動歸月。</p></div></div>
         <div class="formula-note">現金／轉帳＝該月列入月報的正值交易合計；收入＝該月列入月報的負值交易絕對值合計；每月餘額＝收入－現金／轉帳－刷卡。</div>
         <div class="table-wrap monthly-expense-wrap"><table class="data-table matrix-table monthly-expense-table"><thead><tr><th>月份</th><th class="numeric">現金／轉帳</th><th class="numeric">刷卡</th><th class="numeric">收入</th><th class="numeric">每月餘額</th><th class="numeric">總薪水</th><th class="numeric">喜樂薪水</th></tr></thead><tbody>
-          ${book.monthlyInputs.map((r,i)=>{const c=cashMonths[i]||{expense:0,income:0};const cashNet=c.expense;const bal=c.income-cashNet-monthTotals[i];return `<tr><td>${months[i]}</td><td class="numeric computed">${money(cashNet)}</td><td class="numeric computed">${money(monthTotals[i])}</td><td class="numeric computed">${money(c.income)}</td><td class="numeric computed ${bal>=0?'income':'expense'}">${money(bal)}</td><td>${input(`cardFees.yearBooks.${y}.monthlyInputs.${i}.salary`,r.salary,'number')}</td><td>${input(`cardFees.yearBooks.${y}.monthlyInputs.${i}.musicSalary`,r.musicSalary,'number')}</td></tr>`}).join('')}
+          ${book.monthlyInputs.map((r,i)=>{const c=cashMonths[i]||{expense:0,income:0};const cashNet=c.expense;const bal=c.income-cashNet-monthTotals[i];return `<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${months[i]}</td><td class="numeric computed">${money(cashNet)}</td><td class="numeric computed">${money(monthTotals[i])}</td><td class="numeric computed">${money(c.income)}</td><td class="numeric computed ${bal>=0?'income':'expense'}">${money(bal)}</td><td>${editInput(`cardFees.yearBooks.${y}.monthlyInputs.${i}.salary`,r.salary,'number',feeEditing)}</td><td>${editInput(`cardFees.yearBooks.${y}.monthlyInputs.${i}.musicSalary`,r.musicSalary,'number',feeEditing)}</td></tr>`}).join('')}
         </tbody></table></div>
       </section>
     </div>`;
@@ -5690,6 +5722,17 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   });
   main.addEventListener('click',e=>{
     const b=e.target.closest('[data-action]'); if(!b)return; const a=b.dataset.action;
+    if(a==='toggle-edit-mode'){
+      const scope=b.dataset.editScope;
+      if(!ui.editModes||!Object.prototype.hasOwnProperty.call(ui.editModes,scope))return;
+      ui.editModes[scope]=!ui.editModes[scope];
+      if(scope==='cash'&&!ui.editModes.cash)ui.cashSelection.clear();
+      renderPreservingAnchor(b);return;
+    }
+    if(a==='toggle-fee-history'){
+      ui.feeHistoryCollapsed=!ui.feeHistoryCollapsed;
+      saveUiPrefs();renderPreservingAnchor(b);return;
+    }
     if(a==='toggle-credit-total-mode'){
       const path=b.dataset.path;if(!path)return;
       const next=normalizeReportMode(b.dataset.mode)==='neutral'?'auto':'neutral';
@@ -5790,7 +5833,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(b.dataset.globalAction==='restore-import')restorePreImport();
     if(b.dataset.globalAction==='print')window.print();
     if(b.dataset.globalAction==='reset'){
-      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false}; scheduleSave();render();
+      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,credit:false,cardFees:false};ui.feeHistoryCollapsed=false; scheduleSave();render();
     }
   });
   document.getElementById('importFile').addEventListener('change',e=>{

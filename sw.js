@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260820-v24-touch-drawer-fixed-scroll';
+const CACHE='finance-tracker-20260825-v25-edit-lock-fee-collapse';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',
