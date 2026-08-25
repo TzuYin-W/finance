@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v35-table-edit-layout-tax-items -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v36-desktop-cash-form-font-layout -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4590,6 +4590,107 @@ html.desktop-sidebar-mode .edit-action-col button{width:100%!important;min-width
   .investment-heading{display:flex!important;flex-direction:row!important;align-items:flex-start!important}
   .investment-heading>div{min-width:0!important;flex:1 1 auto!important}
   .investment-heading .investment-add-asset{width:auto!important;min-width:max-content!important;margin-left:auto!important}
+}
+
+
+
+/* ===== 2026-08-25 v36 desktop cash/form/table readability refinements ===== */
+@media (min-width:761px){
+  /* Desktop cash transactions: ~5 CJK chars for category, give the released space to description.
+     Amount / account / monthly-report return to practical pre-v35 proportions. */
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly th:nth-child(1),
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly td:nth-child(1){width:12%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly th:nth-child(2),
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly td:nth-child(2){width:9%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly th:nth-child(3),
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly td:nth-child(3){width:41%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly th:nth-child(4),
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly td:nth-child(4){width:10%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly th:nth-child(5),
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly td:nth-child(5){width:18%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly th:nth-child(6),
+  html.desktop-sidebar-mode .cash-transactions-table.is-readonly td:nth-child(6){width:10%!important}
+
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(1),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(1){width:4%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(2),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(2){width:11%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(3),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(3){width:9%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(4),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(4){width:27%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(5),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(5){width:10%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(6),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(6){width:17%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(7),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(7){width:9%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(8),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(8){width:7%!important}
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing th:nth-child(9),
+  html.desktop-sidebar-mode .cash-transactions-table.is-editing td:nth-child(9){width:6%!important}
+
+  html.desktop-sidebar-mode .cash-transactions-table .cash-category-col{
+    width:auto!important;min-width:0!important;max-width:none!important
+  }
+  html.desktop-sidebar-mode .cash-transactions-table .description-col{
+    width:auto!important;min-width:0!important;max-width:none!important
+  }
+  html.desktop-sidebar-mode .cash-transactions-table .date-col{
+    width:auto!important;min-width:0!important;max-width:none!important
+  }
+  /* Date text matches the transaction text beside it. */
+  html.desktop-sidebar-mode .cash-transactions-table .date-col .app-date-display,
+  html.desktop-sidebar-mode .cash-transactions-table .date-col input[type="date"]{
+    font-size:calc(13px * var(--app-font-scale))!important;
+    line-height:1.2!important;letter-spacing:0!important
+  }
+  html.desktop-sidebar-mode .cash-transactions-table .cash-category-col input{
+    font-size:calc(13px * var(--app-font-scale))!important
+  }
+
+  /* New cash transaction: longer description; compact account/month-report without clipping labels. */
+  html.desktop-sidebar-mode form.cash-entry-form{
+    display:grid!important;grid-template-columns:repeat(24,minmax(0,1fr))!important;gap:10px!important
+  }
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-date{grid-column:span 4!important}
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-category{grid-column:span 3!important}
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-description{grid-column:span 7!important}
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-amount{grid-column:span 3!important}
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-account{grid-column:span 3!important}
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-report{grid-column:span 2!important}
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-color{grid-column:span 2!important}
+  html.desktop-sidebar-mode form.cash-entry-form>button{grid-column:1/-1!important}
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-account select,
+  html.desktop-sidebar-mode form.cash-entry-form .cash-entry-report select{min-width:0!important;width:100%!important}
+
+  /* New credit transaction: description gets the largest input field. */
+  html.desktop-sidebar-mode form.credit-entry-form{
+    display:grid!important;grid-template-columns:repeat(24,minmax(0,1fr))!important;gap:10px!important
+  }
+  html.desktop-sidebar-mode form.credit-entry-form .credit-entry-date{grid-column:span 4!important}
+  html.desktop-sidebar-mode form.credit-entry-form .credit-entry-description{grid-column:span 8!important}
+  html.desktop-sidebar-mode form.credit-entry-form .credit-entry-amount{grid-column:span 3!important}
+  html.desktop-sidebar-mode form.credit-entry-form .credit-entry-store{grid-column:span 4!important}
+  html.desktop-sidebar-mode form.credit-entry-form .credit-entry-card{grid-column:span 3!important}
+  html.desktop-sidebar-mode form.credit-entry-form .credit-entry-fee{grid-column:span 2!important}
+  html.desktop-sidebar-mode form.credit-entry-form>button{grid-column:1/-1!important}
+
+  /* Bank fees / history and home expenses / comparison: use the available fitted width with larger type. */
+  html.desktop-sidebar-mode .card-fee-main-table,
+  html.desktop-sidebar-mode .fee-history-table,
+  html.desktop-sidebar-mode .home-expense-table,
+  html.desktop-sidebar-mode .home-history-table{
+    font-size:calc(12px * var(--app-font-scale))!important;
+    line-height:1.2!important
+  }
+  html.desktop-sidebar-mode .card-fee-main-table input,
+  html.desktop-sidebar-mode .fee-history-table input,
+  html.desktop-sidebar-mode .home-expense-table input,
+  html.desktop-sidebar-mode .home-history-table input{
+    font-size:calc(11.5px * var(--app-font-scale))!important;
+    line-height:1.15!important
+  }
 }
 
 </style>
