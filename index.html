@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v28-cash-row-color-cloud-shortcut -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v29-credit-actions-edit-home-lock -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4236,6 +4236,61 @@ html.desktop-sidebar-mode .sidebar nav{
   .topbar .top-cloud-btn{width:32px !important;min-width:32px !important;height:32px !important;min-height:32px !important;font-size:16px !important}
 }
 
+
+
+/* ===== 2026-08-25 v29 credit action widths + credit toolbar + home edit lock ===== */
+/* Fixed credit templates: narrower operation column; all three action buttons always share equal width. */
+.credit-template-table{table-layout:fixed!important;width:100%!important}
+.credit-template-table th:nth-child(1),.credit-template-table td:nth-child(1){width:35%!important}
+.credit-template-table th:nth-child(2),.credit-template-table td:nth-child(2){width:11%!important}
+.credit-template-table th:nth-child(3),.credit-template-table td:nth-child(3){width:17%!important}
+.credit-template-table th:nth-child(4),.credit-template-table td:nth-child(4){width:10%!important}
+.credit-template-table th:nth-child(5),.credit-template-table td:nth-child(5){width:9%!important}
+.credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:18%!important}
+.credit-template-table td.credit-template-actions{display:table-cell!important;padding:3px 2px!important;white-space:normal!important}
+.credit-template-action-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important;width:100%!important;align-items:stretch!important}
+.credit-template-action-grid button{width:100%!important;min-width:0!important;max-width:none!important;height:32px!important;min-height:32px!important;margin:0!important;padding:3px 1px!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;white-space:nowrap!important}
+
+/* Credit transaction edit control: a separate far-right button immediately above the table. */
+.credit-table-toolbar{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:end!important;gap:8px!important;margin-bottom:10px!important}
+.credit-table-toolbar>.credit-date-filter-bar{min-width:0!important;margin:0!important}
+.credit-table-edit-btn,
+.credit-date-filter-bar>button.small{
+  height:36px!important;min-height:36px!important;padding:5px 8px!important;border-radius:7px!important;font-size:12px!important;line-height:1!important;box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important
+}
+.credit-table-edit-btn{justify-self:end!important;align-self:end!important;margin:0!important}
+.paid-header-control{display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;width:100%!important;white-space:nowrap!important;cursor:pointer!important}
+.paid-header-control span{font-size:inherit!important;white-space:nowrap!important}
+.paid-header-control .paid-check{margin:0!important;flex:0 0 auto!important}
+.credit-delete-heading,.credit-delete-cell{text-align:center!important;white-space:nowrap!important}
+
+/* Home expenses now use the same explicit edit-lock behavior as the other editable tables. */
+.home-expense-table .record-readonly input[readonly],
+.home-history-table .record-readonly input[readonly]{pointer-events:none!important;cursor:default!important;box-shadow:none!important}
+
+@media(max-width:760px){
+  .credit-template-table th:nth-child(1),.credit-template-table td:nth-child(1){width:31%!important}
+  .credit-template-table th:nth-child(2),.credit-template-table td:nth-child(2){width:13%!important}
+  .credit-template-table th:nth-child(3),.credit-template-table td:nth-child(3){width:14%!important}
+  .credit-template-table th:nth-child(4),.credit-template-table td:nth-child(4){width:12%!important}
+  .credit-template-table th:nth-child(5),.credit-template-table td:nth-child(5){width:10%!important}
+  .credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:20%!important}
+  .credit-template-action-grid{gap:2px!important}
+  .credit-template-action-grid button{height:30px!important;min-height:30px!important;font-size:calc(7px * var(--app-font-scale))!important;padding:2px 0!important}
+  .credit-table-toolbar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:7px!important}
+  .credit-table-toolbar>.credit-date-filter-bar{width:100%!important}
+  .credit-table-edit-btn{align-self:flex-end!important;justify-self:auto!important;width:auto!important;min-width:52px!important}
+  .paid-header-control{gap:2px!important;font-size:7px!important}
+}
+@media (orientation:landscape) and (max-height:600px){
+  .credit-template-table th:nth-child(1),.credit-template-table td:nth-child(1){width:32%!important}
+  .credit-template-table th:nth-child(2),.credit-template-table td:nth-child(2){width:12%!important}
+  .credit-template-table th:nth-child(3),.credit-template-table td:nth-child(3){width:15%!important}
+  .credit-template-table th:nth-child(4),.credit-template-table td:nth-child(4){width:11%!important}
+  .credit-template-table th:nth-child(5),.credit-template-table td:nth-child(5){width:10%!important}
+  .credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:20%!important}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4472,7 +4527,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     creditUnpaidOnly:savedUi.creditUnpaidOnly===true,
     feeHistoryCollapsed:savedUi.feeHistoryCollapsed===true,
     homeHistoryCollapsed:savedUi.homeHistoryCollapsed===true,
-    editModes:{cash:false,credit:false,cardFees:false},
+    editModes:{cash:false,credit:false,cardFees:false,home:false},
     cashSelection:new Set(), showAddCard:false, deleteCardIndex:null, revealCashId:null
   };
   if (ui.tab === 'taxInvest') ui.tab = 'tax';
@@ -5410,6 +5465,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       .filter(({item})=>!ui.creditUnpaidOnly||!item.paid);
     const p=paged(filtered,filterKey,70);
     const allFilteredPaid=filtered.length>0&&filtered.every(({item})=>item.paid);
+    const creditColumnCount=creditEditing?10:9;
     return `<div class="page-stack">
       <section class="summary-grid credit-summary-grid">
         ${state.creditCards.map((c,i)=>{const x=cardTotals(c,y,includeUndated);return `<button class="summary-tile ${i===ui.activeCard?'active-card':''}" data-action="set-card" data-index="${i}"><h4>${esc(c.bank)}</h4><div class="big">${money(x.outstanding)}</div><small>${y} 未繳${includeUndated?'＋預估':''}｜${esc(c.title)}</small></button>`}).join('')}
@@ -5446,10 +5502,11 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
         </form>
       </section>
       <section class="card">
-        <div class="section-head"><div><h2>${y} 年信用卡交易紀錄</h2><p>開啟「空白日期納入總計」可把尚未扣款、日期未定的固定支出列入預算。</p></div><div class="section-head-tools"><button type="button" class="small ${creditEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="credit" aria-pressed="${creditEditing?'true':'false'}">${creditEditing?'完成':'編輯'}</button>${dateFilterBar(filterKey,'credit',`<button type="button" class="small credit-unpaid-filter ${ui.creditUnpaidOnly?'active':''}" data-action="toggle-credit-unpaid" aria-pressed="${ui.creditUnpaidOnly?'true':'false'}">${ui.creditUnpaidOnly?'✓ 顯示未繳':'顯示未繳'}</button>`)}</div></div>
-        <div class="table-wrap credit-transactions-wrap"><table class="data-table credit-transactions-table fit-table"><thead><tr><th class="date-col">日期</th><th class="description-col">描述</th><th class="numeric">金額</th><th class="store-col">商店名稱</th><th>卡片</th><th class="numeric fee-heading-col">手續費</th><th>統計</th><th class="paid-col" title="全選目前篩選結果"><input class="paid-check" type="checkbox" data-bulk-paid="${ui.activeCard}" ${allFilteredPaid?'checked':''} aria-label="全選已繳"></th><th class="numeric unpaid-heading-col">未繳累計</th><th><span class="mobile-label">刪</span></th></tr></thead><tbody>
-          ${p.rows.length?p.rows.map(({item:t,index:i})=>`<tr class="${t.paid?'paid-row ':''}${creditEditing?'record-editing':'record-readonly'}"><td class="date-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.date`,t.date,'date',creditEditing)}</td><td class="description-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.description`,t.description,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.amount`,t.amount,'number',creditEditing)}</td><td class="store-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.store`,t.store,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.card`,t.card,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.fee`,t.fee,'number',creditEditing)}</td><td class="credit-total-col">${creditTotalModeToggle(`creditCards.${ui.activeCard}.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td><td class="paid-col">${checkbox(`creditCards.${ui.activeCard}.transactions.${i}.paid`,t.paid,'')}</td><td class="numeric computed">${balances[i]===undefined?'—':money(balances[i])}</td><td><button class="small danger" data-action="delete" data-array="creditCards.${ui.activeCard}.transactions" data-index="${i}">刪除</button></td></tr>`).join(''):empty(10,`${y} 年目前沒有信用卡交易`)}
-        </tbody><tfoot><tr><td>${y} 年交易${includeUndated?'＋預估':''}</td><td></td><td class="numeric">${money(totals.amount)}</td><td></td><td></td><td class="numeric">${money(totals.fee)}</td><td></td><td></td><td class="numeric">未繳 ${money(totals.outstanding)}</td><td></td></tr></tfoot></table></div>${pager(filterKey,p)}
+        <div class="section-head"><div><h2>${y} 年信用卡交易紀錄</h2><p>開啟「空白日期納入總計」可把尚未扣款、日期未定的固定支出列入預算。</p></div></div>
+        <div class="credit-table-toolbar no-print">${dateFilterBar(filterKey,'credit',`<button type="button" class="small credit-unpaid-filter ${ui.creditUnpaidOnly?'active':''}" data-action="toggle-credit-unpaid" aria-pressed="${ui.creditUnpaidOnly?'true':'false'}">${ui.creditUnpaidOnly?'✓ 顯示未繳':'顯示未繳'}</button>`)}<button type="button" class="small credit-table-edit-btn ${creditEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="credit" aria-pressed="${creditEditing?'true':'false'}">${creditEditing?'完成':'編輯'}</button></div>
+        <div class="table-wrap credit-transactions-wrap"><table class="data-table credit-transactions-table fit-table ${creditEditing?'is-editing':'is-readonly'}"><thead><tr><th class="date-col">日期</th><th class="description-col">描述</th><th class="numeric">金額</th><th class="store-col">商店名稱</th><th>卡片</th><th class="numeric fee-heading-col">手續費</th><th>統計</th><th class="paid-col" title="全選目前篩選結果"><label class="paid-header-control"><span>已繳費</span><input class="paid-check" type="checkbox" data-bulk-paid="${ui.activeCard}" ${allFilteredPaid?'checked':''} aria-label="全選已繳費"></label></th><th class="numeric unpaid-heading-col">未繳累計</th>${creditEditing?'<th class="credit-delete-heading">刪除</th>':''}</tr></thead><tbody>
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>`<tr class="${t.paid?'paid-row ':''}${creditEditing?'record-editing':'record-readonly'}"><td class="date-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.date`,t.date,'date',creditEditing)}</td><td class="description-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.description`,t.description,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.amount`,t.amount,'number',creditEditing)}</td><td class="store-col">${editInput(`creditCards.${ui.activeCard}.transactions.${i}.store`,t.store,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.card`,t.card,'text',creditEditing)}</td><td>${editInput(`creditCards.${ui.activeCard}.transactions.${i}.fee`,t.fee,'number',creditEditing)}</td><td class="credit-total-col">${creditTotalModeToggle(`creditCards.${ui.activeCard}.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td><td class="paid-col">${checkbox(`creditCards.${ui.activeCard}.transactions.${i}.paid`,t.paid,'')}</td><td class="numeric computed">${balances[i]===undefined?'—':money(balances[i])}</td>${creditEditing?`<td class="credit-delete-cell"><button class="small danger" data-action="delete" data-array="creditCards.${ui.activeCard}.transactions" data-index="${i}">刪除</button></td>`:''}</tr>`).join(''):empty(creditColumnCount,`${y} 年目前沒有信用卡交易`)}
+        </tbody><tfoot><tr><td>${y} 年交易${includeUndated?'＋預估':''}</td><td></td><td class="numeric">${money(totals.amount)}</td><td></td><td></td><td class="numeric">${money(totals.fee)}</td><td></td><td></td><td class="numeric">未繳 ${money(totals.outstanding)}</td>${creditEditing?'<td></td>':''}</tr></tfoot></table></div>${pager(filterKey,p)}
       </section>
     </div>`;
   }
@@ -5512,13 +5569,14 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   function renderHome(){
     const y=currentYear(),months=state.meta.months,book=currentHomeBook(); const totals=months.map((_,m)=>sum(book.items,r=>r.months[m]));
     const historyCollapsed=ui.homeHistoryCollapsed===true;
+    const homeEditing=ui.editModes.home===true;
     return `<div class="page-stack"><section class="card">
-      <div class="section-head"><div><h2>${y} 年家的支出</h2><p>目前年度由「設定」切換；各月份總計由所有項目自動加總。</p></div><button data-action="add-home-item">新增項目</button></div>
-      <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>項目</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
-        ${book.items.map((r,i)=>`<tr><td>${input(`homeExpenses.yearBooks.${y}.items.${i}.item`,r.item)}</td>${r.months.map((v,m)=>`<td>${input(`homeExpenses.yearBooks.${y}.items.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="homeExpenses.yearBooks.${y}.items" data-index="${i}">刪除</button></td></tr>`).join('')}
+      <div class="section-head"><div><h2>${y} 年家的支出</h2><p>目前年度由「設定」切換；各月份總計由所有項目自動加總。</p></div><div class="section-head-tools">${homeEditing?'<button data-action="add-home-item">新增項目</button>':''}<button type="button" class="small ${homeEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="home" aria-pressed="${homeEditing?'true':'false'}">${homeEditing?'完成':'編輯'}</button></div></div>
+      <div class="table-wrap"><table class="data-table matrix-table home-expense-table"><thead><tr><th>項目</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
+        ${book.items.map((r,i)=>`<tr class="${homeEditing?'record-editing':'record-readonly'}"><td>${editInput(`homeExpenses.yearBooks.${y}.items.${i}.item`,r.item,'text',homeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`homeExpenses.yearBooks.${y}.items.${i}.months.${m}`,v,'number',homeEditing)}</td>`).join('')}<td>${homeEditing?`<button class="small danger" data-action="delete" data-array="homeExpenses.yearBooks.${y}.items" data-index="${i}">刪除</button>`:''}</td></tr>`).join('')}
         <tr class="total-row"><td>總計</td>${totals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}<td></td></tr>
       </tbody></table></div></section>
-      <section class="card home-history-card ${historyCollapsed?'is-collapsed':''}"><div class="section-head home-history-head"><div><h2>歷年比較</h2></div><div class="section-head-tools">${historyCollapsed?'':`<button data-action="add-home-history">新增年度</button>`}<button type="button" class="icon-btn collapse-card-btn" data-action="toggle-home-history" aria-expanded="${historyCollapsed?'false':'true'}" aria-label="${historyCollapsed?'展開家的支出歷年比較':'收起家的支出歷年比較'}">${historyCollapsed?'＋':'−'}</button></div></div>${historyCollapsed?'':`<div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>${state.homeExpenses.history.map((r,i)=>`<tr><td>${input(`homeExpenses.history.${i}.year`,r.year)}</td>${r.months.map((v,m)=>`<td>${input(`homeExpenses.history.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="homeExpenses.history" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div>`}</section>
+      <section class="card home-history-card ${historyCollapsed?'is-collapsed':''}"><div class="section-head home-history-head"><div><h2>歷年比較</h2></div><div class="section-head-tools">${!historyCollapsed&&homeEditing?`<button data-action="add-home-history">新增年度</button>`:''}<button type="button" class="icon-btn collapse-card-btn" data-action="toggle-home-history" aria-expanded="${historyCollapsed?'false':'true'}" aria-label="${historyCollapsed?'展開家的支出歷年比較':'收起家的支出歷年比較'}">${historyCollapsed?'＋':'−'}</button></div></div>${historyCollapsed?'':`<div class="table-wrap"><table class="data-table matrix-table home-history-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>${state.homeExpenses.history.map((r,i)=>`<tr class="${homeEditing?'record-editing':'record-readonly'}"><td>${editInput(`homeExpenses.history.${i}.year`,r.year,'text',homeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`homeExpenses.history.${i}.months.${m}`,v,'number',homeEditing)}</td>`).join('')}<td>${homeEditing?`<button class="small danger" data-action="delete" data-array="homeExpenses.history" data-index="${i}">刪除</button>`:''}</td></tr>`).join('')}</tbody></table></div>`}</section>
     </div>`;
   }
 
