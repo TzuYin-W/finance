@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v29-credit-actions-edit-home-lock -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v30-mobile-edit-paid-zoom-fix -->
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
   <title>財務追蹤｜空白版</title>
   
@@ -4291,6 +4291,65 @@ html.desktop-sidebar-mode .sidebar nav{
   .credit-template-table th:nth-child(6),.credit-template-table td:nth-child(6){width:20%!important}
 }
 
+
+
+/* ===== 2026-08-25 v30 mobile cash edit placement + paid header + input zoom fix ===== */
+/* Desktop keeps the cash edit button above the table; the mobile copy lives below report/color controls. */
+.cash-edit-mobile-btn{display:none!important}
+@media(max-width:760px), (orientation:landscape) and (max-height:600px){
+  html.touch-drawer-mode #cashTransactionList .cash-edit-desktop-btn{display:none!important}
+  html.touch-drawer-mode #cashTransactionList .cash-edit-mobile-btn{
+    display:inline-flex!important;
+    grid-column:1/-1!important;
+    width:100%!important;
+    min-height:40px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
+  /* Keep the mobile bulk controls ordered as: report/color -> edit -> bulk actions. */
+  html.touch-drawer-mode #cashTransactionList .cash-bulk-toolbar label{order:10!important}
+  html.touch-drawer-mode #cashTransactionList .cash-bulk-toolbar .cash-edit-mobile-btn{order:20!important}
+  html.touch-drawer-mode #cashTransactionList .cash-bulk-toolbar button[data-action="apply-cash-bulk"]{order:30!important}
+  html.touch-drawer-mode #cashTransactionList .cash-bulk-toolbar button[data-action="clear-cash-selection"]{order:31!important}
+  html.touch-drawer-mode #cashTransactionList .cash-bulk-toolbar>strong{order:1!important}
+
+  /* Credit paid-all header: two centered lines, with enough width for 已繳費 / checkbox. */
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(1),html.touch-drawer-mode .credit-transactions-table td:nth-child(1){width:12%!important}
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(2),html.touch-drawer-mode .credit-transactions-table td:nth-child(2){width:20.5%!important}
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(3),html.touch-drawer-mode .credit-transactions-table td:nth-child(3){width:8.5%!important}
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(4),html.touch-drawer-mode .credit-transactions-table td:nth-child(4){width:12%!important}
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(5),html.touch-drawer-mode .credit-transactions-table td:nth-child(5){width:9%!important}
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(6),html.touch-drawer-mode .credit-transactions-table td:nth-child(6){width:6%!important}
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(7),html.touch-drawer-mode .credit-transactions-table td:nth-child(7){width:7%!important}
+  html.touch-drawer-mode .credit-transactions-table th.paid-col,html.touch-drawer-mode .credit-transactions-table td.paid-col{
+    width:8%!important;min-width:0!important;max-width:none!important;padding-left:1px!important;padding-right:1px!important;text-align:center!important
+  }
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(9),html.touch-drawer-mode .credit-transactions-table td:nth-child(9){width:11%!important}
+  html.touch-drawer-mode .credit-transactions-table th:nth-child(10),html.touch-drawer-mode .credit-transactions-table td:nth-child(10){width:6%!important}
+  html.touch-drawer-mode .paid-header-control{
+    display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+    width:100%!important;gap:3px!important;white-space:normal!important;line-height:1.05!important;text-align:center!important
+  }
+  html.touch-drawer-mode .paid-header-control span{
+    display:block!important;width:100%!important;font-size:7px!important;line-height:1.05!important;white-space:nowrap!important;text-align:center!important
+  }
+  html.touch-drawer-mode .paid-header-control .paid-check{
+    display:block!important;width:13px!important;height:13px!important;min-width:13px!important;max-width:13px!important;
+    margin:0 auto!important;flex:0 0 13px!important
+  }
+}
+
+/* Prevent iOS/phone browsers from auto-zooming into editable controls and staying zoomed. */
+@media(max-width:760px), (orientation:landscape) and (max-height:600px){
+  html.touch-drawer-mode input:focus,
+  html.touch-drawer-mode select:focus,
+  html.touch-drawer-mode textarea:focus{
+    font-size:16px!important;
+  }
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -5419,11 +5478,12 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
         </form>
       </section>
       <section class="card" id="cashTransactionList">
-        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="section-head-tools"><button type="button" class="small ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button><div class="filter-stack">${dateFilterBar('cash','cash')}${cashFilters}</div></div></div>
+        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="section-head-tools"><button type="button" class="small cash-edit-desktop-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button><div class="filter-stack">${dateFilterBar('cash','cash')}${cashFilters}</div></div></div>
         <div class="cash-bulk-toolbar no-print">
           <strong data-cash-selected-count>已選 ${ui.cashSelection.size} 筆</strong>
           <label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">× 不列入月報</option></select></label>
           ${cashEditing?`<label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>`:''}
+          <button type="button" class="small cash-edit-mobile-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button>
           <button class="small primary" type="button" data-action="apply-cash-bulk">套用到已選資料</button>
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
         </div>
