@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v33-large-card-more-transparent -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v34-cash-account-edit-large-card-slider -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4434,6 +4434,84 @@ html.has-custom-background .custom-background-layer{
   background-color:color-mix(in srgb,var(--green-soft) 48%,transparent)!important;
 }
 
+
+
+/* ===== 2026-08-25 v34 cash account editing + compact icons + real large-card transparency control ===== */
+:root{
+  --large-card-paper-bg:rgba(255,255,255,.48);
+  --large-card-control-bg:rgba(255,255,255,.48);
+  --large-card-accent-bg:rgba(234,242,215,.48);
+}
+/* Real RGBA variables are produced in JS from each theme's palette; this avoids color-mix compatibility issues. */
+:root[data-theme] body main .card{background-color:var(--large-card-paper-bg)!important}
+:root[data-theme] body main .installment-card,
+:root[data-theme] body main .asset-card{background-color:var(--large-card-paper-bg)!important}
+:root[data-theme] body main .kpi,
+:root[data-theme] body main .summary-tile{background-color:var(--large-card-control-bg)!important}
+:root[data-theme] body main .kpi.accent{background-color:var(--large-card-accent-bg)!important}
+
+.large-card-transparency-control{display:grid;grid-template-columns:auto minmax(160px,1fr) 56px auto;align-items:center;gap:10px;max-width:720px}
+.large-card-transparency-control>span{font-size:12px;color:var(--muted);white-space:nowrap}
+.large-card-transparency-control input[type="range"]{width:100%;min-width:0;accent-color:var(--green)}
+.large-card-transparency-control strong{display:inline-flex;align-items:center;justify-content:center;min-height:34px;border:1px solid var(--line);border-radius:9px;background:var(--control);font-variant-numeric:tabular-nums}
+@media(max-width:760px){.large-card-transparency-control{grid-template-columns:auto minmax(0,1fr) 52px auto;gap:7px}}
+
+/* Fixed cash template: the monthly-report glyph itself is smaller and centered. */
+.cash-template-table td:nth-child(5){text-align:center!important;vertical-align:middle!important}
+.cash-template-table td:nth-child(5) .report-mode-toggle{display:flex!important;align-items:center!important;justify-content:center!important;margin:0 auto!important;padding:0!important;width:26px!important;min-width:26px!important;height:26px!important;min-height:26px!important}
+.cash-template-table td:nth-child(5) .report-plus-minus-icon,
+.cash-template-table td:nth-child(5) .report-neutral-icon{width:17px!important;height:17px!important;max-width:17px!important;max-height:17px!important;margin:auto!important}
+@media(max-width:760px){
+  .cash-template-table td:nth-child(5) .report-mode-toggle{width:22px!important;min-width:22px!important;height:22px!important;min-height:22px!important}
+  .cash-template-table td:nth-child(5) .report-plus-minus-icon,
+  .cash-template-table td:nth-child(5) .report-neutral-icon{width:14px!important;height:14px!important;max-width:14px!important;max-height:14px!important}
+}
+
+/* Account summary is compact: row height follows text instead of a fixed control height. */
+.account-summary-tools{display:flex!important;align-items:center!important;gap:8px!important;margin-left:auto!important}
+.account-summary-table th,.account-summary-table td{height:auto!important;min-height:0!important}
+.account-summary-table input,.account-summary-table select{height:auto!important;min-height:0!important;line-height:1.3!important;padding-top:3px!important;padding-bottom:3px!important}
+.account-summary-table .record-readonly input[readonly]{pointer-events:none!important;cursor:default!important;box-shadow:none!important}
+.account-summary-table.is-readonly th:nth-child(1),.account-summary-table.is-readonly td:nth-child(1){width:20%!important}
+.account-summary-table.is-readonly th:nth-child(2),.account-summary-table.is-readonly td:nth-child(2){width:18%!important}
+.account-summary-table.is-readonly th:nth-child(3),.account-summary-table.is-readonly td:nth-child(3){width:18%!important}
+.account-summary-table.is-readonly th:nth-child(4),.account-summary-table.is-readonly td:nth-child(4){width:18%!important}
+.account-summary-table.is-readonly th:nth-child(5),.account-summary-table.is-readonly td:nth-child(5){width:26%!important}
+.account-summary-table.is-editing th:nth-child(1),.account-summary-table.is-editing td:nth-child(1){width:17%!important}
+.account-summary-table.is-editing th:nth-child(2),.account-summary-table.is-editing td:nth-child(2){width:15%!important}
+.account-summary-table.is-editing th:nth-child(3),.account-summary-table.is-editing td:nth-child(3){width:14%!important}
+.account-summary-table.is-editing th:nth-child(4),.account-summary-table.is-editing td:nth-child(4){width:14%!important}
+.account-summary-table.is-editing th:nth-child(5),.account-summary-table.is-editing td:nth-child(5){width:30%!important}
+.account-summary-table.is-editing th:nth-child(6),.account-summary-table.is-editing td:nth-child(6){width:10%!important}
+@media(max-width:760px){
+  .account-summary-table th,.account-summary-table td{padding-top:3px!important;padding-bottom:3px!important;line-height:1.15!important}
+  .account-summary-table input,.account-summary-table select{height:auto!important;min-height:0!important;padding:1px!important;line-height:1.2!important}
+  .account-summary-table .small{height:auto!important;min-height:22px!important;padding:2px 1px!important}
+}
+
+/* Cash selection column exists only in edit mode. Date control fills its cell and is more readable. */
+.cash-transactions-table .date-col .app-date-control,
+.cash-transactions-table .date-col .app-date-display{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+.cash-transactions-table .date-col .app-date-display{font-size:11px!important;letter-spacing:0!important;justify-content:center!important;text-align:center!important;padding-left:1px!important;padding-right:1px!important}
+@media(max-width:760px){
+  .cash-transactions-table .date-col .app-date-display{font-size:calc(9.6px * var(--app-font-scale))!important;line-height:1.05!important;padding:1px 0!important}
+  .cash-transactions-table.is-readonly th:nth-child(1),.cash-transactions-table.is-readonly td:nth-child(1){width:17%!important}
+  .cash-transactions-table.is-readonly th:nth-child(2),.cash-transactions-table.is-readonly td:nth-child(2){width:13%!important}
+  .cash-transactions-table.is-readonly th:nth-child(3),.cash-transactions-table.is-readonly td:nth-child(3){width:23%!important}
+  .cash-transactions-table.is-readonly th:nth-child(4),.cash-transactions-table.is-readonly td:nth-child(4){width:12%!important}
+  .cash-transactions-table.is-readonly th:nth-child(5),.cash-transactions-table.is-readonly td:nth-child(5){width:22%!important}
+  .cash-transactions-table.is-readonly th:nth-child(6),.cash-transactions-table.is-readonly td:nth-child(6){width:13%!important}
+  .cash-transactions-table.is-editing th:nth-child(1),.cash-transactions-table.is-editing td:nth-child(1){width:6%!important}
+  .cash-transactions-table.is-editing th:nth-child(2),.cash-transactions-table.is-editing td:nth-child(2){width:16%!important}
+  .cash-transactions-table.is-editing th:nth-child(3),.cash-transactions-table.is-editing td:nth-child(3){width:10%!important}
+  .cash-transactions-table.is-editing th:nth-child(4),.cash-transactions-table.is-editing td:nth-child(4){width:17%!important}
+  .cash-transactions-table.is-editing th:nth-child(5),.cash-transactions-table.is-editing td:nth-child(5){width:10%!important}
+  .cash-transactions-table.is-editing th:nth-child(6),.cash-transactions-table.is-editing td:nth-child(6){width:15%!important}
+  .cash-transactions-table.is-editing th:nth-child(7),.cash-transactions-table.is-editing td:nth-child(7){width:10%!important}
+  .cash-transactions-table.is-editing th:nth-child(8),.cash-transactions-table.is-editing td:nth-child(8){width:9%!important}
+  .cash-transactions-table.is-editing th:nth-child(9),.cash-transactions-table.is-editing td:nth-child(9){width:7%!important}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4676,7 +4754,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     creditUnpaidOnly:savedUi.creditUnpaidOnly===true,
     feeHistoryCollapsed:savedUi.feeHistoryCollapsed===true,
     homeHistoryCollapsed:savedUi.homeHistoryCollapsed===true,
-    editModes:{cash:false,credit:false,cardFees:false,home:false},
+    editModes:{cash:false,cashAccounts:false,credit:false,cardFees:false,home:false},
     cashSelection:new Set(), showAddCard:false, deleteCardIndex:null, revealCashId:null
   };
   if (ui.tab === 'taxInvest') ui.tab = 'tax';
@@ -4711,6 +4789,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(!s.meta.updatedAt || Number.isNaN(Date.parse(s.meta.updatedAt))) s.meta.updatedAt = new Date().toISOString();
     s.meta.theme = THEMES.some(t=>t.id===s.meta.theme) ? s.meta.theme : 'olive';
     s.meta.fontScale = Math.min(1.30,Math.max(0.85,Number(s.meta.fontScale)||1));
+    s.meta.largeCardTransparency = Math.min(90,Math.max(0,Number.isFinite(Number(s.meta.largeCardTransparency))?Number(s.meta.largeCardTransparency):52));
     s.meta.months = Array.isArray(s.meta.months) && s.meta.months.length === 12 ? s.meta.months : ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 
     s.cash = s.cash || {accounts:[],transactions:[]};
@@ -5136,6 +5215,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     out.meta.year=protectedYear;
     out.meta.theme=originalMeta.theme||out.meta.theme;
     out.meta.fontScale=originalMeta.fontScale||out.meta.fontScale;
+    out.meta.largeCardTransparency=Number.isFinite(Number(originalMeta.largeCardTransparency))?Number(originalMeta.largeCardTransparency):out.meta.largeCardTransparency;
     out.meta.years=Array.from(new Set([...(out.meta.years||[]),...info.years,protectedYear])).filter(Boolean).sort((a,b)=>b-a);
     out.meta.lastHistoryMerge={importedAt:new Date().toISOString(),years:info.years,preserveFromYear:info.preserveFromYear,recoveredFromInitial};
     const merged=migrateState(out);
@@ -5417,10 +5497,37 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     catch(_){setCustomBackgroundBlob(null);}
   }
 
+  function normalizeLargeCardTransparency(value){
+    const n=Number(value);return Math.min(90,Math.max(0,Number.isFinite(n)?n:52));
+  }
+  function cssColorWithAlpha(raw,alpha){
+    const s=String(raw||'').trim();
+    let m=s.match(/^#([0-9a-f]{3})$/i);
+    if(m){const h=m[1];return `rgba(${parseInt(h[0]+h[0],16)},${parseInt(h[1]+h[1],16)},${parseInt(h[2]+h[2],16)},${alpha})`;}
+    m=s.match(/^#([0-9a-f]{6})$/i);
+    if(m){const h=m[1];return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${alpha})`;}
+    m=s.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i);
+    if(m)return `rgba(${Math.round(Number(m[1]))},${Math.round(Number(m[2]))},${Math.round(Number(m[3]))},${alpha})`;
+    return `rgba(255,255,255,${alpha})`;
+  }
+  function applyLargeCardTransparency(){
+    const transparency=normalizeLargeCardTransparency(state?.meta?.largeCardTransparency);
+    state.meta.largeCardTransparency=transparency;
+    const alpha=Math.max(.10,Math.min(1,(100-transparency)/100));
+    const styles=getComputedStyle(document.documentElement);
+    const paper=styles.getPropertyValue('--paper')||'#fff';
+    const control=styles.getPropertyValue('--control')||paper;
+    const accent=styles.getPropertyValue('--green-soft')||control;
+    document.documentElement.style.setProperty('--large-card-paper-bg',cssColorWithAlpha(paper,alpha));
+    document.documentElement.style.setProperty('--large-card-control-bg',cssColorWithAlpha(control,alpha));
+    document.documentElement.style.setProperty('--large-card-accent-bg',cssColorWithAlpha(accent,alpha));
+  }
+
   function applyTheme(){
     const theme=THEMES.some(t=>t.id===state.meta.theme)?state.meta.theme:'olive';
     document.documentElement.dataset.theme=theme;
     document.documentElement.style.setProperty('--app-font-scale',String(Math.min(1.30,Math.max(0.85,Number(state.meta.fontScale)||1))));
+    applyLargeCardTransparency();
     const meta=document.querySelector('meta[name="theme-color"]');
     const themeInfo=THEMES.find(t=>t.id===theme)||THEMES[0];
     if(meta)meta.setAttribute('content',themeInfo.colors[0]);
@@ -5571,6 +5678,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   function renderCash(){
     const y=currentYear(); const stats=accountStats();
     const cashEditing=ui.editModes.cash===true;
+    const accountEditing=ui.editModes.cashAccounts===true;
     const cashDefaultDate=defaultDateForYear();
     const cashDefaultReportMode=cashDefaultDate>today()?'neutral':'auto';
     const includeUndated=!!ui.includeUndated.cash;
@@ -5609,9 +5717,9 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
         <div class="kpi"><span>${y} 年交易筆數</span><strong>${plain(yearTx.length)}</strong></div>
       </section>
       <section class="card">
-        <div class="section-head"><div><h2>${y} 年帳戶摘要</h2><p>餘額＝期初現金－已發生交易金額；未來預先建立與空白日期的項目不會提前影響帳戶餘額。</p></div><button data-action="add-account">新增帳戶</button></div>
-        <div class="table-wrap account-summary-wrap"><table class="data-table account-summary-table fit-table"><thead><tr><th><span class="desktop-label">帳戶</span><span class="mobile-label">帳戶</span></th><th class="numeric"><span class="desktop-label">${y} 年期初現金</span><span class="mobile-label">期初</span></th><th class="numeric"><span class="desktop-label">${accountMovementLabel}</span><span class="mobile-label">交易</span></th><th class="numeric"><span class="desktop-label">${accountBalanceLabel}</span><span class="mobile-label">餘額</span></th><th>備註</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th></tr></thead><tbody>
-          ${stats.map(({a,i,opening,movement,balance})=>`<tr><td data-label="帳戶">${input(`cash.accounts.${i}.name`,a.name)}</td><td data-label="${y} 年期初現金">${input(`cash.accounts.${i}.initialByYear.${y}`,opening,'number')}</td><td data-label="${accountMovementLabel}" class="numeric computed">${money(movement,2)}</td><td data-label="${accountBalanceLabel}" class="numeric computed">${money(balance,2)}</td><td data-label="備註">${input(`cash.accounts.${i}.note`,a.note)}</td><td data-label="操作"><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td></tr>`).join('')}
+        <div class="section-head"><div><h2>${y} 年帳戶摘要</h2><p>餘額＝期初現金－已發生交易金額；未來預先建立與空白日期的項目不會提前影響帳戶餘額。</p></div><div class="section-head-tools account-summary-tools"><button data-action="add-account">新增帳戶</button><button type="button" class="small ${accountEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cashAccounts" aria-pressed="${accountEditing?'true':'false'}">${accountEditing?'完成':'編輯'}</button></div></div>
+        <div class="table-wrap account-summary-wrap"><table class="data-table account-summary-table fit-table ${accountEditing?'is-editing':'is-readonly'}"><thead><tr><th><span class="desktop-label">帳戶</span><span class="mobile-label">帳戶</span></th><th class="numeric"><span class="desktop-label">${y} 年期初現金</span><span class="mobile-label">期初</span></th><th class="numeric"><span class="desktop-label">${accountMovementLabel}</span><span class="mobile-label">交易</span></th><th class="numeric"><span class="desktop-label">${accountBalanceLabel}</span><span class="mobile-label">餘額</span></th><th>備註</th>${accountEditing?'<th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>':''}</tr></thead><tbody>
+          ${stats.map(({a,i,opening,movement,balance})=>`<tr class="${accountEditing?'record-editing':'record-readonly'}"><td data-label="帳戶">${editInput(`cash.accounts.${i}.name`,a.name,'text',accountEditing)}</td><td data-label="${y} 年期初現金">${editInput(`cash.accounts.${i}.initialByYear.${y}`,opening,'number',accountEditing)}</td><td data-label="${accountMovementLabel}" class="numeric computed">${money(movement,2)}</td><td data-label="${accountBalanceLabel}" class="numeric computed">${money(balance,2)}</td><td data-label="備註">${editInput(`cash.accounts.${i}.note`,a.note,'text',accountEditing)}</td>${accountEditing?`<td data-label="操作"><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`).join('')}
         </tbody></table></div>
       </section>
       <section class="card no-print">
@@ -5643,8 +5751,8 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
         </div>
         <div class="cash-table-edit-row no-print"><button type="button" class="small cash-table-edit-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button></div>
-        <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table"><thead><tr><th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th><th class="date-col">日期</th><th>科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th>${cashEditing?`<th class="row-color-cell">顏色</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>`:''}</tr></thead><tbody>
-          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}" class="${cashEditing?'record-editing':'record-readonly'}"><td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td><td class="date-col">${editInput(`cash.transactions.${i}.date`,t.date,'date',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.category`,t.category,'text',cashEditing)}</td><td class="description-col">${editInput(`cash.transactions.${i}.description`,t.description,'text',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.amount`,t.amount,'number',cashEditing)}</td><td>${editSelect(`cash.transactions.${i}.account`,t.account,accountOpts,cashEditing)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td>${cashEditing?`<td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`}).join(''):empty(cashEditing?9:7,`${y} 年目前沒有符合條件的交易`)}
+        <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table ${cashEditing?'is-editing':'is-readonly'}"><thead><tr>${cashEditing?`<th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th>`:''}<th class="date-col">日期</th><th>科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th>${cashEditing?`<th class="row-color-cell">顏色</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>`:''}</tr></thead><tbody>
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}" class="${cashEditing?'record-editing':'record-readonly'}">${cashEditing?`<td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td>`:''}<td class="date-col">${editInput(`cash.transactions.${i}.date`,t.date,'date',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.category`,t.category,'text',cashEditing)}</td><td class="description-col">${editInput(`cash.transactions.${i}.description`,t.description,'text',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.amount`,t.amount,'number',cashEditing)}</td><td>${editSelect(`cash.transactions.${i}.account`,t.account,accountOpts,cashEditing)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td>${cashEditing?`<td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`}).join(''):empty(cashEditing?9:6,`${y} 年目前沒有符合條件的交易`)}
         </tbody></table></div>${pager('cash',p)}
       </section>
     </div>`;
@@ -5914,6 +6022,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       <section class="card"><div class="section-head"><div><h2>字體大小</h2><p>調整會套用到整個 App，尤其是手機版的自適應表格。</p></div></div><div class="font-scale-control"><button type="button" data-action="font-smaller" aria-label="縮小字體">－</button><strong>${Math.round((Number(state.meta.fontScale)||1)*100)}%</strong><button type="button" data-action="font-larger" aria-label="放大字體">＋</button><button type="button" class="small" data-action="font-reset">重設</button></div></section>
       <section class="card"><div class="section-head"><div><h2>記帳表顏色</h2><p>顏色設定會儲存在這台裝置，所有分頁立即套用。</p></div></div><div class="theme-grid">${THEMES.map(t=>`<button type="button" class="theme-option ${state.meta.theme===t.id?'active':''}" data-action="set-theme" data-theme="${t.id}" aria-pressed="${state.meta.theme===t.id}"><span class="theme-swatches">${t.colors.map(c=>`<i style="background:${c}"></i>`).join('')}</span><strong>${t.name}</strong><small>${state.meta.theme===t.id?'目前使用':'點選套用'}</small></button>`).join('')}</div></section>
       <section class="card no-print custom-background-settings"><div class="section-head"><div><h2>自訂背景圖片</h2><p>上傳後會持續使用自訂背景；切換主題顏色不會移除。只有按「移除背景圖片」才會恢復主題原本背景。</p></div></div><div class="custom-background-controls"><div class="custom-background-status"><strong>${customBackgroundActive?'已套用自訂背景':'目前使用主題背景'}</strong><span>${customBackgroundActive?'圖片保留原本飽和度與對比，只加上淡色遮罩，讓背景維持柔和並避免影響表格閱讀。':'可上傳 JPG、PNG 等圖片；圖片會儲存在這台裝置，不會寫入財務資料 JSON。'}</span></div><div class="chips"><label class="button custom-background-upload">上傳背景圖片<input type="file" accept="image/*" data-custom-background-input hidden></label><button type="button" class="danger-ghost" data-action="remove-custom-background" ${customBackgroundActive?'':'disabled'}>移除背景圖片</button></div></div></section>
+      <section class="card no-print large-card-transparency-settings"><div class="section-head"><div><h2>大型內容格底色透明度</h2><p>只調整大型卡片底色；表格儲存格、輸入框、列色等小格維持原本透明度。</p></div></div><div class="large-card-transparency-control"><span>較實</span><input type="range" min="0" max="90" step="5" value="${Math.round(normalizeLargeCardTransparency(state.meta.largeCardTransparency))}" data-large-card-transparency aria-label="大型內容格底色透明度"><strong data-large-card-transparency-value>${Math.round(normalizeLargeCardTransparency(state.meta.largeCardTransparency))}%</strong><span>較透</span></div></section>
       <section class="card no-print settings-utility-card"><div class="section-head"><div><h2>App 工具與雲端</h2><p>Google Drive、備份、匯入與列印集中放在這裡，頁面頂部只保留目前分頁名稱。</p></div></div><div id="settingsUtilitySlot" class="settings-utility-slot"></div></section>
       <section class="card"><div class="section-head"><div><h2>可用年度</h2><p>以下年份由既有日期資料與已建立的年度帳本自動整理。</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年份</th><th class="numeric">現金交易</th><th class="numeric">信用卡交易</th><th class="numeric">貸款還款</th><th class="numeric">投資配息</th><th></th></tr></thead><tbody>${counts.map(x=>`<tr class="${x.year===y?'active-year-row':''}"><td><strong>${x.year}</strong></td><td class="numeric">${x.cash}</td><td class="numeric">${x.credit}</td><td class="numeric">${x.mortgage}</td><td class="numeric">${x.invest}</td><td><button class="small ${x.year===y?'primary':''}" data-action="switch-year" data-year="${x.year}">${x.year===y?'目前年度':'切換'}</button></td></tr>`).join('')}</tbody></table></div></section>
     </div>`;
@@ -6034,6 +6143,13 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   searchInput.addEventListener('compositionend',()=>{searchComposing=false;handleSearchInput();});
   searchInput.addEventListener('input',handleSearchInput);
 
+  main.addEventListener('input',e=>{
+    const el=e.target;if(el?.dataset?.largeCardTransparency===undefined)return;
+    state.meta.largeCardTransparency=normalizeLargeCardTransparency(el.value);
+    applyLargeCardTransparency();
+    const valueEl=main.querySelector('[data-large-card-transparency-value]');if(valueEl)valueEl.textContent=`${Math.round(state.meta.largeCardTransparency)}%`;
+  });
+
   main.addEventListener('change',async e=>{
     const el=e.target;
     if(el.dataset.customBackgroundInput!==undefined){
@@ -6047,6 +6163,12 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
         if(ui.tab==='settings'){render();requestAnimationFrame(()=>{main.scrollTop=scrollTop;});}
         toast('自訂背景已套用');
       }catch(err){alert(err?.message||'背景圖片上傳失敗。');}
+      return;
+    }
+    if(el.dataset.largeCardTransparency!==undefined){
+      state.meta.largeCardTransparency=normalizeLargeCardTransparency(el.value);
+      applyLargeCardTransparency();scheduleSave();
+      const valueEl=main.querySelector('[data-large-card-transparency-value]');if(valueEl)valueEl.textContent=`${Math.round(state.meta.largeCardTransparency)}%`;
       return;
     }
     if(el.matches?.('.app-date-native'))updateDateControlDisplay(el);
