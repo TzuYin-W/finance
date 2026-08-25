@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v36-desktop-cash-form-font-layout -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v37-fixed-cash-credit-mobile-align -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4690,6 +4690,70 @@ html.desktop-sidebar-mode .edit-action-col button{width:100%!important;min-width
   html.desktop-sidebar-mode .home-history-table input{
     font-size:calc(11.5px * var(--app-font-scale))!important;
     line-height:1.15!important
+  }
+}
+
+
+
+/* ===== 2026-08-25 v37 fixed cash/credit mobile alignment refinements ===== */
+/* Fixed cash: monthly-report icon is geometrically centered on desktop and landscape phones. */
+.cash-template-table td:nth-child(5){
+  text-align:center!important;
+  vertical-align:middle!important;
+  padding-left:0!important;
+  padding-right:0!important;
+}
+.cash-template-table td:nth-child(5) .report-mode-toggle{
+  display:grid!important;
+  place-items:center!important;
+  float:none!important;
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  box-sizing:border-box!important;
+}
+.cash-template-table td:nth-child(5) .report-mode-toggle > svg{
+  display:block!important;
+  margin:0!important;
+  align-self:center!important;
+  justify-self:center!important;
+}
+
+/* Portrait phone: fixed-credit action buttons follow text height instead of a fixed control height. */
+@media (orientation:portrait) and (max-width:760px){
+  .credit-template-table .credit-template-actions{
+    vertical-align:middle!important;
+  }
+  .credit-template-table .credit-template-actions button{
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    padding:2px 1px!important;
+    line-height:1.2!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Fixed cash: category ≈ five Chinese characters; account fits 數位帳戶(Richart). */
+  .cash-template-table th:nth-child(1),.cash-template-table td:nth-child(1){width:15%!important}
+  .cash-template-table th:nth-child(2),.cash-template-table td:nth-child(2){width:16%!important}
+  .cash-template-table th:nth-child(3),.cash-template-table td:nth-child(3){width:10%!important}
+  .cash-template-table th:nth-child(4),.cash-template-table td:nth-child(4){width:30%!important}
+  .cash-template-table th:nth-child(5),.cash-template-table td:nth-child(5){width:9%!important}
+  .cash-template-table th:nth-child(6),.cash-template-table td:nth-child(6){width:20%!important}
+  .cash-template-table td:nth-child(1) input,
+  .cash-template-table td:nth-child(4) select{
+    font-size:calc(8.5px * var(--app-font-scale))!important;
+    letter-spacing:0!important;
+  }
+  .cash-template-table td:nth-child(4) select{
+    padding-left:2px!important;
+    padding-right:15px!important;
+    text-overflow:clip!important;
   }
 }
 
