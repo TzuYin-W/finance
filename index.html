@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v25-edit-lock-fee-collapse -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v26-date-collapse-wide-fix -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4100,6 +4100,58 @@ html.desktop-sidebar-mode .sidebar nav{
   .fee-history-head .section-head-tools{width:auto;margin-left:auto}
 }
 
+
+
+/* ===== v26 targeted UI fixes ===== */
+/* Read-only date: keep the native iOS date input invisible so it cannot ghost over the custom display. */
+.record-readonly .app-date-native[readonly]{
+  opacity:0!important;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  background:transparent!important;
+}
+.record-readonly .app-date-display{opacity:1!important;visibility:visible!important}
+
+/* Edit buttons align with adjacent standard buttons. */
+.section-head-tools{align-items:flex-start!important}
+.section-head-tools>button,
+.section-head-tools>button.small{
+  height:36px!important;
+  min-height:36px!important;
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  margin:0!important;
+}
+.section-head-tools>button.small{padding:8px 12px!important;border-radius:10px!important;font-size:inherit!important}
+.section-head-tools>.collapse-card-btn{width:36px!important;min-width:36px!important;padding:0!important;font-size:22px!important}
+
+/* Home yearly comparison collapse mirrors the yearly card-fee collapse. */
+.home-history-card.is-collapsed{padding-bottom:14px!important}
+.home-history-card.is-collapsed .section-head{margin-bottom:0!important}
+@media(max-width:760px){
+  .home-history-head .section-head-tools{width:auto!important;margin-left:auto!important}
+}
+
+/* Investment and installments use the full workspace width. */
+.workspace>main.full-width-page{
+  width:100%!important;
+  max-width:none!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  box-sizing:border-box!important;
+}
+.workspace>main.full-width-page #pageContent,
+.workspace>main.full-width-page #pageContent>.page-stack,
+.workspace>main.full-width-page .installment-grid,
+.workspace>main.full-width-page .asset-grid{
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4321,7 +4373,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     try{const x=JSON.parse(localStorage.getItem(UI_STORAGE_KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(_){return {};}
   }
   function saveUiPrefs(){
-    try{localStorage.setItem(UI_STORAGE_KEY,JSON.stringify({tab:ui.tab,search:ui.search,page:ui.page,activeCard:ui.activeCard,dateFilters:ui.dateFilters,viewFilters:ui.viewFilters,includeUndated:ui.includeUndated,creditUnpaidOnly:ui.creditUnpaidOnly,feeHistoryCollapsed:ui.feeHistoryCollapsed}));}catch(_){}
+    try{localStorage.setItem(UI_STORAGE_KEY,JSON.stringify({tab:ui.tab,search:ui.search,page:ui.page,activeCard:ui.activeCard,dateFilters:ui.dateFilters,viewFilters:ui.viewFilters,includeUndated:ui.includeUndated,creditUnpaidOnly:ui.creditUnpaidOnly,feeHistoryCollapsed:ui.feeHistoryCollapsed,homeHistoryCollapsed:ui.homeHistoryCollapsed}));}catch(_){}
   }
   const savedUi=loadUiPrefs();
   const ui = {
@@ -4334,6 +4386,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     includeUndated:Object.assign({cash:false,credit:false},savedUi.includeUndated&&typeof savedUi.includeUndated==='object'?savedUi.includeUndated:{}),
     creditUnpaidOnly:savedUi.creditUnpaidOnly===true,
     feeHistoryCollapsed:savedUi.feeHistoryCollapsed===true,
+    homeHistoryCollapsed:savedUi.homeHistoryCollapsed===true,
     editModes:{cash:false,credit:false,cardFees:false},
     cashSelection:new Set(), showAddCard:false, deleteCardIndex:null, revealCashId:null
   };
@@ -5085,6 +5138,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     updateUndoButton();
     renderNav();
     const tab=TABS.find(t=>t[0]===ui.tab);
+    main.classList.toggle('full-width-page',ui.tab==='installments'||ui.tab==='investment');
     const year=currentYear();
     pageTitle.textContent=ui.tab==='settings'?'設定':(['mortgage','tax','investment'].includes(ui.tab)?tab[1]:`${year}${tab[1]}`);
     document.title=`${year} 財務追蹤`;
@@ -5372,13 +5426,14 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
 
   function renderHome(){
     const y=currentYear(),months=state.meta.months,book=currentHomeBook(); const totals=months.map((_,m)=>sum(book.items,r=>r.months[m]));
+    const historyCollapsed=ui.homeHistoryCollapsed===true;
     return `<div class="page-stack"><section class="card">
       <div class="section-head"><div><h2>${y} 年家的支出</h2><p>目前年度由「設定」切換；各月份總計由所有項目自動加總。</p></div><button data-action="add-home-item">新增項目</button></div>
       <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>項目</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
         ${book.items.map((r,i)=>`<tr><td>${input(`homeExpenses.yearBooks.${y}.items.${i}.item`,r.item)}</td>${r.months.map((v,m)=>`<td>${input(`homeExpenses.yearBooks.${y}.items.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="homeExpenses.yearBooks.${y}.items" data-index="${i}">刪除</button></td></tr>`).join('')}
         <tr class="total-row"><td>總計</td>${totals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}<td></td></tr>
       </tbody></table></div></section>
-      <section class="card"><div class="section-head"><h2>歷年比較</h2><button data-action="add-home-history">新增年度</button></div><div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>${state.homeExpenses.history.map((r,i)=>`<tr><td>${input(`homeExpenses.history.${i}.year`,r.year)}</td>${r.months.map((v,m)=>`<td>${input(`homeExpenses.history.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="homeExpenses.history" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div></section>
+      <section class="card home-history-card ${historyCollapsed?'is-collapsed':''}"><div class="section-head home-history-head"><div><h2>歷年比較</h2></div><div class="section-head-tools">${historyCollapsed?'':`<button data-action="add-home-history">新增年度</button>`}<button type="button" class="icon-btn collapse-card-btn" data-action="toggle-home-history" aria-expanded="${historyCollapsed?'false':'true'}" aria-label="${historyCollapsed?'展開家的支出歷年比較':'收起家的支出歷年比較'}">${historyCollapsed?'＋':'−'}</button></div></div>${historyCollapsed?'':`<div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>${state.homeExpenses.history.map((r,i)=>`<tr><td>${input(`homeExpenses.history.${i}.year`,r.year)}</td>${r.months.map((v,m)=>`<td>${input(`homeExpenses.history.${i}.months.${m}`,v,'number')}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="homeExpenses.history" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div>`}</section>
     </div>`;
   }
 
@@ -5733,6 +5788,10 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       ui.feeHistoryCollapsed=!ui.feeHistoryCollapsed;
       saveUiPrefs();renderPreservingAnchor(b);return;
     }
+    if(a==='toggle-home-history'){
+      ui.homeHistoryCollapsed=!ui.homeHistoryCollapsed;
+      saveUiPrefs();renderPreservingAnchor(b);return;
+    }
     if(a==='toggle-credit-total-mode'){
       const path=b.dataset.path;if(!path)return;
       const next=normalizeReportMode(b.dataset.mode)==='neutral'?'auto':'neutral';
@@ -5833,7 +5892,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(b.dataset.globalAction==='restore-import')restorePreImport();
     if(b.dataset.globalAction==='print')window.print();
     if(b.dataset.globalAction==='reset'){
-      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,credit:false,cardFees:false};ui.feeHistoryCollapsed=false; scheduleSave();render();
+      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,credit:false,cardFees:false};ui.feeHistoryCollapsed=false;ui.homeHistoryCollapsed=false; scheduleSave();render();
     }
   });
   document.getElementById('importFile').addEventListener('change',e=>{
