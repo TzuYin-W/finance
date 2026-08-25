@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260825-v37-fixed-cash-credit-mobile-align';
+const CACHE='finance-tracker-20260825-v38-fixed-cash-portrait-widths';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',
