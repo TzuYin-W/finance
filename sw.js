@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260825-v34-cash-account-edit-large-card-slider';
+const CACHE='finance-tracker-20260825-v35-table-edit-layout-tax-items';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',

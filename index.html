@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v34-cash-account-edit-large-card-slider -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v35-table-edit-layout-tax-items -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -2244,7 +2244,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   .installment-history-table th.date-col,
   .installment-history-table td.date-col,
   .installment-history-table .date-col .app-date-display{
-    font-size:calc(13px * var(--app-font-scale))!important;
+    font-size:calc(14px * var(--app-font-scale))!important;
     line-height:1.2!important;letter-spacing:0!important
   }
   .installment-history-table .date-col .app-date-control{
@@ -2269,7 +2269,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   /* 投資：日期與右側金額固定使用同一字級。 */
   .asset-card .data-table td.date-col .app-date-display,
   .asset-card .data-table td:nth-child(2) input{
-    font-size:calc(13px * var(--app-font-scale))!important;
+    font-size:calc(14px * var(--app-font-scale))!important;
     line-height:1.2!important;font-variant-numeric:tabular-nums!important
   }
   .asset-card .data-table td.date-col .app-date-display{
@@ -2309,7 +2309,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   .tax-table-wrap{overflow-x:hidden!important}
   .tax-table{
     width:max-content!important;min-width:0!important;max-width:100%!important;
-    table-layout:fixed!important;font-size:calc(13px * var(--app-font-scale))!important
+    table-layout:fixed!important;font-size:calc(14px * var(--app-font-scale))!important
   }
   .tax-table th,.tax-table td{
     min-width:0!important;max-width:none!important;padding:5px 1px!important;
@@ -4512,6 +4512,86 @@ html.has-custom-background .custom-background-layer{
   .cash-transactions-table.is-editing th:nth-child(9),.cash-transactions-table.is-editing td:nth-child(9){width:7%!important}
 }
 
+
+
+/* ===== 2026-08-25 v35 table edit/layout refinements ===== */
+.table-edit-row,.tax-edit-actions{
+  display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;
+  width:100%!important;box-sizing:border-box!important;margin:8px 0!important;
+}
+.table-edit-row>button,.tax-edit-actions>button{min-height:36px!important;height:36px!important}
+
+/* Tax: mobile table always fits the content viewport. */
+.tax-filter-row,.tax-filter-row .filter-bar{width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+@media (max-width:760px), (orientation:landscape) and (max-height:600px){
+  html.touch-drawer-mode .tax-table-wrap{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+  html.touch-drawer-mode .tax-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;margin:0!important}
+  html.touch-drawer-mode .tax-table col.tax-year-track{width:14%!important}
+  html.touch-drawer-mode .tax-table col.tax-item-track{width:auto!important}
+  html.touch-drawer-mode .tax-table col.tax-action-track{width:14%!important}
+  html.touch-drawer-mode .tax-table .tax-year-col{width:14%!important;min-width:0!important;max-width:none!important}
+  html.touch-drawer-mode .tax-table .tax-item-col{width:auto!important;min-width:0!important;max-width:none!important}
+  html.touch-drawer-mode .tax-table .tax-action-col{width:14%!important;min-width:0!important;max-width:none!important}
+  html.touch-drawer-mode .tax-table th,html.touch-drawer-mode .tax-table td{padding:4px 1px!important;font-size:calc(9px * var(--app-font-scale))!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  html.touch-drawer-mode .tax-table input{width:100%!important;min-width:0!important;max-width:100%!important;padding:3px 1px!important;font-size:calc(9px * var(--app-font-scale))!important;text-align:center!important}
+  html.touch-drawer-mode .tax-table .tax-action-col button{width:100%!important;min-width:0!important;padding:3px 0!important;font-size:calc(8px * var(--app-font-scale))!important}
+}
+
+/* Desktop cash: four-character category, wider description, larger date text. */
+html.desktop-sidebar-mode .cash-transactions-wrap{overflow-x:hidden!important}
+html.desktop-sidebar-mode .cash-transactions-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
+html.desktop-sidebar-mode .cash-transactions-table .date-col{width:9.4em!important;min-width:9.4em!important;max-width:9.4em!important}
+html.desktop-sidebar-mode .cash-transactions-table .cash-category-col{width:5.2em!important;min-width:5.2em!important;max-width:5.2em!important}
+html.desktop-sidebar-mode .cash-transactions-table .description-col{width:32%!important}
+html.desktop-sidebar-mode .cash-transactions-table .date-col .app-date-display{font-size:calc(14px * var(--app-font-scale))!important;letter-spacing:0!important;padding-left:2px!important;padding-right:2px!important}
+html.desktop-sidebar-mode .cash-transactions-table .cash-category-col input{font-size:calc(12px * var(--app-font-scale))!important;padding-left:2px!important;padding-right:2px!important}
+
+/* Desktop bank-fee/home monthly matrices fit in one viewport without horizontal scrolling. */
+html.desktop-sidebar-mode .card-fee-table-wrap,
+html.desktop-sidebar-mode .fee-history-table-wrap,
+html.desktop-sidebar-mode .home-expense-table-wrap,
+html.desktop-sidebar-mode .home-history-table-wrap{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+html.desktop-sidebar-mode .card-fee-main-table,
+html.desktop-sidebar-mode .fee-history-table,
+html.desktop-sidebar-mode .home-expense-table,
+html.desktop-sidebar-mode .home-history-table{
+  width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;
+  font-size:calc(10.5px * var(--app-font-scale))!important
+}
+html.desktop-sidebar-mode .card-fee-main-table th,
+html.desktop-sidebar-mode .card-fee-main-table td,
+html.desktop-sidebar-mode .fee-history-table th,
+html.desktop-sidebar-mode .fee-history-table td,
+html.desktop-sidebar-mode .home-expense-table th,
+html.desktop-sidebar-mode .home-expense-table td,
+html.desktop-sidebar-mode .home-history-table th,
+html.desktop-sidebar-mode .home-history-table td{padding:5px 2px!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important}
+html.desktop-sidebar-mode .card-fee-main-table input,
+html.desktop-sidebar-mode .fee-history-table input,
+html.desktop-sidebar-mode .home-expense-table input,
+html.desktop-sidebar-mode .home-history-table input{width:100%!important;min-width:0!important;max-width:100%!important;padding:4px 1px!important;font-size:calc(10px * var(--app-font-scale))!important;box-sizing:border-box!important}
+html.desktop-sidebar-mode .card-fee-main-table th:first-child,
+html.desktop-sidebar-mode .card-fee-main-table td:first-child,
+html.desktop-sidebar-mode .home-expense-table th:first-child,
+html.desktop-sidebar-mode .home-expense-table td:first-child{width:12%!important}
+html.desktop-sidebar-mode .fee-history-table th:first-child,
+html.desktop-sidebar-mode .fee-history-table td:first-child,
+html.desktop-sidebar-mode .home-history-table th:first-child,
+html.desktop-sidebar-mode .home-history-table td:first-child{width:8%!important}
+html.desktop-sidebar-mode .edit-action-col{width:6%!important;min-width:0!important;max-width:6%!important}
+html.desktop-sidebar-mode .edit-action-col button{width:100%!important;min-width:0!important;padding:4px 0!important;font-size:calc(9px * var(--app-font-scale))!important}
+
+/* Investment filters consume the whole content width; add-asset stays at upper right. */
+.investment-heading{align-items:flex-start!important}
+.investment-heading .investment-add-asset{margin-left:auto!important;flex:0 0 auto!important}
+.investment-filter-stack{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;width:100%!important;max-width:100%!important;margin:8px 0 14px!important}
+.investment-filter-stack .filter-bar{width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin:0!important}
+@media(max-width:760px){
+  .investment-heading{display:flex!important;flex-direction:row!important;align-items:flex-start!important}
+  .investment-heading>div{min-width:0!important;flex:1 1 auto!important}
+  .investment-heading .investment-add-asset{width:auto!important;min-width:max-content!important;margin-left:auto!important}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4754,7 +4834,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     creditUnpaidOnly:savedUi.creditUnpaidOnly===true,
     feeHistoryCollapsed:savedUi.feeHistoryCollapsed===true,
     homeHistoryCollapsed:savedUi.homeHistoryCollapsed===true,
-    editModes:{cash:false,cashAccounts:false,credit:false,cardFees:false,home:false},
+    editModes:{cash:false,cashAccounts:false,credit:false,cardFees:false,home:false,tax:false,mortgage:false},
     cashSelection:new Set(), showAddCard:false, deleteCardIndex:null, revealCashId:null
   };
   if (ui.tab === 'taxInvest') ui.tab = 'tax';
@@ -4873,6 +4953,9 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     s.taxesInvestments = s.taxesInvestments || {taxes:[],investments:[]};
     s.taxesInvestments.taxes = Array.isArray(s.taxesInvestments.taxes) ? s.taxesInvestments.taxes : [];
     s.taxesInvestments.investments = Array.isArray(s.taxesInvestments.investments) ? s.taxesInvestments.investments : [];
+    s.meta.taxItems = Array.isArray(s.meta.taxItems) ? s.meta.taxItems
+      .filter(x=>x&&typeof x==='object'&&String(x.key||'').trim()&&String(x.label||'').trim())
+      .map(x=>({key:String(x.key).replace(/[^A-Za-z0-9_]/g,'_'),label:String(x.label).trim()})) : [];
     s.lunch = s.lunch || {products:[],rows:[]};
     s.lunch.products = Array.isArray(s.lunch.products) ? s.lunch.products : [];
     s.lunch.rows = Array.isArray(s.lunch.rows) ? s.lunch.rows : [];
@@ -5751,8 +5834,8 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
         </div>
         <div class="cash-table-edit-row no-print"><button type="button" class="small cash-table-edit-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button></div>
-        <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table ${cashEditing?'is-editing':'is-readonly'}"><thead><tr>${cashEditing?`<th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th>`:''}<th class="date-col">日期</th><th>科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th>${cashEditing?`<th class="row-color-cell">顏色</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>`:''}</tr></thead><tbody>
-          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}" class="${cashEditing?'record-editing':'record-readonly'}">${cashEditing?`<td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td>`:''}<td class="date-col">${editInput(`cash.transactions.${i}.date`,t.date,'date',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.category`,t.category,'text',cashEditing)}</td><td class="description-col">${editInput(`cash.transactions.${i}.description`,t.description,'text',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.amount`,t.amount,'number',cashEditing)}</td><td>${editSelect(`cash.transactions.${i}.account`,t.account,accountOpts,cashEditing)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td>${cashEditing?`<td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`}).join(''):empty(cashEditing?9:6,`${y} 年目前沒有符合條件的交易`)}
+        <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table ${cashEditing?'is-editing':'is-readonly'}"><thead><tr>${cashEditing?`<th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th>`:''}<th class="date-col">日期</th><th class="cash-category-col">科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th>${cashEditing?`<th class="row-color-cell">顏色</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>`:''}</tr></thead><tbody>
+          ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}" class="${cashEditing?'record-editing':'record-readonly'}">${cashEditing?`<td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td>`:''}<td class="date-col">${editInput(`cash.transactions.${i}.date`,t.date,'date',cashEditing)}</td><td class="cash-category-col">${editInput(`cash.transactions.${i}.category`,t.category,'text',cashEditing)}</td><td class="description-col">${editInput(`cash.transactions.${i}.description`,t.description,'text',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.amount`,t.amount,'number',cashEditing)}</td><td>${editSelect(`cash.transactions.${i}.account`,t.account,accountOpts,cashEditing)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td>${cashEditing?`<td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`}).join(''):empty(cashEditing?9:6,`${y} 年目前沒有符合條件的交易`)}
         </tbody></table></div>${pager('cash',p)}
       </section>
     </div>`;
@@ -5869,15 +5952,15 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     return `<div class="page-stack">
       <section class="card">
         <div class="section-head"><div><h2>${y} 年各銀行卡費</h2><p>目前年度由「設定」切換；每月總計由各銀行列自動加總。</p></div><div class="section-head-tools"><button type="button" class="small ${feeEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cardFees" aria-pressed="${feeEditing?'true':'false'}">${feeEditing?'完成':'編輯'}</button><button data-action="add-fee-bank">新增銀行</button></div></div>
-        <div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>銀行</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
-          ${book.banks.map((r,i)=>`<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${editInput(`cardFees.yearBooks.${y}.banks.${i}.bank`,r.bank,'text',feeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`cardFees.yearBooks.${y}.banks.${i}.months.${m}`,v,'number',feeEditing)}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="cardFees.yearBooks.${y}.banks" data-index="${i}">刪除</button></td></tr>`).join('')}
-          <tr class="total-row"><td>總計</td>${monthTotals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}<td></td></tr>
+        <div class="table-wrap card-fee-table-wrap"><table class="data-table matrix-table card-fee-main-table"><thead><tr><th>銀行</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}${feeEditing?'<th class="edit-action-col">操作</th>':''}</tr></thead><tbody>
+          ${book.banks.map((r,i)=>`<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${editInput(`cardFees.yearBooks.${y}.banks.${i}.bank`,r.bank,'text',feeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`cardFees.yearBooks.${y}.banks.${i}.months.${m}`,v,'number',feeEditing)}</td>`).join('')}${feeEditing?`<td class="edit-action-col"><button class="small danger" data-action="delete" data-array="cardFees.yearBooks.${y}.banks" data-index="${i}">刪除</button></td>`:''}</tr>`).join('')}
+          <tr class="total-row"><td>總計</td>${monthTotals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}${feeEditing?'<td class="edit-action-col"></td>':''}</tr>
         </tbody></table></div>
       </section>
       <section class="card fee-history-card ${historyCollapsed?'is-collapsed':''}">
         <div class="section-head fee-history-head"><div><h2>歷年卡費</h2>${historyCollapsed?'':`<p>保留原 Excel 的歷年月份比較資料；詳細年度內容請從「設定」切換年份。</p>`}</div><div class="section-head-tools">${historyCollapsed?'':`<button data-action="add-fee-history">新增年度</button>`}<button type="button" class="icon-btn collapse-card-btn" data-action="toggle-fee-history" aria-expanded="${historyCollapsed?'false':'true'}" aria-label="${historyCollapsed?'展開歷年卡費':'收起歷年卡費'}">${historyCollapsed?'＋':'−'}</button></div></div>
-        ${historyCollapsed?'':`<div class="table-wrap"><table class="data-table matrix-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
-          ${state.cardFees.history.map((r,i)=>`<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${editInput(`cardFees.history.${i}.year`,r.year,'text',feeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`cardFees.history.${i}.months.${m}`,v,'number',feeEditing)}</td>`).join('')}<td><button class="small danger" data-action="delete" data-array="cardFees.history" data-index="${i}">刪除</button></td></tr>`).join('')}
+        ${historyCollapsed?'':`<div class="table-wrap fee-history-table-wrap"><table class="data-table matrix-table fee-history-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}${feeEditing?'<th class="edit-action-col">操作</th>':''}</tr></thead><tbody>
+          ${state.cardFees.history.map((r,i)=>`<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${editInput(`cardFees.history.${i}.year`,r.year,'text',feeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`cardFees.history.${i}.months.${m}`,v,'number',feeEditing)}</td>`).join('')}${feeEditing?`<td class="edit-action-col"><button class="small danger" data-action="delete" data-array="cardFees.history" data-index="${i}">刪除</button></td>`:''}</tr>`).join('')}
         </tbody></table></div>`}
       </section>
       <section class="card">
@@ -5896,11 +5979,11 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     const homeEditing=ui.editModes.home===true;
     return `<div class="page-stack"><section class="card">
       <div class="section-head"><div><h2>${y} 年家的支出</h2><p>目前年度由「設定」切換；各月份總計由所有項目自動加總。</p></div><div class="section-head-tools">${homeEditing?'<button data-action="add-home-item">新增項目</button>':''}<button type="button" class="small ${homeEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="home" aria-pressed="${homeEditing?'true':'false'}">${homeEditing?'完成':'編輯'}</button></div></div>
-      <div class="table-wrap"><table class="data-table matrix-table home-expense-table"><thead><tr><th>項目</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>
-        ${book.items.map((r,i)=>`<tr class="${homeEditing?'record-editing':'record-readonly'}"><td>${editInput(`homeExpenses.yearBooks.${y}.items.${i}.item`,r.item,'text',homeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`homeExpenses.yearBooks.${y}.items.${i}.months.${m}`,v,'number',homeEditing)}</td>`).join('')}<td>${homeEditing?`<button class="small danger" data-action="delete" data-array="homeExpenses.yearBooks.${y}.items" data-index="${i}">刪除</button>`:''}</td></tr>`).join('')}
-        <tr class="total-row"><td>總計</td>${totals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}<td></td></tr>
+      <div class="table-wrap home-expense-table-wrap"><table class="data-table matrix-table home-expense-table"><thead><tr><th>項目</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}${homeEditing?'<th class="edit-action-col">操作</th>':''}</tr></thead><tbody>
+        ${book.items.map((r,i)=>`<tr class="${homeEditing?'record-editing':'record-readonly'}"><td>${editInput(`homeExpenses.yearBooks.${y}.items.${i}.item`,r.item,'text',homeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`homeExpenses.yearBooks.${y}.items.${i}.months.${m}`,v,'number',homeEditing)}</td>`).join('')}${homeEditing?`<td class="edit-action-col"><button class="small danger" data-action="delete" data-array="homeExpenses.yearBooks.${y}.items" data-index="${i}">刪除</button></td>`:''}</tr>`).join('')}
+        <tr class="total-row"><td>總計</td>${totals.map(v=>`<td class="numeric">${money(v)}</td>`).join('')}${homeEditing?'<td class="edit-action-col"></td>':''}</tr>
       </tbody></table></div></section>
-      <section class="card home-history-card ${historyCollapsed?'is-collapsed':''}"><div class="section-head home-history-head"><div><h2>歷年比較</h2></div><div class="section-head-tools">${!historyCollapsed&&homeEditing?`<button data-action="add-home-history">新增年度</button>`:''}<button type="button" class="icon-btn collapse-card-btn" data-action="toggle-home-history" aria-expanded="${historyCollapsed?'false':'true'}" aria-label="${historyCollapsed?'展開家的支出歷年比較':'收起家的支出歷年比較'}">${historyCollapsed?'＋':'−'}</button></div></div>${historyCollapsed?'':`<div class="table-wrap"><table class="data-table matrix-table home-history-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}<th></th></tr></thead><tbody>${state.homeExpenses.history.map((r,i)=>`<tr class="${homeEditing?'record-editing':'record-readonly'}"><td>${editInput(`homeExpenses.history.${i}.year`,r.year,'text',homeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`homeExpenses.history.${i}.months.${m}`,v,'number',homeEditing)}</td>`).join('')}<td>${homeEditing?`<button class="small danger" data-action="delete" data-array="homeExpenses.history" data-index="${i}">刪除</button>`:''}</td></tr>`).join('')}</tbody></table></div>`}</section>
+      <section class="card home-history-card ${historyCollapsed?'is-collapsed':''}"><div class="section-head home-history-head"><div><h2>歷年比較</h2></div><div class="section-head-tools">${!historyCollapsed&&homeEditing?`<button data-action="add-home-history">新增年度</button>`:''}<button type="button" class="icon-btn collapse-card-btn" data-action="toggle-home-history" aria-expanded="${historyCollapsed?'false':'true'}" aria-label="${historyCollapsed?'展開家的支出歷年比較':'收起家的支出歷年比較'}">${historyCollapsed?'＋':'−'}</button></div></div>${historyCollapsed?'':`<div class="table-wrap home-history-table-wrap"><table class="data-table matrix-table home-history-table"><thead><tr><th>年度</th>${months.map(m=>`<th class="numeric">${m}</th>`).join('')}${homeEditing?'<th class="edit-action-col">操作</th>':''}</tr></thead><tbody>${state.homeExpenses.history.map((r,i)=>`<tr class="${homeEditing?'record-editing':'record-readonly'}"><td>${editInput(`homeExpenses.history.${i}.year`,r.year,'text',homeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`homeExpenses.history.${i}.months.${m}`,v,'number',homeEditing)}</td>`).join('')}${homeEditing?`<td class="edit-action-col"><button class="small danger" data-action="delete" data-array="homeExpenses.history" data-index="${i}">刪除</button></td>`:''}</tr>`).join('')}</tbody></table></div>`}</section>
     </div>`;
   }
 
@@ -5925,6 +6008,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   }
   function renderMortgage(){
     const stats=mortgageStats(); const q=ui.search.mortgage||''; const vf=ui.viewFilters.mortgage||{};
+    const mortgageEditing=ui.editModes.mortgage===true;
     const accounts=state.mortgage.accounts.map(a=>a.name);
     const loanTypes=uniqueStrings(state.mortgage.accounts.map(a=>a.loanType).concat(state.mortgage.payments.map(x=>x.loanType)));
     const paymentYears=uniqueYears(state.mortgage.payments.map(x=>txYear(x.date)));
@@ -5942,16 +6026,22 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     ].join(''));
     const listTitle=vf.year?`${vf.year} 年還款記錄`:'全部年度還款記錄';
     return `<div class="page-stack"><section class="kpis"><div class="kpi accent"><span>貸款總額</span><strong>${money(sum(stats,x=>x.a.principal))}</strong></div><div class="kpi"><span>篩選還款總額</span><strong>${money(sum(filteredPayments,x=>x.amount))}</strong></div><div class="kpi negative"><span>目前總餘額</span><strong>${money(sum(stats,x=>x.balance))}</strong></div><div class="kpi"><span>篩選還款筆數</span><strong>${plain(filteredPayments.length)}</strong></div></section>
-      <section class="card"><div class="section-head"><div><h2>貸款摘要</h2><p>餘額使用全部年度還款計算；下方還款明細預設顯示全部年度。</p></div><button data-action="add-mortgage-account">新增帳戶</button></div><div class="table-wrap mortgage-summary-wrap"><table class="data-table mortgage-summary-table fit-table"><thead><tr><th>帳戶</th><th>貸款類型</th><th class="numeric">貸款總額</th><th class="numeric">歷年總還款</th><th class="numeric">目前餘額</th><th>備註</th><th></th></tr></thead><tbody>${stats.map(({a,i,paid,balance})=>`<tr><td>${input(`mortgage.accounts.${i}.name`,a.name)}</td><td>${input(`mortgage.accounts.${i}.loanType`,a.loanType)}</td><td>${input(`mortgage.accounts.${i}.principal`,a.principal,'number')}</td><td class="numeric computed">${money(paid)}</td><td class="numeric computed">${money(balance)}</td><td>${input(`mortgage.accounts.${i}.note`,a.note)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.accounts" data-index="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div></section>
+      <section class="card"><div class="section-head"><div><h2>貸款摘要</h2><p>餘額使用全部年度還款計算；下方還款明細預設顯示全部年度。</p></div><div class="section-head-tools"><button data-action="add-mortgage-account">新增帳戶</button><button type="button" class="small ${mortgageEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="mortgage" aria-pressed="${mortgageEditing?'true':'false'}">${mortgageEditing?'完成':'編輯'}</button></div></div><div class="table-wrap mortgage-summary-wrap"><table class="data-table mortgage-summary-table fit-table ${mortgageEditing?'is-editing':'is-readonly'}"><thead><tr><th>帳戶</th><th>貸款類型</th><th class="numeric">貸款總額</th><th class="numeric">歷年總還款</th><th class="numeric">目前餘額</th><th>備註</th>${mortgageEditing?'<th class="edit-action-col">操作</th>':''}</tr></thead><tbody>${stats.map(({a,i,paid,balance})=>`<tr class="${mortgageEditing?'record-editing':'record-readonly'}"><td>${editInput(`mortgage.accounts.${i}.name`,a.name,'text',mortgageEditing)}</td><td>${editInput(`mortgage.accounts.${i}.loanType`,a.loanType,'text',mortgageEditing)}</td><td>${editInput(`mortgage.accounts.${i}.principal`,a.principal,'number',mortgageEditing)}</td><td class="numeric computed">${money(paid)}</td><td class="numeric computed">${money(balance)}</td><td>${editInput(`mortgage.accounts.${i}.note`,a.note,'text',mortgageEditing)}</td>${mortgageEditing?`<td class="edit-action-col"><button class="small danger" data-action="delete" data-array="mortgage.accounts" data-index="${i}">刪除</button></td>`:''}</tr>`).join('')}</tbody></table></div></section>
       <section class="card no-print"><h2>新增貸款還款</h2><form class="form-grid mortgage-entry-form compact-entry-form" data-form="mortgage"><div class="field mortgage-entry-date"><label>日期</label>${formDateInput('date',defaultDateForYear(),'required')}</div><div class="field mortgage-entry-type"><label>貸款類型</label><input name="loanType" list="loanTypeOptions" placeholder="例如：房貸、信貸"></div><div class="field mortgage-entry-account"><label>帳戶</label><select name="account">${accounts.map(a=>`<option>${esc(a)}</option>`).join('')}</select></div><div class="field mortgage-entry-description"><label>描述</label><input name="description"></div><div class="field mortgage-entry-amount"><label>金額</label><input name="amount" type="number" step="any" required></div><datalist id="loanTypeOptions">${loanTypes.map(t=>`<option value="${esc(t)}"></option>`).join('')}</datalist><button class="primary">新增還款</button></form></section>
-      <section class="card" id="mortgagePaymentList"><div class="section-head"><div><h2>${listTitle}</h2><p>由上方過去日期排列至下方未來日期，可依年份、貸款類型與帳戶篩選。</p></div><div class="filter-stack">${dateFilterBar('mortgage')}${filterBar}</div></div><div class="table-wrap mortgage-payments-wrap"><table class="data-table mortgage-payments-table fit-table"><thead><tr><th class="date-col">日期</th><th>貸款類型</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th></tr></thead><tbody>${p.rows.length?p.rows.map(({item:x,index:i})=>`<tr><td class="date-col">${input(`mortgage.payments.${i}.date`,x.date,'date')}</td><td>${input(`mortgage.payments.${i}.loanType`,x.loanType)}</td><td class="description-col">${input(`mortgage.payments.${i}.description`,x.description)}</td><td>${input(`mortgage.payments.${i}.amount`,x.amount,'number')}</td><td>${select(`mortgage.payments.${i}.account`,x.account,accounts)}</td><td><button class="small danger" data-action="delete" data-array="mortgage.payments" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td></tr>`).join(''):empty(6,'目前沒有符合篩選條件的還款紀錄')}</tbody></table></div>${pager('mortgage',p)}</section>
+      <section class="card" id="mortgagePaymentList"><div class="section-head"><div><h2>${listTitle}</h2><p>由上方過去日期排列至下方未來日期，可依年份、貸款類型與帳戶篩選。</p></div><div class="filter-stack">${dateFilterBar('mortgage')}${filterBar}</div></div><div class="table-wrap mortgage-payments-wrap"><table class="data-table mortgage-payments-table fit-table ${mortgageEditing?'is-editing':'is-readonly'}"><thead><tr><th class="date-col">日期</th><th>貸款類型</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th>${mortgageEditing?'<th class="edit-action-col"><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>':''}</tr></thead><tbody>${p.rows.length?p.rows.map(({item:x,index:i})=>`<tr class="${mortgageEditing?'record-editing':'record-readonly'}"><td class="date-col">${editInput(`mortgage.payments.${i}.date`,x.date,'date',mortgageEditing)}</td><td>${editInput(`mortgage.payments.${i}.loanType`,x.loanType,'text',mortgageEditing)}</td><td class="description-col">${editInput(`mortgage.payments.${i}.description`,x.description,'text',mortgageEditing)}</td><td>${editInput(`mortgage.payments.${i}.amount`,x.amount,'number',mortgageEditing)}</td><td>${editSelect(`mortgage.payments.${i}.account`,x.account,accounts,mortgageEditing)}</td>${mortgageEditing?`<td class="edit-action-col"><button class="small danger" data-action="delete" data-array="mortgage.payments" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`).join(''):empty(mortgageEditing?6:5,'目前沒有符合篩選條件的還款紀錄')}</tbody></table></div>${pager('mortgage',p)}</section>
     </div>`;
   }
 
+  function taxItemDefinitions(){
+    const base=[['houseTax','房屋稅'],['insurance','火災地震險'],['incomeTax','綜所稅'],['landTax','地價稅']];
+    const custom=(state.meta.taxItems||[]).map(x=>[String(x.key||''),String(x.label||'')]).filter(([key,label])=>key&&label);
+    return base.concat(custom);
+  }
   function renderTax(){
     const q=ui.search.tax||''; const vf=ui.viewFilters.tax||{};
+    const taxEditing=ui.editModes.tax===true;
     const taxes=state.taxesInvestments.taxes;
-    const itemDefs=[['houseTax','房屋稅'],['insurance','火災地震險'],['incomeTax','綜所稅'],['landTax','地價稅']];
+    const itemDefs=taxItemDefinitions();
     const visibleDefs=vf.item?itemDefs.filter(([key])=>key===vf.item):itemDefs;
     const years=uniqueYears(taxes.map(x=>gregorianYear(x.year)).concat([currentYear()]));
     const taxRows=taxes.map((item,index)=>({item,index}))
@@ -5963,7 +6053,8 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       viewFilterSelect('tax','item','項目',vf.item||'',[['','全部項目'],...itemDefs])
     ].join(''));
     const totalLabel=vf.year?`${vf.year} 年總計`:'篩選總計';
-    return `<div class="page-stack"><section class="card"><div class="section-head"><div><h2>稅費（全部年度）</h2><p>預設顯示所有年度；可選擇年份與單一稅費項目，直接比較不同年度。</p></div><div class="chips"><button data-action="add-tax">新增資料（預設目前年度）</button>${filterBar}</div></div><div class="table-wrap tax-table-wrap"><table class="data-table tax-table" style="--tax-table-width:${2.35 + visibleDefs.length * 5.2 + 2.8}em"><colgroup><col class="tax-year-track">${visibleDefs.map(()=>`<col class="tax-item-track">`).join('')}<col class="tax-action-track"></colgroup><thead><tr><th class="tax-year-col">年度</th>${visibleDefs.map(([,label])=>`<th class="numeric tax-item-col">${esc(label)}</th>`).join('')}<th class="tax-action-col"></th></tr></thead><tbody>${taxRows.length?taxRows.map(({item:r,index:i})=>`<tr><td class="tax-year-col">${input(`taxesInvestments.taxes.${i}.year`,r.year)}</td>${visibleDefs.map(([key])=>`<td class="tax-item-col">${input(`taxesInvestments.taxes.${i}.${key}`,r[key],'number')}</td>`).join('')}<td class="tax-action-col"><button class="small danger" data-action="delete" data-array="taxesInvestments.taxes" data-index="${i}">刪除</button></td></tr>`).join(''):empty(visibleDefs.length+2,'目前沒有符合篩選條件的稅費資料')}<tr class="total-row"><td class="tax-year-col"><span class="tax-total-long">${totalLabel}</span><span class="tax-total-short">總計</span></td>${visibleDefs.map(([key])=>`<td class="numeric tax-item-col">${money(sum(taxRows,x=>x.item[key]))}</td>`).join('')}<td class="tax-action-col"></td></tr></tbody></table></div></section></div>`;
+    const columnCount=1+visibleDefs.length+(taxEditing?1:0);
+    return `<div class="page-stack"><section class="card tax-page-card"><div class="section-head"><div><h2>稅費（全部年度）</h2><p>預設顯示所有年度；可選擇年份與單一稅費項目，直接比較不同年度。</p></div><div class="section-head-tools"><button type="button" class="small ${taxEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="tax" aria-pressed="${taxEditing?'true':'false'}">${taxEditing?'完成':'編輯'}</button></div></div><div class="tax-filter-row">${filterBar}</div>${taxEditing?`<div class="tax-edit-actions no-print"><button data-action="add-tax">新增年度資料</button><button data-action="add-tax-item">新增稅項</button></div>`:''}<div class="table-wrap tax-table-wrap"><table class="data-table tax-table ${taxEditing?'is-editing':'is-readonly'}" style="--tax-item-count:${Math.max(1,visibleDefs.length)};--tax-table-width:${2.35 + visibleDefs.length * 5.2 + (taxEditing?2.8:0)}em"><colgroup><col class="tax-year-track">${visibleDefs.map(()=>`<col class="tax-item-track">`).join('')}${taxEditing?'<col class="tax-action-track">':''}</colgroup><thead><tr><th class="tax-year-col">年度</th>${visibleDefs.map(([,label])=>`<th class="numeric tax-item-col">${esc(label)}</th>`).join('')}${taxEditing?'<th class="tax-action-col">操作</th>':''}</tr></thead><tbody>${taxRows.length?taxRows.map(({item:r,index:i})=>`<tr class="${taxEditing?'record-editing':'record-readonly'}"><td class="tax-year-col">${editInput(`taxesInvestments.taxes.${i}.year`,r.year,'text',taxEditing)}</td>${visibleDefs.map(([key])=>`<td class="tax-item-col">${editInput(`taxesInvestments.taxes.${i}.${key}`,r[key]??0,'number',taxEditing)}</td>`).join('')}${taxEditing?`<td class="tax-action-col"><button class="small danger" data-action="delete" data-array="taxesInvestments.taxes" data-index="${i}">刪除</button></td>`:''}</tr>`).join(''):empty(columnCount,'目前沒有符合篩選條件的稅費資料')}<tr class="total-row"><td class="tax-year-col"><span class="tax-total-long">${totalLabel}</span><span class="tax-total-short">總計</span></td>${visibleDefs.map(([key])=>`<td class="numeric tax-item-col">${money(sum(taxRows,x=>x.item[key]))}</td>`).join('')}${taxEditing?'<td class="tax-action-col"></td>':''}</tr></tbody></table></div></section></div>`;
   }
 
   function renderInvestment(){
@@ -5979,7 +6070,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       viewFilterSelect('investment','asset','投資標的',vf.asset||'',[['','全部標的'],...assetOptions])
     ].join(''));
     const dateSelection=ui.dateFilters[investFilter]||{};
-    return `<div class="page-stack"><section class="card"><div class="section-head"><div><h2>投資配息（全部年度）</h2><p>預設顯示全部標的與全部年度；可依年份、投資標的及日期區間篩選。</p></div><div class="filter-stack"><div class="chips"><button data-action="add-asset">新增標的</button></div>${dateFilterBar(investFilter)}${filterBar}</div></div>${assets.length?`<div class="asset-grid">${assets.map(({asset:a,index:i})=>{
+    return `<div class="page-stack"><section class="card investment-page-card"><div class="section-head investment-heading"><div><h2>投資配息（全部年度）</h2><p>預設顯示全部標的與全部年度；可依年份、投資標的及日期區間篩選。</p></div><button type="button" data-action="add-asset" class="investment-add-asset">新增標的</button></div><div class="investment-filter-stack">${dateFilterBar(investFilter)}${filterBar}</div>${assets.length?`<div class="asset-grid">${assets.map(({asset:a,index:i})=>{
       const assetNameMatches=q&&String(a.name||'').toLowerCase().includes(q.toLowerCase());
       const rows=filteredDataRows(a.transactions,assetNameMatches?'':q,investFilter)
         .filter(({item})=>!vf.year||txYear(item.date)===Number(vf.year))
@@ -6369,7 +6460,26 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(a==='add-installment'){captureUndo('新增分期');state.installments.push({id:uid('inst'),year:currentYear(),title:'新分期',total:0,account:'',plans:[{label:'一期',amount:0,schedule:''}],note:''});}
     if(a==='add-plan'){captureUndo('新增分期期別');state.installments[Number(b.dataset.index)].plans.push({label:'',amount:0,schedule:''});}
     if(a==='add-mortgage-account'){const name=prompt('貸款帳戶名稱');if(name){captureUndo('新增貸款帳戶');state.mortgage.accounts.push({id:uid('mortacc'),name,loanType:'',principal:0,note:''});}}
-    if(a==='add-tax'){captureUndo('新增稅費資料');state.taxesInvestments.taxes.push({id:uid('tax'),year:String(currentYear()),houseTax:0,insurance:0,incomeTax:0,landTax:0});}
+    if(a==='add-tax'){
+      captureUndo('新增稅費資料');
+      const row={id:uid('tax'),year:String(currentYear())};
+      taxItemDefinitions().forEach(([key])=>row[key]=0);
+      state.taxesInvestments.taxes.push(row);
+    }
+    if(a==='add-tax-item'){
+      const raw=prompt('新增稅費項目名稱（例如：牌照稅）');
+      const label=String(raw||'').trim();
+      if(!label)return;
+      if(taxItemDefinitions().some(([,name])=>name===label)){alert('已有相同名稱的稅費項目。');return;}
+      captureUndo('新增稅費項目');
+      const key=`customTax_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`;
+      state.meta.taxItems=Array.isArray(state.meta.taxItems)?state.meta.taxItems:[];
+      state.meta.taxItems.push({key,label});
+      state.taxesInvestments.taxes.forEach(row=>{row[key]=0;});
+      ui.viewFilters.tax=ui.viewFilters.tax||{};
+      ui.viewFilters.tax.item=key;
+      toast(`已新增稅項：${label}`);
+    }
     if(a==='add-asset'){const name=prompt('投資標的名稱');if(name){captureUndo('新增投資標的');state.taxesInvestments.investments.push({id:uid('asset'),name,transactions:[]});}}
     if(a==='add-invest-tx'){captureUndo('新增投資配息');state.taxesInvestments.investments[Number(b.dataset.index)].transactions.push({id:uid('inv'),date:defaultDateForYear(),amount:0});}
     if(a==='add-lunch-row'){captureUndo('新增午餐採買');state.lunch.rows.push({id:uid('lunch'),date:defaultDateForYear(),location:'',costs:Object.fromEntries(state.lunch.products.map(p=>[p.key,0]))});}
@@ -6395,7 +6505,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(b.dataset.globalAction==='restore-import')restorePreImport();
     if(b.dataset.globalAction==='print')window.print();
     if(b.dataset.globalAction==='reset'){
-      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,credit:false,cardFees:false};ui.feeHistoryCollapsed=false;ui.homeHistoryCollapsed=false; scheduleSave();render();
+      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,cashAccounts:false,credit:false,cardFees:false,home:false,tax:false,mortgage:false};ui.feeHistoryCollapsed=false;ui.homeHistoryCollapsed=false; scheduleSave();render();
     }
   });
   document.getElementById('importFile').addEventListener('change',e=>{
