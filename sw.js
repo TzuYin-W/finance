@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260825-v26-date-collapse-wide-fix-v27-edit-right-row-color-fix';
+const CACHE='finance-tracker-20260825-v28-cash-row-color-cloud-shortcut';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',

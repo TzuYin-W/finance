@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v27-edit-right-row-color-fix -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v28-cash-row-color-cloud-shortcut -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4200,6 +4200,42 @@ html.desktop-sidebar-mode .sidebar nav{
   background:rgba(255,255,255,.22) !important;
 }
 
+
+
+/* ===== 2026-08-25 v28 cash manual row-color hard override + top cloud shortcut ===== */
+/* Manual cash row color is authoritative. #main gives this higher specificity than every themed zebra rule. */
+#main .cash-transactions-table tbody tr[data-row-color="pink"] > td{background-color:rgba(253,231,239,.86) !important;background-image:none !important}
+#main .cash-transactions-table tbody tr[data-row-color="yellow"] > td{background-color:rgba(255,244,191,.86) !important;background-image:none !important}
+#main .cash-transactions-table tbody tr[data-row-color="blue"] > td{background-color:rgba(227,241,251,.86) !important;background-image:none !important}
+#main .cash-transactions-table tbody tr[data-row-color="green"] > td{background-color:rgba(229,243,223,.86) !important;background-image:none !important}
+#main .cash-transactions-table tbody tr[data-row-color="cream"] > td{background-color:rgba(248,237,216,.86) !important;background-image:none !important}
+#main .cash-transactions-table tbody tr[data-row-color="gray"] > td{background-color:rgba(236,239,241,.86) !important;background-image:none !important}
+#main .cash-transactions-table tbody tr[data-row-color]:not([data-row-color=""]) > td input:not([type="checkbox"]),
+#main .cash-transactions-table tbody tr[data-row-color]:not([data-row-color=""]) > td select{
+  background-color:rgba(255,255,255,.16) !important;
+  background-image:none !important;
+}
+.topbar .top-cloud-btn{
+  flex:0 0 auto !important;
+  width:36px !important;
+  min-width:36px !important;
+  height:36px !important;
+  min-height:36px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:10px !important;
+  font-size:18px !important;
+  line-height:1 !important;
+}
+@media(max-width:760px){
+  .topbar .top-cloud-btn{width:34px !important;min-width:34px !important;height:34px !important;min-height:34px !important;font-size:17px !important}
+}
+@media (orientation:landscape) and (max-height:600px){
+  .topbar .top-cloud-btn{width:32px !important;min-width:32px !important;height:32px !important;min-height:32px !important;font-size:16px !important}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4221,6 +4257,7 @@ html.desktop-sidebar-mode .sidebar nav{
         <button id="menuBtn" class="icon-btn mobile-only" aria-label="開啟選單" aria-expanded="false">☰</button>
         <h1 id="pageTitle">現金花費</h1>
         <button id="undoDeleteBtn" class="undo-delete-btn" type="button" disabled aria-label="復原上一步">↶ 復原上一步</button>
+        <button id="topCloudButton" class="icon-btn top-cloud-btn" type="button" aria-label="開啟 Google Drive 同步" title="Google Drive">☁</button>
       </header>
       <main id="main" tabindex="-1"></main>
       <div id="globalControlHost" class="global-control-host" hidden>
@@ -6040,6 +6077,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   const DEFAULT_GOOGLE_CLIENT_ID = String(window.FINANCE_APP_CONFIG?.googleClientId||'').trim();
 
   const cloudButton = document.getElementById('cloudSyncButton');
+  const topCloudButton = document.getElementById('topCloudButton');
   const modal = document.getElementById('cloudSyncModal');
   if (!cloudButton || !modal) return;
 
@@ -6347,6 +6385,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');if(document.getElementById('importDialog')?.hidden!==false)document.body.classList.remove('modal-open');}
 
   cloudButton.addEventListener('click',openModal);
+  topCloudButton?.addEventListener('click',openModal);
   closeButton.addEventListener('click',closeModal);
   modal.addEventListener('click',event=>{if(event.target===modal)closeModal();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&modal.classList.contains('open'))closeModal();});
