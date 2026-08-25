@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v30-mobile-edit-paid-zoom-fix -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v31-custom-background-cash-edit-row -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4350,6 +4350,68 @@ html.desktop-sidebar-mode .sidebar nav{
   }
 }
 
+
+
+/* ===== 2026-08-25 v31 cash edit row + persistent custom background ===== */
+/* Cash edit control: one standalone row directly above the table, below report/color controls. */
+.cash-table-edit-row{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  width:100%!important;
+  margin:8px 0 10px!important;
+  box-sizing:border-box!important;
+}
+.cash-table-edit-row .cash-table-edit-btn{
+  height:36px!important;
+  min-height:36px!important;
+  padding:8px 12px!important;
+  border-radius:10px!important;
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  font-size:inherit!important;
+  flex:0 0 auto!important;
+}
+
+/* Custom background is an independent visual layer; theme changes do not remove it. */
+.custom-background-layer{display:none;pointer-events:none;user-select:none}
+html.has-custom-background .workspace{position:relative!important;isolation:isolate!important}
+html.has-custom-background .custom-background-layer{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:0!important;
+  background-repeat:no-repeat!important;
+  background-position:center center!important;
+  background-size:cover!important;
+  filter:saturate(.52) contrast(.86) brightness(1.06)!important;
+  opacity:.70!important;
+}
+/* Hide the theme's own right-side artwork while the user's background is active. */
+html.has-custom-background .workspace::before,
+html.has-custom-background .workspace::after{opacity:0!important;visibility:hidden!important}
+html.has-custom-background .workspace>main{position:relative!important;z-index:2!important;background:transparent!important}
+html.has-custom-background .workspace>.topbar{z-index:220!important}
+html.has-custom-background .workspace>#globalControlHost{position:relative!important;z-index:3!important}
+
+.custom-background-controls{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.custom-background-status{display:grid;gap:4px;min-width:0;flex:1 1 320px}
+.custom-background-status strong{font-size:14px}
+.custom-background-status span{font-size:12px;line-height:1.55;color:var(--muted)}
+.custom-background-controls>.chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.custom-background-upload{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:36px!important}
+.custom-background-controls button[disabled]{opacity:.45;cursor:not-allowed}
+@media(max-width:760px){
+  .custom-background-controls{align-items:stretch}
+  .custom-background-controls>.chips{width:100%}
+  .custom-background-controls>.chips>*{flex:1 1 auto;justify-content:center}
+  html.has-custom-background .custom-background-layer{opacity:.64!important;background-position:center center!important}
+}
+@media print{.custom-background-layer{display:none!important}}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4367,6 +4429,7 @@ html.desktop-sidebar-mode .sidebar nav{
       <div class="privacy-note">資料預設保存在本機；啟用同步後，只會上傳到你授權的 Google Drive App Data 專屬空間。</div>
     </aside>
     <section class="workspace">
+      <div id="customBackgroundLayer" class="custom-background-layer" aria-hidden="true"></div>
       <header class="topbar">
         <button id="menuBtn" class="icon-btn mobile-only" aria-label="開啟選單" aria-expanded="false">☰</button>
         <h1 id="pageTitle">現金花費</h1>
@@ -4568,6 +4631,11 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   const initial = migrateState(clone(window.INITIAL_FINANCE_DATA));
   let state = loadState();
   let pendingImport = null;
+  const CUSTOM_BG_DB_NAME='finance-tracker-custom-background-v1';
+  const CUSTOM_BG_STORE='backgrounds';
+  const CUSTOM_BG_KEY='active';
+  let customBackgroundActive=false;
+  let customBackgroundObjectUrl='';
   function loadUiPrefs(){
     try{const x=JSON.parse(localStorage.getItem(UI_STORAGE_KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(_){return {};}
   }
@@ -5261,6 +5329,72 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   function availableYears(){return Array.from(new Set([...(state.meta.years||[]),currentYear()])).sort((a,b)=>b-a);}
   function currentYearRows(items,dateFn=x=>x.date){return items.map((item,index)=>({item,index})).filter(({item})=>yearMatch(dateFn(item)));}
 
+  function openCustomBackgroundDb(){
+    return new Promise((resolve,reject)=>{
+      if(!('indexedDB' in window)){reject(new Error('此瀏覽器不支援自訂背景儲存。'));return;}
+      const req=indexedDB.open(CUSTOM_BG_DB_NAME,1);
+      req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(CUSTOM_BG_STORE))db.createObjectStore(CUSTOM_BG_STORE);};
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error||new Error('無法開啟背景圖片儲存空間。'));
+    });
+  }
+  async function readCustomBackgroundBlob(){
+    const db=await openCustomBackgroundDb();
+    try{return await new Promise((resolve,reject)=>{const tx=db.transaction(CUSTOM_BG_STORE,'readonly');const req=tx.objectStore(CUSTOM_BG_STORE).get(CUSTOM_BG_KEY);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}
+    finally{db.close();}
+  }
+  async function writeCustomBackgroundBlob(blob){
+    const db=await openCustomBackgroundDb();
+    try{await new Promise((resolve,reject)=>{const tx=db.transaction(CUSTOM_BG_STORE,'readwrite');tx.objectStore(CUSTOM_BG_STORE).put(blob,CUSTOM_BG_KEY);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('背景圖片儲存失敗。'));});}
+    finally{db.close();}
+  }
+  async function deleteCustomBackgroundBlob(){
+    const db=await openCustomBackgroundDb();
+    try{await new Promise((resolve,reject)=>{const tx=db.transaction(CUSTOM_BG_STORE,'readwrite');tx.objectStore(CUSTOM_BG_STORE).delete(CUSTOM_BG_KEY);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('背景圖片移除失敗。'));});}
+    finally{db.close();}
+  }
+  function loadBackgroundImage(file){
+    return new Promise((resolve,reject)=>{
+      const url=URL.createObjectURL(file),img=new Image();
+      img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};
+      img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('無法讀取這張圖片，請改用 JPG、PNG 或瀏覽器可開啟的圖片格式。'));};
+      img.src=url;
+    });
+  }
+  async function prepareCustomBackground(file){
+    if(!file||!String(file.type||'').startsWith('image/'))throw new Error('請選擇圖片檔。');
+    if(file.size>40*1024*1024)throw new Error('圖片檔案過大，請選擇 40 MB 以下的圖片。');
+    const img=await loadBackgroundImage(file);
+    const maxSide=2400,scale=Math.min(1,maxSide/Math.max(img.naturalWidth||1,img.naturalHeight||1));
+    const w=Math.max(1,Math.round((img.naturalWidth||1)*scale)),h=Math.max(1,Math.round((img.naturalHeight||1)*scale));
+    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext('2d',{alpha:false});
+    if(!ctx)return file;
+    ctx.fillStyle='#f7f7f5';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.84));
+    return blob||file;
+  }
+  function setCustomBackgroundBlob(blob){
+    const layer=document.getElementById('customBackgroundLayer');
+    if(customBackgroundObjectUrl){URL.revokeObjectURL(customBackgroundObjectUrl);customBackgroundObjectUrl='';}
+    if(!blob){
+      customBackgroundActive=false;
+      document.documentElement.classList.remove('has-custom-background');
+      document.body.classList.remove('has-custom-background');
+      if(layer)layer.style.backgroundImage='none';
+      return;
+    }
+    customBackgroundObjectUrl=URL.createObjectURL(blob);
+    customBackgroundActive=true;
+    document.documentElement.classList.add('has-custom-background');
+    document.body.classList.add('has-custom-background');
+    if(layer)layer.style.backgroundImage=`linear-gradient(rgba(250,250,248,.46),rgba(250,250,248,.46)),url("${customBackgroundObjectUrl}")`;
+  }
+  async function initCustomBackground(){
+    try{setCustomBackgroundBlob(await readCustomBackgroundBlob());}
+    catch(_){setCustomBackgroundBlob(null);}
+  }
+
   function applyTheme(){
     const theme=THEMES.some(t=>t.id===state.meta.theme)?state.meta.theme:'olive';
     document.documentElement.dataset.theme=theme;
@@ -5478,15 +5612,15 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
         </form>
       </section>
       <section class="card" id="cashTransactionList">
-        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="section-head-tools"><button type="button" class="small cash-edit-desktop-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button><div class="filter-stack">${dateFilterBar('cash','cash')}${cashFilters}</div></div></div>
+        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="section-head-tools"><div class="filter-stack">${dateFilterBar('cash','cash')}${cashFilters}</div></div></div>
         <div class="cash-bulk-toolbar no-print">
           <strong data-cash-selected-count>已選 ${ui.cashSelection.size} 筆</strong>
           <label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">× 不列入月報</option></select></label>
           ${cashEditing?`<label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>`:''}
-          <button type="button" class="small cash-edit-mobile-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button>
           <button class="small primary" type="button" data-action="apply-cash-bulk">套用到已選資料</button>
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
         </div>
+        <div class="cash-table-edit-row no-print"><button type="button" class="small cash-table-edit-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button></div>
         <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table"><thead><tr><th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th><th class="date-col">日期</th><th>科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th>${cashEditing?`<th class="row-color-cell">顏色</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>`:''}</tr></thead><tbody>
           ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}" class="${cashEditing?'record-editing':'record-readonly'}"><td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td><td class="date-col">${editInput(`cash.transactions.${i}.date`,t.date,'date',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.category`,t.category,'text',cashEditing)}</td><td class="description-col">${editInput(`cash.transactions.${i}.description`,t.description,'text',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.amount`,t.amount,'number',cashEditing)}</td><td>${editSelect(`cash.transactions.${i}.account`,t.account,accountOpts,cashEditing)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td>${cashEditing?`<td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`}).join(''):empty(cashEditing?9:7,`${y} 年目前沒有符合條件的交易`)}
         </tbody></table></div>${pager('cash',p)}
@@ -5757,6 +5891,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       </section>
       <section class="card"><div class="section-head"><div><h2>字體大小</h2><p>調整會套用到整個 App，尤其是手機版的自適應表格。</p></div></div><div class="font-scale-control"><button type="button" data-action="font-smaller" aria-label="縮小字體">－</button><strong>${Math.round((Number(state.meta.fontScale)||1)*100)}%</strong><button type="button" data-action="font-larger" aria-label="放大字體">＋</button><button type="button" class="small" data-action="font-reset">重設</button></div></section>
       <section class="card"><div class="section-head"><div><h2>記帳表顏色</h2><p>顏色設定會儲存在這台裝置，所有分頁立即套用。</p></div></div><div class="theme-grid">${THEMES.map(t=>`<button type="button" class="theme-option ${state.meta.theme===t.id?'active':''}" data-action="set-theme" data-theme="${t.id}" aria-pressed="${state.meta.theme===t.id}"><span class="theme-swatches">${t.colors.map(c=>`<i style="background:${c}"></i>`).join('')}</span><strong>${t.name}</strong><small>${state.meta.theme===t.id?'目前使用':'點選套用'}</small></button>`).join('')}</div></section>
+      <section class="card no-print custom-background-settings"><div class="section-head"><div><h2>自訂背景圖片</h2><p>上傳後會持續使用自訂背景；切換主題顏色不會移除。只有按「移除背景圖片」才會恢復主題原本背景。</p></div></div><div class="custom-background-controls"><div class="custom-background-status"><strong>${customBackgroundActive?'已套用自訂背景':'目前使用主題背景'}</strong><span>${customBackgroundActive?'圖片已自動降低飽和度與對比，並加上淡色遮罩，避免影響表格閱讀。':'可上傳 JPG、PNG 等圖片；圖片會儲存在這台裝置，不會寫入財務資料 JSON。'}</span></div><div class="chips"><label class="button custom-background-upload">上傳背景圖片<input type="file" accept="image/*" data-custom-background-input hidden></label><button type="button" class="danger-ghost" data-action="remove-custom-background" ${customBackgroundActive?'':'disabled'}>移除背景圖片</button></div></div></section>
       <section class="card no-print settings-utility-card"><div class="section-head"><div><h2>App 工具與雲端</h2><p>Google Drive、備份、匯入與列印集中放在這裡，頁面頂部只保留目前分頁名稱。</p></div></div><div id="settingsUtilitySlot" class="settings-utility-slot"></div></section>
       <section class="card"><div class="section-head"><div><h2>可用年度</h2><p>以下年份由既有日期資料與已建立的年度帳本自動整理。</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>年份</th><th class="numeric">現金交易</th><th class="numeric">信用卡交易</th><th class="numeric">貸款還款</th><th class="numeric">投資配息</th><th></th></tr></thead><tbody>${counts.map(x=>`<tr class="${x.year===y?'active-year-row':''}"><td><strong>${x.year}</strong></td><td class="numeric">${x.cash}</td><td class="numeric">${x.credit}</td><td class="numeric">${x.mortgage}</td><td class="numeric">${x.invest}</td><td><button class="small ${x.year===y?'primary':''}" data-action="switch-year" data-year="${x.year}">${x.year===y?'目前年度':'切換'}</button></td></tr>`).join('')}</tbody></table></div></section>
     </div>`;
@@ -5877,8 +6012,21 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   searchInput.addEventListener('compositionend',()=>{searchComposing=false;handleSearchInput();});
   searchInput.addEventListener('input',handleSearchInput);
 
-  main.addEventListener('change',e=>{
+  main.addEventListener('change',async e=>{
     const el=e.target;
+    if(el.dataset.customBackgroundInput!==undefined){
+      const file=el.files?.[0];el.value='';if(!file)return;
+      const scrollTop=main.scrollTop;
+      try{
+        toast('正在處理背景圖片…');
+        const blob=await prepareCustomBackground(file);
+        await writeCustomBackgroundBlob(blob);
+        setCustomBackgroundBlob(blob);
+        if(ui.tab==='settings'){render();requestAnimationFrame(()=>{main.scrollTop=scrollTop;});}
+        toast('自訂背景已套用');
+      }catch(err){alert(err?.message||'背景圖片上傳失敗。');}
+      return;
+    }
     if(el.matches?.('.app-date-native'))updateDateControlDisplay(el);
     if(el.dataset.settingTheme!==undefined){
       const theme=el.value;if(THEMES.some(t=>t.id===theme)){captureUndo('更改主題');state.meta.theme=theme;scheduleSave();applyTheme();}return;
@@ -5978,8 +6126,16 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       ui.revealCashId=null;
     });
   });
-  main.addEventListener('click',e=>{
+  main.addEventListener('click',async e=>{
     const b=e.target.closest('[data-action]'); if(!b)return; const a=b.dataset.action;
+    if(a==='remove-custom-background'){
+      if(!customBackgroundActive)return;
+      if(!confirm('移除自訂背景圖片並恢復目前主題原本的背景嗎？'))return;
+      const scrollTop=main.scrollTop;
+      try{await deleteCustomBackgroundBlob();setCustomBackgroundBlob(null);if(ui.tab==='settings'){render();requestAnimationFrame(()=>{main.scrollTop=scrollTop;});}toast('已恢復主題原本背景');}
+      catch(err){alert(err?.message||'背景圖片移除失敗。');}
+      return;
+    }
     if(a==='toggle-edit-mode'){
       const scope=b.dataset.editScope;
       if(!ui.editModes||!Object.prototype.hasOwnProperty.call(ui.editModes,scope))return;
@@ -6169,8 +6325,9 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     }
   };
 
-  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js?v=20260813-quota-fix').catch(()=>{});
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js?v=20260825-v31-custom-background').catch(()=>{});
   render();
+  initCustomBackground().then(()=>{if(ui.tab==='settings')render();});
 })();
 
 </script>
