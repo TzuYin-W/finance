@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260827-v39-undo-redo-symbols';
+const CACHE='finance-tracker-20260827-v40-monthly-expenses-page';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',

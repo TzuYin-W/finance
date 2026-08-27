@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v39-undo-redo-symbols -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v40-monthly-expenses-page -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4959,7 +4959,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   compactLargeStorage();
   const TABS = [
     ['cash','現金花費','💵'],['credit','信用卡記錄','💳'],['cardFees','卡費記錄','🧾'],
-    ['home','家的支出','🏠'],['installments','分期','💸'],['mortgage','貸款','🏦'],
+    ['monthlyExpenses','每月開銷','📊'],['home','家的支出','🏠'],['installments','分期','💸'],['mortgage','貸款','🏦'],
     ['tax','稅費','🧮'],['investment','投資','📈'],['lunch','午餐花費','🥗'],['settings','設定','⚙️']
   ];
   const CURRENT_SCHEMA = 9;
@@ -5009,7 +5009,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     creditUnpaidOnly:savedUi.creditUnpaidOnly===true,
     feeHistoryCollapsed:savedUi.feeHistoryCollapsed===true,
     homeHistoryCollapsed:savedUi.homeHistoryCollapsed===true,
-    editModes:{cash:false,cashAccounts:false,credit:false,cardFees:false,home:false,tax:false,mortgage:false},
+    editModes:{cash:false,cashAccounts:false,credit:false,cardFees:false,monthlyExpenses:false,home:false,tax:false,mortgage:false},
     cashSelection:new Set(), showAddCard:false, deleteCardIndex:null, revealCashId:null
   };
   if (ui.tab === 'taxInvest') ui.tab = 'tax';
@@ -5910,7 +5910,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     searchInput.value=ui.search[ui.tab]||'';
     searchInput.disabled=ui.tab==='settings';
     searchInput.placeholder='搜尋目前分頁';
-    const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,tax:renderTax,investment:renderInvestment,lunch:renderLunch,settings:renderSettings};
+    const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,monthlyExpenses:renderMonthlyExpenses,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,tax:renderTax,investment:renderInvestment,lunch:renderLunch,settings:renderSettings};
     const content=renderers[ui.tab]();
     main.innerHTML=ui.tab==='settings'?content:`<section class="page-search-panel no-print"><div id="pageSearchSlot"></div></section><div id="pageContent">${content}</div>`;
     placeGlobalControls();
@@ -5922,7 +5922,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     const contentHost=document.getElementById('pageContent');
     if(!contentHost||ui.tab==='settings'){render();return;}
     const scrollY=main.scrollTop;
-    const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,tax:renderTax,investment:renderInvestment,lunch:renderLunch,settings:renderSettings};
+    const renderers={cash:renderCash,credit:renderCredit,cardFees:renderCardFees,monthlyExpenses:renderMonthlyExpenses,home:renderHome,installments:renderInstallments,mortgage:renderMortgage,tax:renderTax,investment:renderInvestment,lunch:renderLunch,settings:renderSettings};
     const renderer=renderers[ui.tab];
     if(!renderer){render();return;}
     contentHost.innerHTML=renderer();
@@ -6167,7 +6167,6 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     const feeEditing=ui.editModes.cardFees===true;
     const historyCollapsed=ui.feeHistoryCollapsed===true;
     const monthTotals=months.map((_,m)=>sum(book.banks,r=>r.months[m]));
-    const cashMonths=cashMonthlyTotals(y);
     return `<div class="page-stack">
       <section class="card">
         <div class="section-head"><div><h2>${y} 年各銀行卡費</h2><p>目前年度由「設定」切換；每月總計由各銀行列自動加總。</p></div><div class="section-head-tools"><button type="button" class="small ${feeEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cardFees" aria-pressed="${feeEditing?'true':'false'}">${feeEditing?'完成':'編輯'}</button><button data-action="add-fee-bank">新增銀行</button></div></div>
@@ -6182,11 +6181,20 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
           ${state.cardFees.history.map((r,i)=>`<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${editInput(`cardFees.history.${i}.year`,r.year,'text',feeEditing)}</td>${r.months.map((v,m)=>`<td>${editInput(`cardFees.history.${i}.months.${m}`,v,'number',feeEditing)}</td>`).join('')}${feeEditing?`<td class="edit-action-col"><button class="small danger" data-action="delete" data-array="cardFees.history" data-index="${i}">刪除</button></td>`:''}</tr>`).join('')}
         </tbody></table></div>`}
       </section>
+    </div>`;
+  }
+
+  function renderMonthlyExpenses(){
+    const y=currentYear(), months=state.meta.months, book=currentCardFeeBook();
+    const monthlyEditing=ui.editModes.monthlyExpenses===true;
+    const monthTotals=months.map((_,m)=>sum(book.banks,r=>r.months[m]));
+    const cashMonths=cashMonthlyTotals(y);
+    return `<div class="page-stack">
       <section class="card">
-        <div class="section-head"><div><h2>${y} 年每月開銷</h2><p>現金／轉帳與收入依 ${y} 年「現金花費」日期自動歸月。</p></div></div>
+        <div class="section-head"><div><h2>${y} 年每月開銷</h2><p>現金／轉帳與收入依 ${y} 年「現金花費」日期自動歸月；刷卡金額依各銀行卡費自動加總。</p></div><div class="section-head-tools"><button type="button" class="small ${monthlyEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="monthlyExpenses" aria-pressed="${monthlyEditing?'true':'false'}">${monthlyEditing?'完成':'編輯'}</button></div></div>
         <div class="formula-note">現金／轉帳＝該月列入月報的正值交易合計；收入＝該月列入月報的負值交易絕對值合計；每月餘額＝收入－現金／轉帳－刷卡。</div>
         <div class="table-wrap monthly-expense-wrap"><table class="data-table matrix-table monthly-expense-table"><thead><tr><th>月份</th><th class="numeric">現金／轉帳</th><th class="numeric">刷卡</th><th class="numeric">收入</th><th class="numeric">每月餘額</th><th class="numeric">總薪水</th><th class="numeric">喜樂薪水</th></tr></thead><tbody>
-          ${book.monthlyInputs.map((r,i)=>{const c=cashMonths[i]||{expense:0,income:0};const cashNet=c.expense;const bal=c.income-cashNet-monthTotals[i];return `<tr class="${feeEditing?'record-editing':'record-readonly'}"><td>${months[i]}</td><td class="numeric computed">${money(cashNet)}</td><td class="numeric computed">${money(monthTotals[i])}</td><td class="numeric computed">${money(c.income)}</td><td class="numeric computed ${bal>=0?'income':'expense'}">${money(bal)}</td><td>${editInput(`cardFees.yearBooks.${y}.monthlyInputs.${i}.salary`,r.salary,'number',feeEditing)}</td><td>${editInput(`cardFees.yearBooks.${y}.monthlyInputs.${i}.musicSalary`,r.musicSalary,'number',feeEditing)}</td></tr>`}).join('')}
+          ${book.monthlyInputs.map((r,i)=>{const c=cashMonths[i]||{expense:0,income:0};const cashNet=c.expense;const bal=c.income-cashNet-monthTotals[i];return `<tr class="${monthlyEditing?'record-editing':'record-readonly'}"><td>${months[i]}</td><td class="numeric computed">${money(cashNet)}</td><td class="numeric computed">${money(monthTotals[i])}</td><td class="numeric computed">${money(c.income)}</td><td class="numeric computed ${bal>=0?'income':'expense'}">${money(bal)}</td><td>${editInput(`cardFees.yearBooks.${y}.monthlyInputs.${i}.salary`,r.salary,'number',monthlyEditing)}</td><td>${editInput(`cardFees.yearBooks.${y}.monthlyInputs.${i}.musicSalary`,r.musicSalary,'number',monthlyEditing)}</td></tr>`}).join('')}
         </tbody></table></div>
       </section>
     </div>`;
@@ -6725,7 +6733,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(b.dataset.globalAction==='restore-import')restorePreImport();
     if(b.dataset.globalAction==='print')window.print();
     if(b.dataset.globalAction==='reset'){
-      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,cashAccounts:false,credit:false,cardFees:false,home:false,tax:false,mortgage:false};ui.feeHistoryCollapsed=false;ui.homeHistoryCollapsed=false; scheduleSave();render();
+      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,cashAccounts:false,credit:false,cardFees:false,monthlyExpenses:false,home:false,tax:false,mortgage:false};ui.feeHistoryCollapsed=false;ui.homeHistoryCollapsed=false; scheduleSave();render();
     }
   });
   document.getElementById('importFile').addEventListener('change',e=>{
