@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20260827-v40-monthly-expenses-page';
+const CACHE='finance-tracker-20260827-v41-cash-section-collapse';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v40-monthly-expenses-page -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v41-cash-section-collapse -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4765,6 +4765,54 @@ html.desktop-sidebar-mode .edit-action-col button{width:100%!important;min-width
   }
 }
 
+
+
+/* ===== v41 cash-section collapses + mobile fee-history collapse alignment ===== */
+.cash-template-card.is-collapsed{padding-bottom:14px!important}
+.cash-template-card.is-collapsed .section-head{margin-bottom:0!important}
+.cash-collapse-head-tools{margin-left:auto!important;flex-wrap:nowrap!important}
+.cash-collapse-head-tools .cash-section-collapse-btn{order:999!important;margin-left:auto!important}
+
+.cash-filter-collapse-head{
+  flex:1 0 100%!important;width:100%!important;min-width:0!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+}
+.cash-filter-collapse-head>strong{min-width:0!important}
+.cash-filter-collapse-head .cash-section-collapse-btn{margin-left:auto!important;flex:0 0 36px!important}
+.cash-filter-collapsed{padding-top:7px!important;padding-bottom:7px!important}
+
+.cash-bulk-collapse-head{
+  flex:1 0 100%!important;width:100%!important;min-width:0!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+}
+.cash-bulk-collapse-head>strong{white-space:nowrap!important;color:var(--ink)!important}
+.cash-bulk-collapse-head .cash-section-collapse-btn{margin-left:auto!important;flex:0 0 36px!important}
+.cash-bulk-toolbar.is-collapsed{padding-top:7px!important;padding-bottom:7px!important;margin-bottom:10px!important}
+
+@media(max-width:760px){
+  /* Cash collapsible headers always keep title at left and +/- at the extreme right. */
+  #cashTransactionList .cash-date-filter-bar>.cash-filter-collapse-head,
+  #cashTransactionList .cash-view-filter-bar>.cash-filter-collapse-head{
+    grid-column:1/-1!important;grid-row:1!important;width:100%!important
+  }
+  #cashTransactionList .cash-date-filter-bar.cash-filter-collapsed,
+  #cashTransactionList .cash-view-filter-bar.cash-filter-collapsed{
+    display:grid!important;grid-template-columns:1fr!important;gap:0!important
+  }
+  #cashTransactionList .cash-bulk-toolbar>.cash-bulk-collapse-head{
+    grid-column:1/-1!important;grid-row:1!important;order:1!important
+  }
+  .cash-template-head{flex-wrap:nowrap!important;align-items:center!important}
+  .cash-template-head>div:first-child{flex:1 1 auto!important;min-width:0!important}
+  .cash-template-head .cash-collapse-head-tools{width:auto!important;flex:0 0 auto!important;margin-left:auto!important}
+
+  /* Card-fee history: title stays left, collapse control stays at the far right on phones. */
+  .fee-history-head{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:space-between!important}
+  .fee-history-head>div:first-child{flex:1 1 auto!important;min-width:0!important}
+  .fee-history-head .section-head-tools{width:auto!important;flex:0 0 auto!important;margin-left:auto!important;flex-wrap:nowrap!important}
+  .fee-history-head .collapse-card-btn{order:999!important;margin-left:auto!important;flex:0 0 36px!important}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -4995,7 +5043,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     try{const x=JSON.parse(localStorage.getItem(UI_STORAGE_KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(_){return {};}
   }
   function saveUiPrefs(){
-    try{localStorage.setItem(UI_STORAGE_KEY,JSON.stringify({tab:ui.tab,search:ui.search,page:ui.page,activeCard:ui.activeCard,dateFilters:ui.dateFilters,viewFilters:ui.viewFilters,includeUndated:ui.includeUndated,creditUnpaidOnly:ui.creditUnpaidOnly,feeHistoryCollapsed:ui.feeHistoryCollapsed,homeHistoryCollapsed:ui.homeHistoryCollapsed}));}catch(_){}
+    try{localStorage.setItem(UI_STORAGE_KEY,JSON.stringify({tab:ui.tab,search:ui.search,page:ui.page,activeCard:ui.activeCard,dateFilters:ui.dateFilters,viewFilters:ui.viewFilters,includeUndated:ui.includeUndated,creditUnpaidOnly:ui.creditUnpaidOnly,feeHistoryCollapsed:ui.feeHistoryCollapsed,homeHistoryCollapsed:ui.homeHistoryCollapsed,cashSectionsCollapsed:ui.cashSectionsCollapsed}));}catch(_){}
   }
   const savedUi=loadUiPrefs();
   const ui = {
@@ -5009,6 +5057,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     creditUnpaidOnly:savedUi.creditUnpaidOnly===true,
     feeHistoryCollapsed:savedUi.feeHistoryCollapsed===true,
     homeHistoryCollapsed:savedUi.homeHistoryCollapsed===true,
+    cashSectionsCollapsed:Object.assign({templates:false,dateFilter:false,viewFilter:false,bulk:false},savedUi.cashSectionsCollapsed&&typeof savedUi.cashSectionsCollapsed==='object'?savedUi.cashSectionsCollapsed:{}),
     editModes:{cash:false,cashAccounts:false,credit:false,cardFees:false,monthlyExpenses:false,home:false,tax:false,mortgage:false},
     cashSelection:new Set(), showAddCard:false, deleteCardIndex:null, revealCashId:null
   };
@@ -5649,7 +5698,11 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   }
   function dateFilterBar(key,undatedScope='',extraControls=''){
     const f=ui.dateFilters[key]||{};
-    return `<div class="filter-bar date-filter-bar ${esc(key)}-date-filter-bar ${undatedScope?`${esc(undatedScope)}-date-filter-bar`:''} no-print"><strong>日期篩選</strong><label>起日${filterDateInput(key,'from',f.from||'')}</label><label>迄日${filterDateInput(key,'to',f.to||'')}</label>${undatedToggle(undatedScope)}${extraControls}<button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button></div>`;
+    const cashCollapsible=key==='cash';
+    const collapsed=cashCollapsible&&ui.cashSectionsCollapsed?.dateFilter===true;
+    const head=cashCollapsible?`<div class="cash-filter-collapse-head"><strong>日期篩選</strong><button type="button" class="icon-btn collapse-card-btn cash-section-collapse-btn" data-action="toggle-cash-section" data-cash-section="dateFilter" aria-expanded="${collapsed?'false':'true'}" aria-label="${collapsed?'展開日期篩選':'收起日期篩選'}">${collapsed?'＋':'−'}</button></div>`:'<strong>日期篩選</strong>';
+    const controls=collapsed?'':`<label>起日${filterDateInput(key,'from',f.from||'')}</label><label>迄日${filterDateInput(key,'to',f.to||'')}</label>${undatedToggle(undatedScope)}${extraControls}<button class="small" data-action="clear-date-filter" data-key="${esc(key)}">清除</button>`;
+    return `<div class="filter-bar date-filter-bar ${esc(key)}-date-filter-bar ${undatedScope?`${esc(undatedScope)}-date-filter-bar`:''} ${collapsed?'cash-filter-collapsed':''} no-print">${head}${controls}</div>`;
   }
 
   function uniqueStrings(values){
@@ -5663,7 +5716,10 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     return `<label>${esc(label)}<select data-view-filter-page="${esc(page)}" data-view-filter-field="${esc(field)}">${options.map(o=>{const pair=Array.isArray(o)?o:[o,o];return `<option value="${esc(pair[0])}" ${String(pair[0])===String(value)?'selected':''}>${esc(pair[1])}</option>`;}).join('')}</select></label>`;
   }
   function viewFilterBar(page,controls){
-    return `<div class="filter-bar view-filter-bar ${esc(page)}-view-filter-bar no-print"><strong>顯示篩選</strong>${controls}<button class="small" data-action="clear-view-filters" data-page="${esc(page)}">清除篩選</button></div>`;
+    const cashCollapsible=page==='cash';
+    const collapsed=cashCollapsible&&ui.cashSectionsCollapsed?.viewFilter===true;
+    const head=cashCollapsible?`<div class="cash-filter-collapse-head"><strong>顯示篩選</strong><button type="button" class="icon-btn collapse-card-btn cash-section-collapse-btn" data-action="toggle-cash-section" data-cash-section="viewFilter" aria-expanded="${collapsed?'false':'true'}" aria-label="${collapsed?'展開顯示篩選':'收起顯示篩選'}">${collapsed?'＋':'−'}</button></div>`:'<strong>顯示篩選</strong>';
+    return `<div class="filter-bar view-filter-bar ${esc(page)}-view-filter-bar ${collapsed?'cash-filter-collapsed':''} no-print">${head}${collapsed?'':`${controls}<button class="small" data-action="clear-view-filters" data-page="${esc(page)}">清除篩選</button>`}</div>`;
   }
 
   function fillForm(formName,values){
@@ -5981,6 +6037,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     const y=currentYear(); const stats=accountStats();
     const cashEditing=ui.editModes.cash===true;
     const accountEditing=ui.editModes.cashAccounts===true;
+    const cashCollapsed=ui.cashSectionsCollapsed||{templates:false,dateFilter:false,viewFilter:false,bulk:false};
     const cashDefaultDate=defaultDateForYear();
     const cashDefaultReportMode=cashDefaultDate>today()?'neutral':'auto';
     const includeUndated=!!ui.includeUndated.cash;
@@ -6024,11 +6081,11 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
           ${stats.map(({a,i,opening,movement,balance})=>`<tr class="${accountEditing?'record-editing':'record-readonly'}"><td data-label="帳戶">${editInput(`cash.accounts.${i}.name`,a.name,'text',accountEditing)}</td><td data-label="${y} 年期初現金">${editInput(`cash.accounts.${i}.initialByYear.${y}`,opening,'number',accountEditing)}</td><td data-label="${accountMovementLabel}" class="numeric computed">${money(movement,2)}</td><td data-label="${accountBalanceLabel}" class="numeric computed">${money(balance,2)}</td><td data-label="備註">${editInput(`cash.accounts.${i}.note`,a.note,'text',accountEditing)}</td>${accountEditing?`<td data-label="操作"><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`).join('')}
         </tbody></table></div>
       </section>
-      <section class="card no-print">
-        <div class="section-head"><div><h2>固定現金項目</h2><p>固定項目跨年度共用；「帶入」後可清空日期，作為尚未扣款的預估支出。</p></div><button data-action="add-cash-template">新增固定項目</button></div>
-        <div class="table-wrap cash-template-wrap"><table class="data-table cash-template-table fit-table"><thead><tr><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th><th>操作</th></tr></thead><tbody>
+      <section class="card no-print cash-template-card ${cashCollapsed.templates?'is-collapsed':''}">
+        <div class="section-head cash-template-head"><div><h2>固定現金項目</h2>${cashCollapsed.templates?'':`<p>固定項目跨年度共用；「帶入」後可清空日期，作為尚未扣款的預估支出。</p>`}</div><div class="section-head-tools cash-collapse-head-tools">${cashCollapsed.templates?'':'<button data-action="add-cash-template">新增固定項目</button>'}<button type="button" class="icon-btn collapse-card-btn cash-section-collapse-btn" data-action="toggle-cash-section" data-cash-section="templates" aria-expanded="${cashCollapsed.templates?'false':'true'}" aria-label="${cashCollapsed.templates?'展開固定現金項目':'收起固定現金項目'}">${cashCollapsed.templates?'＋':'−'}</button></div></div>
+        ${cashCollapsed.templates?'':`<div class="table-wrap cash-template-wrap"><table class="data-table cash-template-table fit-table"><thead><tr><th>科目</th><th>描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th><th>操作</th></tr></thead><tbody>
           ${state.cash.templates.length?state.cash.templates.map((t,i)=>`<tr><td>${input(`cash.templates.${i}.category`,t.category)}</td><td>${input(`cash.templates.${i}.description`,t.description)}</td><td>${input(`cash.templates.${i}.amount`,t.amount,'number')}</td><td>${select(`cash.templates.${i}.account`,t.account,accountOpts)}</td><td>${reportModeToggle(`cash.templates.${i}.reportMode`,t.reportMode)}</td><td class="cash-template-actions"><div><button class="small primary template-use-button" data-action="use-cash-template" data-index="${i}"><span class="template-use-label">帶入</span></button><button class="small" data-action="copy-cash-template" data-index="${i}">複製</button><button class="small danger" data-action="delete" data-array="cash.templates" data-index="${i}">刪除</button></div></td></tr>`).join(''):empty(6,'尚未建立固定現金項目')}
-        </tbody></table></div>
+        </tbody></table></div>`}
       </section>
       <section class="card no-print">
         <div class="section-head"><div><h2>新增 ${y} 年現金交易</h2><p>金額正負號決定收支；轉存、卡費等不應重複列入月報的項目選「不列入月報」。</p></div></div>
@@ -6045,12 +6102,12 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       </section>
       <section class="card" id="cashTransactionList">
         <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="section-head-tools"><div class="filter-stack">${dateFilterBar('cash','cash')}${cashFilters}</div></div></div>
-        <div class="cash-bulk-toolbar no-print">
-          <strong data-cash-selected-count>已選 ${ui.cashSelection.size} 筆</strong>
-          <label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">× 不列入月報</option></select></label>
+        <div class="cash-bulk-toolbar ${cashCollapsed.bulk?'is-collapsed':''} no-print">
+          <div class="cash-bulk-collapse-head"><strong data-cash-selected-count>已選 ${ui.cashSelection.size} 筆</strong><button type="button" class="icon-btn collapse-card-btn cash-section-collapse-btn" data-action="toggle-cash-section" data-cash-section="bulk" aria-expanded="${cashCollapsed.bulk?'false':'true'}" aria-label="${cashCollapsed.bulk?'展開已選項目控制':'收起已選項目控制'}">${cashCollapsed.bulk?'＋':'−'}</button></div>
+          ${cashCollapsed.bulk?'':`<label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">× 不列入月報</option></select></label>
           ${cashEditing?`<label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>`:''}
           <button class="small primary" type="button" data-action="apply-cash-bulk">套用到已選資料</button>
-          <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>
+          <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>`}
         </div>
         <div class="cash-table-edit-row no-print"><button type="button" class="small cash-table-edit-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button></div>
         <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table ${cashEditing?'is-editing':'is-readonly'}"><thead><tr>${cashEditing?`<th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th>`:''}<th class="date-col">日期</th><th class="cash-category-col">科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th>${cashEditing?`<th class="row-color-cell">顏色</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>`:''}</tr></thead><tbody>
@@ -6605,6 +6662,12 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       if(scope==='cash'&&!ui.editModes.cash)ui.cashSelection.clear();
       renderPreservingAnchor(b);return;
     }
+    if(a==='toggle-cash-section'){
+      const section=b.dataset.cashSection;
+      if(!section||!Object.prototype.hasOwnProperty.call(ui.cashSectionsCollapsed,section))return;
+      ui.cashSectionsCollapsed[section]=!ui.cashSectionsCollapsed[section];
+      saveUiPrefs();renderPreservingAnchor(b);return;
+    }
     if(a==='toggle-fee-history'){
       ui.feeHistoryCollapsed=!ui.feeHistoryCollapsed;
       saveUiPrefs();renderPreservingAnchor(b);return;
@@ -6733,7 +6796,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(b.dataset.globalAction==='restore-import')restorePreImport();
     if(b.dataset.globalAction==='print')window.print();
     if(b.dataset.globalAction==='reset'){
-      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,cashAccounts:false,credit:false,cardFees:false,monthlyExpenses:false,home:false,tax:false,mortgage:false};ui.feeHistoryCollapsed=false;ui.homeHistoryCollapsed=false; scheduleSave();render();
+      if(!confirm(APP_CONFIG.resetConfirm||'這會清除 App 內的修改，還原成最初內容。確定繼續？'))return; captureUndo('還原原始資料前的內容'); state=migrateState(clone(initial)); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(UI_STORAGE_KEY); ui.search={};ui.page={};ui.dateFilters={};ui.viewFilters={cash:{},mortgage:{},tax:{},investment:{}};ui.includeUndated={cash:false,credit:false};ui.editModes={cash:false,cashAccounts:false,credit:false,cardFees:false,monthlyExpenses:false,home:false,tax:false,mortgage:false};ui.feeHistoryCollapsed=false;ui.homeHistoryCollapsed=false;ui.cashSectionsCollapsed={templates:false,dateFilter:false,viewFilter:false,bulk:false}; scheduleSave();render();
     }
   });
   document.getElementById('importFile').addEventListener('change',e=>{
