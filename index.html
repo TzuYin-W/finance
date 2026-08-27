@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v38-fixed-cash-portrait-widths -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v39-undo-redo-symbols -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -2631,11 +2631,19 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 }
 
 /* v53: page-wide undo delete control and credit unpaid filter */
-.undo-delete-btn{margin-left:auto;white-space:nowrap;border-color:var(--green);color:var(--green-dark);background:var(--control);font-weight:700}
-.undo-delete-btn:disabled{opacity:.42;cursor:not-allowed;border-color:var(--line);color:var(--muted)}
+.undo-delete-btn,.redo-action-btn{
+  width:36px;height:36px;min-width:36px;padding:0!important;
+  display:inline-grid;place-items:center;
+  white-space:nowrap;border-color:var(--green);color:var(--green-dark);background:var(--control);
+  font-size:20px;line-height:1;font-weight:700;
+}
+.undo-delete-btn{margin-left:auto}
+.redo-action-btn{margin-left:0}
+.undo-delete-btn:disabled,.redo-action-btn:disabled{opacity:.42;cursor:not-allowed;border-color:var(--line);color:var(--muted)}
 .credit-unpaid-filter.active{background:var(--green)!important;color:#fff!important;border-color:var(--green)!important}
 @media(max-width:760px){
-  .topbar .undo-delete-btn{margin-left:auto;padding:7px 9px;font-size:12px}
+  .topbar .undo-delete-btn,.topbar .redo-action-btn{width:34px;height:34px;min-width:34px;padding:0!important;font-size:19px}
+  .topbar .undo-delete-btn{margin-left:auto}
 }
 
 /* v58: portrait fixed-credit action buttons evenly fill the 操作 column. */
@@ -4778,7 +4786,8 @@ html.desktop-sidebar-mode .edit-action-col button{width:100%!important;min-width
       <header class="topbar">
         <button id="menuBtn" class="icon-btn mobile-only" aria-label="開啟選單" aria-expanded="false">☰</button>
         <h1 id="pageTitle">現金花費</h1>
-        <button id="undoDeleteBtn" class="undo-delete-btn" type="button" disabled aria-label="復原上一步">↶ 復原上一步</button>
+        <button id="undoDeleteBtn" class="undo-delete-btn" type="button" disabled aria-label="復原上一步" title="目前沒有可復原的操作">↶</button>
+        <button id="redoActionBtn" class="redo-action-btn" type="button" disabled aria-label="恢復下一步" title="目前沒有可恢復的操作">↷</button>
         <button id="topCloudButton" class="icon-btn top-cloud-btn" type="button" aria-label="開啟 Google Drive 同步" title="Google Drive">☁</button>
       </header>
       <main id="main" tabindex="-1"></main>
@@ -4866,6 +4875,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   const STORAGE_KEY = APP_CONFIG.storageKey || 'finance-tracker-2026-v1';
   const IMPORT_ROLLBACK_KEY = `${STORAGE_KEY}-pre-import-backup`;
   const UNDO_KEY = `${STORAGE_KEY}-last-action-undo-v1`;
+  const REDO_KEY = `${STORAGE_KEY}-last-action-redo-v1`;
   const UI_STORAGE_KEY = `${STORAGE_KEY}-ui-state-v1`;
   const CLOUD_ROLLBACK_KEY = `${STORAGE_KEY}-pre-cloud-sync-backup`;
   const LARGE_STORAGE_PREFIX = 'lzutf16:v1:';
@@ -4937,7 +4947,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   function getLargeJson(key){try{return parseStoredJson(localStorage.getItem(key));}catch(_){return null;}}
   function setLargeJson(key,value){localStorage.setItem(key,packedJsonString(value));return value;}
   function compactLargeStorage(){
-    [STORAGE_KEY,IMPORT_ROLLBACK_KEY,UNDO_KEY,CLOUD_ROLLBACK_KEY].forEach(key=>{
+    [STORAGE_KEY,IMPORT_ROLLBACK_KEY,UNDO_KEY,REDO_KEY,CLOUD_ROLLBACK_KEY].forEach(key=>{
       try{
         const raw=localStorage.getItem(key);
         if(!raw||raw.startsWith(LARGE_STORAGE_PREFIX))return;
@@ -5009,6 +5019,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   const main = document.getElementById('main');
   const pageTitle = document.getElementById('pageTitle');
   const undoDeleteBtn = document.getElementById('undoDeleteBtn');
+  const redoActionBtn = document.getElementById('redoActionBtn');
   const searchInput = document.getElementById('globalSearch');
   const saveStatus = document.getElementById('saveStatus');
   const toastEl = document.getElementById('toast');
@@ -5023,6 +5034,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   if(resetButton)resetButton.textContent=APP_CONFIG.resetLabel||'還原原始 Excel';
   let saveTimer;
   let memoryUndo = null;
+  let memoryRedo = null;
 
   function migrateState(source){
     const s = source && typeof source === 'object' ? source : {};
@@ -5165,35 +5177,77 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(memoryUndo?.data)return memoryUndo;
     try{const x=getLargeJson(UNDO_KEY);return x?.data?x:null;}catch(_){return null;}
   }
+  function readRedo(){
+    if(memoryRedo?.data)return memoryRedo;
+    try{const x=getLargeJson(REDO_KEY);return x?.data?x:null;}catch(_){return null;}
+  }
   function updateUndoButton(){
-    if(!undoDeleteBtn)return;
-    const snapshot=readUndo();
-    undoDeleteBtn.disabled=!snapshot;
-    undoDeleteBtn.title=snapshot?`復原上一步：${snapshot.label||'最近一次操作'}`:'目前沒有可復原的操作';
+    const undoSnapshot=readUndo();
+    const redoSnapshot=readRedo();
+    if(undoDeleteBtn){
+      undoDeleteBtn.disabled=!undoSnapshot;
+      undoDeleteBtn.title=undoSnapshot?`復原上一步：${undoSnapshot.label||'最近一次操作'}`:'目前沒有可復原的操作';
+    }
+    if(redoActionBtn){
+      redoActionBtn.disabled=!redoSnapshot;
+      redoActionBtn.title=redoSnapshot?`恢復下一步：${redoSnapshot.label||'最近一次操作'}`:'目前沒有可恢復的操作';
+    }
+  }
+  function writeUndoSnapshot(snapshot){
+    memoryUndo=snapshot?.data?snapshot:null;
+    try{if(memoryUndo)setLargeJson(UNDO_KEY,memoryUndo);else localStorage.removeItem(UNDO_KEY);}catch(_){}
+  }
+  function writeRedoSnapshot(snapshot){
+    memoryRedo=snapshot?.data?snapshot:null;
+    try{if(memoryRedo)setLargeJson(REDO_KEY,memoryRedo);else localStorage.removeItem(REDO_KEY);}catch(_){}
   }
   function captureUndo(label='修改資料'){
     const snapshot={createdAt:new Date().toISOString(),label,data:clone(state)};
-    memoryUndo=snapshot;
-    try{setLargeJson(UNDO_KEY,snapshot);}catch(_){}
+    writeUndoSnapshot(snapshot);
+    /* A fresh edit starts a new branch, so any previous redo is no longer valid. */
+    writeRedoSnapshot(null);
     updateUndoButton();
   }
-  function clearUndo(){
-    memoryUndo=null;
-    try{localStorage.removeItem(UNDO_KEY);}catch(_){}
-    updateUndoButton();
+  function clearUndo(update=true){
+    writeUndoSnapshot(null);
+    if(update)updateUndoButton();
+  }
+  function clearRedo(update=true){
+    writeRedoSnapshot(null);
+    if(update)updateUndoButton();
+  }
+  function resetHistoryUiAfterRestore(){
+    ui.activeCard=Math.max(0,Math.min(ui.activeCard,state.creditCards.length-1));
+    ui.cashSelection.clear();
+    ui.revealCashId=null;
   }
   function undoLastAction(){
     const snapshot=readUndo();
     if(!snapshot?.data){toast('目前沒有可復原的操作');updateUndoButton();return;}
+    const redoSnapshot={createdAt:new Date().toISOString(),label:snapshot.label||'最近一次操作',data:clone(state)};
     state=migrateState(clone(snapshot.data));
     sortAllDatedCollections(state);
-    ui.activeCard=Math.max(0,Math.min(ui.activeCard,state.creditCards.length-1));
-    ui.cashSelection.clear();
-    ui.revealCashId=null;
-    clearUndo();
+    resetHistoryUiAfterRestore();
+    writeRedoSnapshot(redoSnapshot);
+    clearUndo(false);
+    updateUndoButton();
     scheduleSave();
     render();
     toast(`已復原上一步：${snapshot.label||'最近一次操作'}`);
+  }
+  function redoLastAction(){
+    const snapshot=readRedo();
+    if(!snapshot?.data){toast('目前沒有可恢復的操作');updateUndoButton();return;}
+    const undoSnapshot={createdAt:new Date().toISOString(),label:snapshot.label||'最近一次操作',data:clone(state)};
+    state=migrateState(clone(snapshot.data));
+    sortAllDatedCollections(state);
+    resetHistoryUiAfterRestore();
+    writeUndoSnapshot(undoSnapshot);
+    clearRedo(false);
+    updateUndoButton();
+    scheduleSave();
+    render();
+    toast(`已恢復下一步：${snapshot.label||'最近一次操作'}`);
   }
   function esc(v){ return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function n(v){ const x = Number(v); return Number.isFinite(x) ? x : 0; }
@@ -6661,6 +6715,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
   });
 
   undoDeleteBtn?.addEventListener('click',undoLastAction);
+  redoActionBtn?.addEventListener('click',redoLastAction);
 
   settingsToolbar.addEventListener('click',e=>{
     const b=e.target.closest('[data-global-action]'); if(!b)return;
