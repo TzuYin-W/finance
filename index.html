@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v41-cash-section-collapse -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v42-cash-filter-edit-visibility -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4813,6 +4813,73 @@ html.desktop-sidebar-mode .edit-action-col button{width:100%!important;min-width
   .fee-history-head .collapse-card-btn{order:999!important;margin-left:auto!important;flex:0 0 36px!important}
 }
 
+
+
+/* ===== v42 desktop cash-filter stability + edit-only selection controls ===== */
+/* Desktop: a collapsed cash filter keeps its right edge fixed instead of jumping left. */
+html.desktop-sidebar-mode #cashTransactionList .cash-filter-stack{
+  width:min(760px,100%)!important;
+  min-width:min(100%,760px)!important;
+  margin-left:auto!important;
+  justify-items:stretch!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-filter-stack .cash-filter-collapsed{
+  display:flex!important;
+  width:max-content!important;
+  min-width:154px!important;
+  max-width:100%!important;
+  justify-self:end!important;
+  align-items:center!important;
+  box-sizing:border-box!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-filter-stack .cash-filter-collapsed>.cash-filter-collapse-head{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+}
+/* Both collapsed: keep the compact controls tucked against the section-title side. */
+html.desktop-sidebar-mode #cashTransactionList .cash-filter-stack.cash-date-is-collapsed.cash-view-is-collapsed{
+  justify-items:end!important;
+}
+
+/* Desktop expanded display filters: Category / Description / Account / Color / Clear stay on one row. */
+html.desktop-sidebar-mode #cashTransactionList .cash-view-filter-bar:not(.cash-filter-collapsed){
+  display:grid!important;
+  grid-template-columns:minmax(105px,.9fr) minmax(138px,1.1fr) minmax(120px,1fr) minmax(96px,.8fr) auto!important;
+  align-items:end!important;
+  gap:8px!important;
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-view-filter-bar:not(.cash-filter-collapsed)>.cash-filter-collapse-head{
+  grid-column:1/-1!important;
+  width:100%!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-view-filter-bar:not(.cash-filter-collapsed)>label{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:4px!important;
+  min-width:0!important;
+  width:100%!important;
+  white-space:normal!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-view-filter-bar:not(.cash-filter-collapsed)>label select{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-view-filter-bar:not(.cash-filter-collapsed)>button[data-action="clear-view-filters"]{
+  grid-column:auto!important;
+  width:auto!important;
+  min-width:96px!important;
+  height:36px!important;
+  min-height:36px!important;
+  white-space:nowrap!important;
+  align-self:end!important;
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -6101,14 +6168,14 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
         </form>
       </section>
       <section class="card" id="cashTransactionList">
-        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="section-head-tools"><div class="filter-stack">${dateFilterBar('cash','cash')}${cashFilters}</div></div></div>
-        <div class="cash-bulk-toolbar ${cashCollapsed.bulk?'is-collapsed':''} no-print">
+        <div class="section-head"><div><h2>${y} 年現金花費</h2><p>正值＝支出，負值＝收入；開啟「空白日期納入總計」可把尚未扣款或日期未定的預算一起計算。</p></div><div class="section-head-tools"><div class="filter-stack cash-filter-stack ${cashCollapsed.dateFilter?'cash-date-is-collapsed':''} ${cashCollapsed.viewFilter?'cash-view-is-collapsed':''}">${dateFilterBar('cash','cash')}${cashFilters}</div></div></div>
+        ${cashEditing?`<div class="cash-bulk-toolbar ${cashCollapsed.bulk?'is-collapsed':''} no-print">
           <div class="cash-bulk-collapse-head"><strong data-cash-selected-count>已選 ${ui.cashSelection.size} 筆</strong><button type="button" class="icon-btn collapse-card-btn cash-section-collapse-btn" data-action="toggle-cash-section" data-cash-section="bulk" aria-expanded="${cashCollapsed.bulk?'false':'true'}" aria-label="${cashCollapsed.bulk?'展開已選項目控制':'收起已選項目控制'}">${cashCollapsed.bulk?'＋':'−'}</button></div>
           ${cashCollapsed.bulk?'':`<label>月報處理<select data-bulk-cash-report><option value="__keep__">保持不變</option><option value="auto">＋／－</option><option value="neutral">× 不列入月報</option></select></label>
-          ${cashEditing?`<label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>`:''}
+          <label>顏色<select class="row-color-select" data-bulk-cash-color><option value="__keep__">保持不變</option><option value="__none__">無</option>${ROW_COLORS.filter(c=>c.id).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>
           <button class="small primary" type="button" data-action="apply-cash-bulk">套用到已選資料</button>
           <button class="small" type="button" data-action="clear-cash-selection">取消選取</button>`}
-        </div>
+        </div>`:''}
         <div class="cash-table-edit-row no-print"><button type="button" class="small cash-table-edit-btn ${cashEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cash" aria-pressed="${cashEditing?'true':'false'}">${cashEditing?'完成':'編輯'}</button></div>
         <div class="table-wrap cash-transactions-wrap"><table class="data-table cash-transactions-table fit-table ${cashEditing?'is-editing':'is-readonly'}"><thead><tr>${cashEditing?`<th class="cash-select-col" title="全選目前篩選結果"><input class="cash-bulk-check" type="checkbox" data-bulk-cash-select-all ${allFilteredSelected?'checked':''} aria-label="全選目前篩選結果"></th>`:''}<th class="date-col">日期</th><th class="cash-category-col">科目</th><th class="description-col">描述</th><th class="numeric">金額</th><th>帳戶</th><th><span class="month-report-heading">月報<br>處理</span></th>${cashEditing?`<th class="row-color-cell">顏色</th><th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>`:''}</tr></thead><tbody>
           ${p.rows.length?p.rows.map(({item:t,index:i})=>{const rowColor=validRowColor(t.rowColor);return `<tr data-cash-id="${esc(t.id||'')}" data-row-color="${esc(rowColor)}" class="${cashEditing?'record-editing':'record-readonly'}">${cashEditing?`<td class="cash-select-col"><input class="cash-bulk-check" type="checkbox" data-cash-select="${esc(t.id)}" ${ui.cashSelection.has(t.id)?'checked':''} aria-label="選取這筆現金交易"></td>`:''}<td class="date-col">${editInput(`cash.transactions.${i}.date`,t.date,'date',cashEditing)}</td><td class="cash-category-col">${editInput(`cash.transactions.${i}.category`,t.category,'text',cashEditing)}</td><td class="description-col">${editInput(`cash.transactions.${i}.description`,t.description,'text',cashEditing)}</td><td>${editInput(`cash.transactions.${i}.amount`,t.amount,'number',cashEditing)}</td><td>${editSelect(`cash.transactions.${i}.account`,t.account,accountOpts,cashEditing)}</td><td>${reportModeToggle(`cash.transactions.${i}.monthlyFlow`,t.monthlyFlow)}</td>${cashEditing?`<td class="row-color-cell">${rowColorSelect(`cash.transactions.${i}.rowColor`,rowColor)}</td><td><button class="small danger" data-action="delete" data-array="cash.transactions" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`}).join(''):empty(cashEditing?9:6,`${y} 年目前沒有符合條件的交易`)}
