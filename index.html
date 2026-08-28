@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v42-cash-filter-edit-visibility -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v43-cash-filter-below-title-report-center -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4878,6 +4878,69 @@ html.desktop-sidebar-mode #cashTransactionList .cash-view-filter-bar:not(.cash-f
   min-height:36px!important;
   white-space:nowrap!important;
   align-self:end!important;
+}
+
+
+
+/* ===== v43 desktop cash filters stay below title + readonly monthly-report centering ===== */
+/* Desktop cash transaction filters now mirror the phone structure: always below the title, never tucked to the right. */
+html.desktop-sidebar-mode #cashTransactionList > .section-head{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:10px!important;
+}
+html.desktop-sidebar-mode #cashTransactionList > .section-head > div:first-child{
+  width:100%!important;
+  min-width:0!important;
+}
+html.desktop-sidebar-mode #cashTransactionList > .section-head > .section-head-tools{
+  width:100%!important;
+  min-width:0!important;
+  margin-left:0!important;
+  justify-content:flex-start!important;
+  align-items:stretch!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-filter-stack{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin-left:0!important;
+  justify-items:stretch!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-filter-stack .cash-filter-collapsed{
+  display:flex!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  justify-self:stretch!important;
+  align-items:center!important;
+  box-sizing:border-box!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-filter-stack .cash-filter-collapsed > .cash-filter-collapse-head{
+  flex:1 1 auto!important;
+  width:100%!important;
+  min-width:0!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-filter-stack.cash-date-is-collapsed.cash-view-is-collapsed{
+  justify-items:stretch!important;
+}
+
+/* Cash table monthly-report column: centered in both readonly and edit modes. */
+html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-readonly th:nth-child(6),
+html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-readonly td:nth-child(6),
+html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editing th:nth-child(7),
+html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editing td:nth-child(7){
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-readonly td:nth-child(6) .report-mode-toggle,
+html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editing td:nth-child(7) .report-mode-toggle{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
 }
 
 </style>
