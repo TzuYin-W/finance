@@ -1,7 +1,7 @@
-const CACHE='finance-tracker-20261118-v44-iphone-duo-account-hide';
+const CACHE='finance-tracker-20261118-v45-dollar-icon-favicon';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
-  './icon-192-v23.png','./icon-512-v23.png','./apple-touch-icon-v23.png',
+  './icon-192-v45.png','./icon-512-v45.png','./apple-touch-icon-v45.png','./favicon-v45.ico','./favicon-32-v45.png','./favicon-16-v45.png','./favicon-48-v45.png','./app-icon-source-v45.png',
   './monchhichi-bg.png','./monchhichi-bg-landscape.png','./monchhichi-sidebar.png',
   './pikmin-bg-v11.png','./pikmin-bg-landscape-v11.png','./pikmin-sidebar-v11.png',
   './gundam-bg-v17.png','./gundam-bg-landscape-v17.png','./gundam-sidebar-v17.png'
