@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v43-cash-filter-below-title-report-center -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v44-iphone-duo-account-hide -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -4943,6 +4943,138 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
   margin-right:auto!important;
 }
 
+
+
+/* ===== 2026-11-18 v44 iPhone Duo viewport adaptation + account summary hide ===== */
+/* Account-summary hide is presentation-only: hidden accounts remain in transactions and totals. */
+.account-summary-actions{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  flex-wrap:wrap!important;
+}
+.account-summary-hidden-row td{opacity:.58}
+.account-summary-hidden-row td:last-child{opacity:1}
+
+/*
+   iPhone Duo support is viewport-driven rather than UA-sniffed.
+   Apple documents a compact outer display and a larger folding inner display;
+   both portrait and landscape remain touch-primary drawer layouts.
+*/
+@media (hover:none) and (pointer:coarse){
+  html.touch-drawer-mode,
+  html.touch-drawer-mode body,
+  html.touch-drawer-mode .app-shell,
+  html.touch-drawer-mode .workspace{
+    width:100vw!important;
+    max-width:100vw!important;
+  }
+  @supports(width:100dvw){
+    html.touch-drawer-mode,
+    html.touch-drawer-mode body,
+    html.touch-drawer-mode .app-shell,
+    html.touch-drawer-mode .workspace{
+      width:100dvw!important;
+      max-width:100dvw!important;
+    }
+  }
+  html.touch-drawer-mode .workspace>.topbar{
+    box-sizing:border-box!important;
+    width:100%!important;
+    padding-top:max(8px,env(safe-area-inset-top))!important;
+    padding-right:max(10px,env(safe-area-inset-right))!important;
+    padding-left:max(10px,env(safe-area-inset-left))!important;
+  }
+  html.touch-drawer-mode .workspace>main{
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    padding-right:max(10px,env(safe-area-inset-right))!important;
+    padding-bottom:max(12px,env(safe-area-inset-bottom))!important;
+    padding-left:max(10px,env(safe-area-inset-left))!important;
+  }
+  html.touch-drawer-mode .page-stack,
+  html.touch-drawer-mode .card,
+  html.touch-drawer-mode .kpis,
+  html.touch-drawer-mode .form-grid,
+  html.touch-drawer-mode .filter-bar,
+  html.touch-drawer-mode .table-wrap{
+    box-sizing:border-box!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+  html.touch-drawer-mode .sidebar,
+  html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar{
+    left:-100vw!important;
+    box-sizing:border-box!important;
+    padding-top:max(18px,env(safe-area-inset-top))!important;
+    padding-bottom:max(12px,env(safe-area-inset-bottom))!important;
+  }
+  html.touch-drawer-mode .sidebar.open,
+  html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar.open,
+  html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar.open,
+  html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar.open{left:0!important}
+  html.touch-drawer-mode .account-summary-actions{flex-direction:column!important;gap:4px!important}
+  html.touch-drawer-mode .account-summary-actions>button{width:100%!important;min-width:0!important}
+}
+
+/* Duo outer display / other compact touch portrait screens. */
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) and (max-width:500px){
+  html.touch-drawer-mode .sidebar,
+  html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar{width:min(86vw,292px)!important}
+  html.touch-drawer-mode .workspace>main{padding-top:12px!important}
+}
+
+/* Duo inner display portrait: use a little more breathing room without switching to desktop layout. */
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) and (min-width:501px){
+  html.touch-drawer-mode .sidebar,
+  html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar{width:min(64vw,320px)!important}
+  html.touch-drawer-mode .workspace>main{
+    padding-top:14px!important;
+    padding-right:max(16px,env(safe-area-inset-right))!important;
+    padding-left:max(16px,env(safe-area-inset-left))!important;
+  }
+}
+
+/* Duo outer display landscape: compact vertical spacing, drawer remains default-collapsed. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:520px){
+  html.touch-drawer-mode .sidebar,
+  html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar{width:min(48vw,300px)!important}
+  html.touch-drawer-mode .workspace>.topbar{
+    min-height:46px!important;
+    padding-top:max(6px,env(safe-area-inset-top))!important;
+    padding-bottom:6px!important;
+  }
+  html.touch-drawer-mode .workspace>main{
+    padding-top:10px!important;
+    padding-right:max(12px,env(safe-area-inset-right))!important;
+    padding-left:max(12px,env(safe-area-inset-left))!important;
+  }
+}
+
+/* Duo inner display landscape: still a touch drawer, but sized for the wider inner canvas. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (min-height:521px){
+  html.touch-drawer-mode .sidebar,
+  html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar{width:min(40vw,320px)!important}
+  html.touch-drawer-mode .workspace>main{
+    padding-top:12px!important;
+    padding-right:max(14px,env(safe-area-inset-right))!important;
+    padding-left:max(14px,env(safe-area-inset-left))!important;
+  }
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -5235,6 +5367,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     s.cash.accounts.forEach(a => {
       a.initialByYear = a.initialByYear && typeof a.initialByYear === 'object' ? a.initialByYear : {};
       if(a.initialByYear[String(baseYear)] === undefined) a.initialByYear[String(baseYear)] = Number(a.initial) || 0;
+      a.summaryHidden = a.summaryHidden === true;
     });
     const applyFutureMonthlyDefault = s.meta.futureMonthlyFlowDefaultVersion !== 1;
     s.cash.transactions.forEach(t => {
@@ -6172,6 +6305,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     const cashDefaultReportMode=cashDefaultDate>today()?'neutral':'auto';
     const includeUndated=!!ui.includeUndated.cash;
     const yearTx=state.cash.transactions.filter(t=>yearMatch(t.date,y)||(includeUndated&&!String(t.date||'').trim()));
+    const summaryStats=accountEditing?stats:stats.filter(x=>x.a.summaryHidden!==true);
     const totalTwd=sum(stats.filter(x=>accountIncludedInTwdTotal(x.a)),x=>x.balance);
     const calendarYear=txYear(today());
     const accountMovementLabel=y===calendarYear?'截至今日交易總和':(y<calendarYear?'全年交易總和':'交易總和');
@@ -6208,7 +6342,7 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       <section class="card">
         <div class="section-head"><div><h2>${y} 年帳戶摘要</h2><p>餘額＝期初現金－已發生交易金額；未來預先建立與空白日期的項目不會提前影響帳戶餘額。</p></div><div class="section-head-tools account-summary-tools"><button data-action="add-account">新增帳戶</button><button type="button" class="small ${accountEditing?'primary':''}" data-action="toggle-edit-mode" data-edit-scope="cashAccounts" aria-pressed="${accountEditing?'true':'false'}">${accountEditing?'完成':'編輯'}</button></div></div>
         <div class="table-wrap account-summary-wrap"><table class="data-table account-summary-table fit-table ${accountEditing?'is-editing':'is-readonly'}"><thead><tr><th><span class="desktop-label">帳戶</span><span class="mobile-label">帳戶</span></th><th class="numeric"><span class="desktop-label">${y} 年期初現金</span><span class="mobile-label">期初</span></th><th class="numeric"><span class="desktop-label">${accountMovementLabel}</span><span class="mobile-label">交易</span></th><th class="numeric"><span class="desktop-label">${accountBalanceLabel}</span><span class="mobile-label">餘額</span></th><th>備註</th>${accountEditing?'<th><span class="desktop-label">操作</span><span class="mobile-label">刪</span></th>':''}</tr></thead><tbody>
-          ${stats.map(({a,i,opening,movement,balance})=>`<tr class="${accountEditing?'record-editing':'record-readonly'}"><td data-label="帳戶">${editInput(`cash.accounts.${i}.name`,a.name,'text',accountEditing)}</td><td data-label="${y} 年期初現金">${editInput(`cash.accounts.${i}.initialByYear.${y}`,opening,'number',accountEditing)}</td><td data-label="${accountMovementLabel}" class="numeric computed">${money(movement,2)}</td><td data-label="${accountBalanceLabel}" class="numeric computed">${money(balance,2)}</td><td data-label="備註">${editInput(`cash.accounts.${i}.note`,a.note,'text',accountEditing)}</td>${accountEditing?`<td data-label="操作"><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></td>`:''}</tr>`).join('')}
+          ${summaryStats.length?summaryStats.map(({a,i,opening,movement,balance})=>`<tr class="${accountEditing?'record-editing':'record-readonly'} ${a.summaryHidden?'account-summary-hidden-row':''}"><td data-label="帳戶">${editInput(`cash.accounts.${i}.name`,a.name,'text',accountEditing)}</td><td data-label="${y} 年期初現金">${editInput(`cash.accounts.${i}.initialByYear.${y}`,opening,'number',accountEditing)}</td><td data-label="${accountMovementLabel}" class="numeric computed">${money(movement,2)}</td><td data-label="${accountBalanceLabel}" class="numeric computed">${money(balance,2)}</td><td data-label="備註">${editInput(`cash.accounts.${i}.note`,a.note,'text',accountEditing)}</td>${accountEditing?`<td data-label="操作"><div class="account-summary-actions"><button class="small" data-action="toggle-account-summary-hidden" data-index="${i}">${a.summaryHidden?'顯示':'隱藏'}</button><button class="small danger" data-action="delete" data-array="cash.accounts" data-index="${i}"><span class="desktop-label">刪除</span><span class="mobile-label">刪</span></button></div></td>`:''}</tr>`).join(''):empty(accountEditing?6:5,'所有帳戶目前皆已隱藏；按「編輯」可重新顯示')}
         </tbody></table></div>
       </section>
       <section class="card no-print cash-template-card ${cashCollapsed.templates?'is-collapsed':''}">
@@ -6867,7 +7001,16 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
       scheduleSave();toast('已恢復為進行中');render();return;
     }
     if(a==='set-card'){ui.activeCard=Number(b.dataset.index);ui.deleteCardIndex=null;render();return;}
-    if(a==='add-account'){const name=prompt('帳戶名稱');if(name){captureUndo('新增現金帳戶');state.cash.accounts.push({id:uid('acc'),name,initial:0,initialByYear:{[String(currentYear())]:0},note:'',includeInTwdTotal:true});}}
+    if(a==='toggle-account-summary-hidden'){
+      const index=Number(b.dataset.index),account=state.cash.accounts[index];
+      if(!account)return;
+      captureUndo(account.summaryHidden?'顯示現金帳戶摘要':'隱藏現金帳戶摘要');
+      account.summaryHidden=account.summaryHidden!==true;
+      scheduleSave();
+      toast(account.summaryHidden?'帳戶已從摘要隱藏':'帳戶已重新顯示');
+      renderPreservingAnchor(b);return;
+    }
+    if(a==='add-account'){const name=prompt('帳戶名稱');if(name){captureUndo('新增現金帳戶');state.cash.accounts.push({id:uid('acc'),name,initial:0,initialByYear:{[String(currentYear())]:0},note:'',includeInTwdTotal:true,summaryHidden:false});}}
     if(a==='add-card'){ui.showAddCard=true;ui.deleteCardIndex=null;render();setTimeout(()=>main.querySelector('[data-form="credit-card"] input[name="bank"]')?.focus(),0);return;}
     if(a==='cancel-add-card'){ui.showAddCard=false;render();return;}
     if(a==='delete-card'){ui.deleteCardIndex=Number(b.dataset.index);ui.showAddCard=false;render();return;}
