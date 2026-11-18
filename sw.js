@@ -1,7 +1,6 @@
-const CACHE='finance-tracker-20261118-v49-logo-refresh';
+const CACHE='finance-tracker-20261118-v50-drawer-single-tap-duo-glass-rail';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
-  './app-icon-source-v49.png',
   './icon-192-v49.png','./icon-512-v49.png','./apple-touch-icon-v49.png',
   './favicon-v49.ico','./favicon-32-v49.png','./favicon-16-v49.png',
   './monchhichi-bg.png','./monchhichi-bg-landscape.png','./monchhichi-sidebar.png',

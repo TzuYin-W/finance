@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v48-duo-viewport-edge-v43-font-drawer-fix -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v50-drawer-single-tap-duo-glass-rail -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#7b963f" />
+  <meta name="theme-color" content="#f5f7f4" />
   <title>財務追蹤｜空白版</title>
   
   <style>
@@ -5407,10 +5407,173 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
 .brand-mark{background:transparent !important;box-shadow:none !important;overflow:hidden !important;padding:0 !important}
 .brand-mark img{display:block;width:100%;height:100%;object-fit:contain;border-radius:inherit}
 
+
+
+/* ===== 2026-11-18 v50 drawer single-tap + Duo right glass rail =====
+   Preserve v43 typography. Keep the drawer fully interactive/undimmed, and on compact
+   touch outer-display layouts move global controls into a Threads-like translucent rail
+   at the right edge of the web viewport. */
+@media (hover:none) and (pointer:coarse){
+  /* Explicit drawer width shared by the sidebar and the backdrop exclusion zone. */
+  html.touch-drawer-mode{--drawer-live-width:min(86vw,292px)}
+  html.touch-drawer-mode .sidebar,
+  html.touch-drawer-mode :root[data-theme="pikmin"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="pokemon"] .sidebar,
+  html.touch-drawer-mode :root[data-theme="monchhichi"] .sidebar{
+    width:var(--drawer-live-width)!important;
+    z-index:900!important;
+    opacity:1!important;
+    filter:none!important;
+    isolation:isolate!important;
+    pointer-events:auto!important;
+  }
+  html.touch-drawer-mode .sidebar nav,
+  html.touch-drawer-mode .sidebar .nav-btn{
+    position:relative!important;
+    z-index:2!important;
+    pointer-events:auto!important;
+    touch-action:manipulation!important;
+  }
+  /* The dim layer begins AFTER the drawer, so it can neither darken nor intercept it. */
+  html.touch-drawer-mode .sidebar-backdrop{
+    top:0!important;
+    right:0!important;
+    bottom:0!important;
+    left:var(--drawer-live-width)!important;
+    width:auto!important;
+    height:auto!important;
+    z-index:850!important;
+    background:rgba(0,0,0,.28)!important;
+  }
+  html.touch-drawer-mode .sidebar-backdrop.open{pointer-events:auto!important}
+
+  /* Let the page background itself reach every CSS pixel WebKit exposes. */
+  html.touch-drawer-mode,
+  html.touch-drawer-mode body,
+  html.touch-drawer-mode .app-shell,
+  html.touch-drawer-mode .workspace{
+    background-color:var(--bg)!important;
+  }
+}
+
+/* Duo / compact outer-display portrait. */
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) and (max-width:500px){
+  html.touch-drawer-mode{--drawer-live-width:min(86vw,292px)}
+  html.touch-drawer-mode .workspace>.topbar{
+    padding-left:10px!important;
+    padding-right:0!important;
+    justify-content:flex-start!important;
+  }
+  html.touch-drawer-mode .topbar>#pageTitle{
+    order:1!important;
+    margin-left:0!important;
+    padding-right:0!important;
+    min-width:0!important;
+  }
+  /* Right-side floating glass controls: menu, undo, redo, cloud. */
+  html.touch-drawer-mode .topbar>#menuBtn,
+  html.touch-drawer-mode .topbar>#undoDeleteBtn,
+  html.touch-drawer-mode .topbar>#redoActionBtn,
+  html.touch-drawer-mode .topbar>#topCloudButton{
+    position:fixed!important;
+    right:6px!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    padding:0!important;
+    margin:0!important;
+    display:grid!important;
+    place-items:center!important;
+    border:1px solid rgba(255,255,255,.52)!important;
+    border-radius:18px!important;
+    background:color-mix(in srgb,var(--paper) 52%,transparent)!important;
+    color:var(--ink)!important;
+    box-shadow:0 5px 18px rgba(27,35,39,.18),inset 0 1px 0 rgba(255,255,255,.52)!important;
+    -webkit-backdrop-filter:blur(16px) saturate(150%)!important;
+    backdrop-filter:blur(16px) saturate(150%)!important;
+    z-index:760!important;
+    pointer-events:auto!important;
+  }
+  html.touch-drawer-mode .topbar>#menuBtn{top:calc(env(safe-area-inset-top,0px) + 14px)!important}
+  html.touch-drawer-mode .topbar>#undoDeleteBtn{top:calc(env(safe-area-inset-top,0px) + 56px)!important}
+  html.touch-drawer-mode .topbar>#redoActionBtn{top:calc(env(safe-area-inset-top,0px) + 98px)!important}
+  html.touch-drawer-mode .topbar>#topCloudButton{top:calc(env(safe-area-inset-top,0px) + 140px)!important}
+  html.touch-drawer-mode.sidebar-open .topbar>#menuBtn,
+  html.touch-drawer-mode.sidebar-open .topbar>#undoDeleteBtn,
+  html.touch-drawer-mode.sidebar-open .topbar>#redoActionBtn,
+  html.touch-drawer-mode.sidebar-open .topbar>#topCloudButton,
+  body.sidebar-open .topbar>#menuBtn,
+  body.sidebar-open .topbar>#undoDeleteBtn,
+  body.sidebar-open .topbar>#redoActionBtn,
+  body.sidebar-open .topbar>#topCloudButton{
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+}
+
+/* Duo / compact outer-display landscape. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:500px){
+  html.touch-drawer-mode{--drawer-live-width:min(48vw,300px)}
+  html.touch-drawer-mode .workspace>.topbar{
+    padding-left:10px!important;
+    padding-right:0!important;
+    justify-content:flex-start!important;
+  }
+  html.touch-drawer-mode .topbar>#pageTitle{order:1!important;margin-left:0!important;min-width:0!important}
+  html.touch-drawer-mode .topbar>#menuBtn,
+  html.touch-drawer-mode .topbar>#undoDeleteBtn,
+  html.touch-drawer-mode .topbar>#redoActionBtn,
+  html.touch-drawer-mode .topbar>#topCloudButton{
+    position:fixed!important;
+    right:5px!important;
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    min-height:32px!important;
+    padding:0!important;
+    margin:0!important;
+    display:grid!important;
+    place-items:center!important;
+    border:1px solid rgba(255,255,255,.52)!important;
+    border-radius:16px!important;
+    background:color-mix(in srgb,var(--paper) 52%,transparent)!important;
+    color:var(--ink)!important;
+    box-shadow:0 4px 14px rgba(27,35,39,.18),inset 0 1px 0 rgba(255,255,255,.52)!important;
+    -webkit-backdrop-filter:blur(14px) saturate(150%)!important;
+    backdrop-filter:blur(14px) saturate(150%)!important;
+    z-index:760!important;
+    pointer-events:auto!important;
+  }
+  html.touch-drawer-mode .topbar>#menuBtn{top:10px!important}
+  html.touch-drawer-mode .topbar>#undoDeleteBtn{top:48px!important}
+  html.touch-drawer-mode .topbar>#redoActionBtn{top:86px!important}
+  html.touch-drawer-mode .topbar>#topCloudButton{top:124px!important}
+  html.touch-drawer-mode.sidebar-open .topbar>#menuBtn,
+  html.touch-drawer-mode.sidebar-open .topbar>#undoDeleteBtn,
+  html.touch-drawer-mode.sidebar-open .topbar>#redoActionBtn,
+  html.touch-drawer-mode.sidebar-open .topbar>#topCloudButton,
+  body.sidebar-open .topbar>#menuBtn,
+  body.sidebar-open .topbar>#undoDeleteBtn,
+  body.sidebar-open .topbar>#redoActionBtn,
+  body.sidebar-open .topbar>#topCloudButton{
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+}
+
+/* Larger touch / inner display uses its existing topbar, but the drawer backdrop must still
+   exclude the drawer itself so the sidebar retains original brightness and one-tap behavior. */
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) and (min-width:501px){
+  html.touch-drawer-mode{--drawer-live-width:min(64vw,320px)}
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (min-height:501px){
+  html.touch-drawer-mode{--drawer-live-width:min(40vw,320px)}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#ee9eb5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="財務追蹤">
@@ -5422,7 +5585,7 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
 <body>
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand"><div class="brand-mark"><img src="./app-icon-source-v49.png" alt="財務追蹤 Logo"></div><div><strong>財務追蹤</strong><small id="brandYear">目前年度：2026</small></div></div>
+      <div class="brand"><div class="brand-mark"><img src="./icon-192-v49.png" alt="財務追蹤 Logo"></div><div><strong>財務追蹤</strong><small id="brandYear">目前年度：2026</small></div></div>
       <nav id="nav" aria-label="分頁"></nav>
       <div class="privacy-note">資料預設保存在本機；啟用同步後，只會上傳到你授權的 Google Drive App Data 專屬空間。</div>
     </aside>
@@ -6484,9 +6647,13 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     document.documentElement.dataset.theme=theme;
     document.documentElement.style.setProperty('--app-font-scale',String(Math.min(1.30,Math.max(0.85,Number(state.meta.fontScale)||1))));
     applyLargeCardTransparency();
-    const meta=document.querySelector('meta[name="theme-color"]');
+    const metas=document.querySelectorAll('meta[name="theme-color"]');
     const themeInfo=THEMES.find(t=>t.id===theme)||THEMES[0];
-    if(meta)meta.setAttribute('content',themeInfo.colors[0]);
+    if(metas.length){
+      const touchPrimary=window.matchMedia?.('(hover: none) and (pointer: coarse)')?.matches;
+      const pageBg=getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+      metas.forEach(meta=>meta.setAttribute('content',touchPrimary&&pageBg?pageBg:themeInfo.colors[0]));
+    }
   }
   function creditCardCreateForm(){
     return `<section class="card no-print card-manager-card">
