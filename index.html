@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v46-slim-duo-fullscreen-topbar -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v47-duo-edge-to-edge-overlay -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -5215,6 +5215,108 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
   }
 }
 
+
+
+/* ===== 2026-11-18 v47 iPhone Duo true edge-to-edge canvas =====
+   App canvas fills the full touch viewport. System camera/status UI may overlay the app;
+   safe-area insets protect controls only, never shrink the page canvas. */
+@media (hover:none) and (pointer:coarse){
+  html.touch-drawer-mode,
+  html.touch-drawer-mode body{
+    position:fixed !important;
+    inset:0 !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    overscroll-behavior:none !important;
+    background:var(--bg) !important;
+  }
+  html.touch-drawer-mode .app-shell{
+    position:fixed !important;
+    inset:0 !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+  }
+  html.touch-drawer-mode .workspace{
+    position:absolute !important;
+    inset:0 !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+  }
+  /* Full-bleed bar background. Only the control cluster observes a possible LEFT unsafe edge.
+     No right safe-area padding is applied, so the right camera/status area floats over the app. */
+  html.touch-drawer-mode .workspace>.topbar{
+    box-sizing:border-box !important;
+    left:0 !important;
+    right:0 !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding-top:max(8px,env(safe-area-inset-top,0px)) !important;
+    padding-right:8px !important;
+    padding-bottom:8px !important;
+    padding-left:max(8px,env(safe-area-inset-left,0px)) !important;
+  }
+  /* Main content keeps only normal symmetric page spacing. Do NOT use left/right safe-area
+     insets here; that was the cause of the visible side shrink in v46. */
+  html.touch-drawer-mode .workspace>main{
+    box-sizing:border-box !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding-left:12px !important;
+    padding-right:12px !important;
+    padding-bottom:max(12px,env(safe-area-inset-bottom,0px)) !important;
+  }
+  html.touch-drawer-mode .custom-background-layer{
+    inset:0 !important;
+    width:auto !important;
+    height:auto !important;
+  }
+  html.touch-drawer-mode .sidebar-backdrop{
+    position:fixed !important;
+    inset:0 !important;
+    width:auto !important;
+    height:auto !important;
+  }
+}
+
+/* Compact Duo outer screen: controls remain on the left, while the title/background can
+   continue beneath the right-side camera/status overlay. */
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) and (max-width:500px),
+       (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:500px){
+  html.touch-drawer-mode .workspace>.topbar{
+    justify-content:flex-start !important;
+    padding-right:6px !important;
+  }
+  html.touch-drawer-mode .topbar>#menuBtn{order:1 !important}
+  html.touch-drawer-mode .topbar>#topCloudButton{order:2 !important}
+  html.touch-drawer-mode .topbar>#undoDeleteBtn{order:3 !important;margin-left:0 !important}
+  html.touch-drawer-mode .topbar>#redoActionBtn{order:4 !important;margin-left:0 !important}
+  html.touch-drawer-mode .topbar>#pageTitle{order:5 !important;min-width:0 !important}
+}
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">

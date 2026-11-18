@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20261118-v46-slim-duo-fullscreen-topbar';
+const CACHE='finance-tracker-20261118-v47-duo-edge-to-edge-overlay';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v45.png','./icon-512-v45.png','./apple-touch-icon-v45.png',
