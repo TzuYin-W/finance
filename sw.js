@@ -1,8 +1,9 @@
-const CACHE='finance-tracker-20261118-v47-duo-edge-to-edge-overlay';
+const CACHE='finance-tracker-20261118-v49-logo-refresh';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
-  './icon-192-v45.png','./icon-512-v45.png','./apple-touch-icon-v45.png',
-  './favicon-v45.ico','./favicon-32-v45.png','./favicon-16-v45.png',
+  './app-icon-source-v49.png',
+  './icon-192-v49.png','./icon-512-v49.png','./apple-touch-icon-v49.png',
+  './favicon-v49.ico','./favicon-32-v49.png','./favicon-16-v49.png',
   './monchhichi-bg.png','./monchhichi-bg-landscape.png','./monchhichi-sidebar.png',
   './pikmin-bg-v11.png','./pikmin-bg-landscape-v11.png','./pikmin-sidebar-v11.png',
   './gundam-bg-v17.png','./gundam-bg-landscape-v17.png','./gundam-sidebar-v17.png'

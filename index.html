@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v47-duo-edge-to-edge-overlay -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v48-duo-viewport-edge-v43-font-drawer-fix -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -5150,7 +5150,6 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
     flex:1 1 auto !important;
     min-width:0 !important;
     margin-left:2px !important;
-    font-size:18px !important;
   }
   html.touch-drawer-mode .topbar>#menuBtn,
   html.touch-drawer-mode .topbar>#topCloudButton,
@@ -5187,7 +5186,6 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
     flex:1 1 auto !important;
     min-width:0 !important;
     margin-left:2px !important;
-    font-size:17px !important;
   }
   html.touch-drawer-mode .topbar>#menuBtn,
   html.touch-drawer-mode .topbar>#topCloudButton,
@@ -5317,6 +5315,98 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
   html.touch-drawer-mode .topbar>#redoActionBtn{order:4 !important;margin-left:0 !important}
   html.touch-drawer-mode .topbar>#pageTitle{order:5 !important;min-width:0 !important}
 }
+
+
+/* ===== 2026-11-18 v48 Duo viewport-edge + v43 typography + drawer stacking fix =====
+   Typography intentionally inherits the pre-Duo (v43) rules.
+   On compact touch screens the visible WebKit viewport is full-bleed; no horizontal page gutter.
+   Safari 27.1 itself still reserves the outer-display system-controls column outside the web viewport. */
+@media (hover:none) and (pointer:coarse){
+  /* v47 made app-shell fixed; that trapped the drawer under the sibling backdrop stacking context.
+     Keep body as the viewport anchor, but make app-shell absolute so the fixed drawer z-index can
+     correctly sit above the backdrop again. */
+  html.touch-drawer-mode .app-shell{
+    position:absolute !important;
+    inset:0 !important;
+    z-index:auto !important;
+  }
+  html.touch-drawer-mode .workspace{
+    position:absolute !important;
+    inset:0 !important;
+    z-index:auto !important;
+  }
+  html.touch-drawer-mode .sidebar{
+    z-index:700 !important;
+    pointer-events:auto !important;
+    opacity:1 !important;
+    filter:none !important;
+  }
+  html.touch-drawer-mode .sidebar-backdrop{
+    z-index:690 !important;
+  }
+  html.touch-drawer-mode .sidebar-backdrop.open{
+    pointer-events:auto !important;
+  }
+}
+
+/* iPhone Duo outer-display / compact touch viewport.
+   Use every CSS pixel Safari exposes: cards and tables meet both viewport edges. */
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) and (max-width:500px),
+       (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:500px){
+  html.touch-drawer-mode .workspace>main{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  html.touch-drawer-mode #pageContent,
+  html.touch-drawer-mode .page-stack{
+    width:100% !important;
+    max-width:none !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+  /* Keep v43 internal card typography/spacing, but let each card occupy the full viewport width. */
+  html.touch-drawer-mode .page-stack>.card,
+  html.touch-drawer-mode #pageContent>.card{
+    width:100% !important;
+    max-width:none !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+    border-left-width:0 !important;
+    border-right-width:0 !important;
+    border-radius:0 !important;
+  }
+  /* v43 uses 13px card padding in portrait and 12px in compact landscape.
+     Pull direct table wrappers through that padding so the table itself is edge-to-edge. */
+  html.touch-drawer-mode .page-stack>.card>.table-wrap,
+  html.touch-drawer-mode #pageContent>.card>.table-wrap{
+    width:calc(100% + 26px) !important;
+    max-width:none !important;
+    margin-left:-13px !important;
+    margin-right:-13px !important;
+    border-left-width:0 !important;
+    border-right-width:0 !important;
+    border-radius:0 !important;
+    box-sizing:border-box !important;
+  }
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:500px){
+  html.touch-drawer-mode .page-stack>.card>.table-wrap,
+  html.touch-drawer-mode #pageContent>.card>.table-wrap{
+    width:calc(100% + 24px) !important;
+    margin-left:-12px !important;
+    margin-right:-12px !important;
+  }
+}
+
+
+/* ===== v49 logo refresh: uploaded black symbol for app brand + favicon ===== */
+.brand-mark{background:transparent !important;box-shadow:none !important;overflow:hidden !important;padding:0 !important}
+.brand-mark img{display:block;width:100%;height:100%;object-fit:contain;border-radius:inherit}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
@@ -5324,15 +5414,15 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="財務追蹤">
-  <link rel="icon" href="./favicon-v45.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32-v45.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16-v45.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-v45.png">
+  <link rel="icon" href="./favicon-v49.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32-v49.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16-v49.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon-v49.png">
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand"><div class="brand-mark">財</div><div><strong>財務追蹤</strong><small id="brandYear">目前年度：2026</small></div></div>
+      <div class="brand"><div class="brand-mark"><img src="./app-icon-source-v49.png" alt="財務追蹤 Logo"></div><div><strong>財務追蹤</strong><small id="brandYear">目前年度：2026</small></div></div>
       <nav id="nav" aria-label="分頁"></nav>
       <div class="privacy-note">資料預設保存在本機；啟用同步後，只會上傳到你授權的 Google Drive App Data 專屬空間。</div>
     </aside>
