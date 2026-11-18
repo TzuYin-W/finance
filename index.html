@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v45-dollar-icon-favicon -->
+  <!-- build: 20260813 quota-fix history-merge compressed-storage monchhichi-theme glass-v23 github-root-v46-slim-duo-fullscreen-topbar -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#7b963f" />
@@ -2969,7 +2969,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] .workspace::before{
   content:"";position:absolute;top:0;right:0;bottom:0;left:190px !important;
   width:auto !important;height:auto !important;
-  background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02)),url("./pokemon-bg-v11.png") !important;
+  background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02)),url("./gundam-bg-v17.png") !important;
   background-repeat:no-repeat,no-repeat;background-size:100% 100%,cover;background-position:center,center bottom;
   opacity:.92;z-index:0;pointer-events:none !important
 }
@@ -2979,7 +2979,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] main{padding-right:24px !important;background:transparent}
 @media(min-width:900px){
   :root[data-theme="pokemon"] .workspace::before{
-    background-image:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.01)),url("./pokemon-bg-landscape-v11.png") !important;
+    background-image:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.01)),url("./gundam-bg-landscape-v17.png") !important;
     background-position:center,center bottom;
   }
 }
@@ -3015,14 +3015,14 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   background-image:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04)),url("./pikmin-bg-v11.png") !important;
 }
 :root[data-theme="pokemon"] .workspace::before{
-  background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),url("./pokemon-bg-v11.png") !important;
+  background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),url("./gundam-bg-v17.png") !important;
 }
 @media(min-width:900px){
   :root[data-theme="pikmin"] .workspace::before{
     background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),url("./pikmin-bg-landscape-v11.png") !important;
   }
   :root[data-theme="pokemon"] .workspace::before{
-    background-image:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),url("./pokemon-bg-landscape-v11.png") !important;
+    background-image:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),url("./gundam-bg-landscape-v17.png") !important;
   }
 }
 :root[data-theme="pikmin"] .workspace>.topbar,
@@ -3083,7 +3083,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
   background-image:linear-gradient(180deg,rgba(246,243,251,.18),rgba(244,241,249,.10)),url("./pikmin-bg-v11.png") !important
 }
 :root[data-theme="pokemon"] .workspace::before{
-  background-image:linear-gradient(180deg,rgba(255,249,241,.18),rgba(244,247,247,.10)),url("./pokemon-bg-v11.png") !important
+  background-image:linear-gradient(180deg,rgba(255,249,241,.18),rgba(244,247,247,.10)),url("./gundam-bg-v17.png") !important
 }
 @media (orientation:landscape), (min-width:1100px){
   :root[data-theme="pikmin"] .workspace::before{
@@ -3091,7 +3091,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
     background-position:center center !important
   }
   :root[data-theme="pokemon"] .workspace::before{
-    background-image:linear-gradient(180deg,rgba(255,249,241,.17),rgba(244,247,247,.09)),url("./pokemon-bg-landscape-v11.png") !important;
+    background-image:linear-gradient(180deg,rgba(255,249,241,.17),rgba(244,247,247,.09)),url("./gundam-bg-landscape-v17.png") !important;
     background-position:center center !important
   }
 }
@@ -3159,7 +3159,7 @@ html.sidebar-open,body.sidebar-open{touch-action:auto!important}
 :root[data-theme="pokemon"] .sidebar::after{
   content:"";display:block !important;position:absolute;z-index:0;pointer-events:none;
   width:190px;height:128px;left:50%;bottom:72px;transform:translateX(-50%);
-  background:url("./pokemon-sidebar-v11.png") center bottom/contain no-repeat !important;
+  background:url("./gundam-sidebar-v17.png") center bottom/contain no-repeat !important;
   filter:drop-shadow(0 10px 16px rgba(22,27,28,.24));opacity:.96
 }
 :root[data-theme="pokemon"] .brand-mark{
@@ -5072,6 +5072,146 @@ html.desktop-sidebar-mode #cashTransactionList .cash-transactions-table.is-editi
     padding-top:12px!important;
     padding-right:max(14px,env(safe-area-inset-right))!important;
     padding-left:max(14px,env(safe-area-inset-left))!important;
+  }
+}
+
+
+
+/* ===== 2026-11-18 v46 slim + iPhone Duo full-screen refinement =====
+   Touch layouts only. Desktop layout and application/data behavior are unchanged. */
+@media (hover:none) and (pointer:coarse){
+  html.touch-drawer-mode,
+  html.touch-drawer-mode body{
+    width:100% !important;
+    min-width:100% !important;
+    height:100% !important;
+    min-height:100% !important;
+    max-width:none !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+  }
+  html.touch-drawer-mode .app-shell,
+  html.touch-drawer-mode .workspace{
+    box-sizing:border-box !important;
+    width:100vw !important;
+    min-width:100vw !important;
+    max-width:100vw !important;
+    height:100vh !important;
+    min-height:100vh !important;
+    max-height:100vh !important;
+    margin:0 !important;
+    overflow:hidden !important;
+  }
+  @supports(width:100dvw){
+    html.touch-drawer-mode .app-shell,
+    html.touch-drawer-mode .workspace{
+      width:100dvw !important;
+      min-width:100dvw !important;
+      max-width:100dvw !important;
+      height:100dvh !important;
+      min-height:100dvh !important;
+      max-height:100dvh !important;
+    }
+  }
+  html.touch-drawer-mode .workspace>main{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    flex:1 1 0 !important;
+  }
+  html.touch-drawer-mode .page-stack{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+  }
+}
+
+/* iPhone Duo outer screen (portrait). Keep camera/Dynamic Island clear by placing
+   all global controls before the title: drawer, cloud, undo, redo, then title. */
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) and (max-width:500px){
+  html.touch-drawer-mode .workspace>.topbar{
+    width:100% !important;
+    max-width:none !important;
+    justify-content:flex-start !important;
+    gap:6px !important;
+    padding-top:max(8px,env(safe-area-inset-top)) !important;
+    padding-right:max(8px,env(safe-area-inset-right)) !important;
+    padding-bottom:8px !important;
+    padding-left:max(8px,env(safe-area-inset-left)) !important;
+  }
+  html.touch-drawer-mode .topbar>#menuBtn{order:1 !important}
+  html.touch-drawer-mode .topbar>#topCloudButton{order:2 !important}
+  html.touch-drawer-mode .topbar>#undoDeleteBtn{order:3 !important;margin-left:0 !important}
+  html.touch-drawer-mode .topbar>#redoActionBtn{order:4 !important;margin-left:0 !important}
+  html.touch-drawer-mode .topbar>#pageTitle{
+    order:5 !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    margin-left:2px !important;
+    font-size:18px !important;
+  }
+  html.touch-drawer-mode .topbar>#menuBtn,
+  html.touch-drawer-mode .topbar>#topCloudButton,
+  html.touch-drawer-mode .topbar>#undoDeleteBtn,
+  html.touch-drawer-mode .topbar>#redoActionBtn{
+    width:32px !important;
+    min-width:32px !important;
+    height:32px !important;
+    min-height:32px !important;
+    padding:0 !important;
+    flex:0 0 32px !important;
+  }
+}
+
+/* iPhone Duo outer screen (landscape). The safe-area left inset protects the
+   controls when the camera island sits near a landscape edge. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:500px){
+  html.touch-drawer-mode .workspace>.topbar{
+    width:100% !important;
+    max-width:none !important;
+    justify-content:flex-start !important;
+    gap:6px !important;
+    padding-top:max(6px,env(safe-area-inset-top)) !important;
+    padding-right:max(10px,env(safe-area-inset-right)) !important;
+    padding-bottom:6px !important;
+    padding-left:max(10px,env(safe-area-inset-left)) !important;
+  }
+  html.touch-drawer-mode .topbar>#menuBtn{order:1 !important}
+  html.touch-drawer-mode .topbar>#topCloudButton{order:2 !important}
+  html.touch-drawer-mode .topbar>#undoDeleteBtn{order:3 !important;margin-left:0 !important}
+  html.touch-drawer-mode .topbar>#redoActionBtn{order:4 !important;margin-left:0 !important}
+  html.touch-drawer-mode .topbar>#pageTitle{
+    order:5 !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    margin-left:2px !important;
+    font-size:17px !important;
+  }
+  html.touch-drawer-mode .topbar>#menuBtn,
+  html.touch-drawer-mode .topbar>#topCloudButton,
+  html.touch-drawer-mode .topbar>#undoDeleteBtn,
+  html.touch-drawer-mode .topbar>#redoActionBtn{
+    width:30px !important;
+    min-width:30px !important;
+    height:30px !important;
+    min-height:30px !important;
+    padding:0 !important;
+    flex:0 0 30px !important;
+  }
+}
+
+/* Duo inner screen: explicitly keep the app canvas at the full dynamic viewport
+   in both orientations while preserving the touch drawer behavior. */
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) and (min-width:501px),
+       (hover:none) and (pointer:coarse) and (orientation:landscape) and (min-height:501px){
+  html.touch-drawer-mode .app-shell,
+  html.touch-drawer-mode .workspace{
+    width:100dvw !important;
+    height:100dvh !important;
+    max-width:100dvw !important;
+    max-height:100dvh !important;
   }
 }
 
