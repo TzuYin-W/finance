@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20261118-v50-drawer-single-tap-duo-glass-rail';
+const CACHE='finance-tracker-20261118-v51-drawer-lock-photo-edge-color';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v49.png','./icon-512-v49.png','./apple-touch-icon-v49.png',
