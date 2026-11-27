@@ -124,3 +124,6 @@ GitHub 根目錄安全覆蓋包 v28
 - 側欄：修正 v47 app-shell fixed stacking context 導致 backdrop 蓋住 drawer、側欄變暗且不可點擊的問題。
 - 保留 v46 瘦身資產與 v47 其他資料/功能行為。
 - 注意：Safari 27.1 on iPhone Duo 外螢幕目前不把右側系統 controls column 納入 web content viewport；網頁只能鋪滿 WebKit 暴露的 viewport，系統可延伸背景色但不能讓 HTML 表格實際繪製到 controls 後方。
+
+
+【v52 2026-11-27】單一瑞典風格 UI，移除舊主題、插圖及自訂背景介面。保留 App / favicon 圖示、字體設定、透明度設定與原財務資料相容性。背景色 #f6f3e9 同步至 manifest / theme-color。舊自訂背景資料不再讀取，不會刪除其他本機資料。請勿清除網站資料；更新前先備份。

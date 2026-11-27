@@ -1,11 +1,8 @@
-const CACHE='finance-tracker-20261118-v51-drawer-lock-photo-edge-color';
+const CACHE='finance-tracker-20261127-v52-swedish-ui';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v49.png','./icon-512-v49.png','./apple-touch-icon-v49.png',
-  './favicon-v49.ico','./favicon-32-v49.png','./favicon-16-v49.png',
-  './monchhichi-bg.png','./monchhichi-bg-landscape.png','./monchhichi-sidebar.png',
-  './pikmin-bg-v11.png','./pikmin-bg-landscape-v11.png','./pikmin-sidebar-v11.png',
-  './gundam-bg-v17.png','./gundam-bg-landscape-v17.png','./gundam-sidebar-v17.png'
+  './favicon-v49.ico','./favicon-32-v49.png','./favicon-16-v49.png'
 ];
 self.addEventListener('install',e=>e.waitUntil((async()=>{
   const c=await caches.open(CACHE);
