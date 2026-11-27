@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <!-- build: github-root-v52-swedish-ui -->
+  <!-- build: github-root-v53-drawer-chrome-fix -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f6f3e9" />
@@ -1599,11 +1599,26 @@ input,select,textarea{border-color:#cbdce5;accent-color:#31668a}
  html.touch-drawer-mode .topbar>#menuBtn,html.touch-drawer-mode .topbar>#undoDeleteBtn,html.touch-drawer-mode .topbar>#redoActionBtn,html.touch-drawer-mode .topbar>#topCloudButton{color:var(--ink)!important}
 }
 
+
+/* v53: opaque document canvas for Safari chrome; separate, hit-testable drawer. */
+html,body{background:#f6f3e9!important;color-scheme:light!important;}
+.sidebar .nav-btn{font-size:calc(17px * var(--app-font-scale,1))!important;font-weight:700!important;line-height:1.35!important;}
+@media (hover:none) and (pointer:coarse){
+ html.touch-drawer-mode,html.touch-drawer-mode body{position:static!important;width:100%!important;height:100%!important;min-height:100%!important;background:#f6f3e9!important;touch-action:auto!important;}
+ html.touch-drawer-mode .app-shell{position:absolute!important;inset:0!important;background:#f6f3e9!important;}
+ html.touch-drawer-mode .workspace,html.touch-drawer-mode .workspace>.topbar{background:#f6f3e9!important;}
+ html.touch-drawer-mode body>.sidebar{left:0!important;transform:translateX(-105%)!important;visibility:hidden!important;pointer-events:none!important;transition:transform .2s ease,visibility 0s linear .2s!important;z-index:900!important;touch-action:pan-y!important;}
+ html.touch-drawer-mode body>.sidebar.open{transform:translateX(0)!important;visibility:visible!important;pointer-events:auto!important;transition:transform .2s ease,visibility 0s!important;}
+ html.touch-drawer-mode body>.sidebar nav,html.touch-drawer-mode body>.sidebar .nav-btn{touch-action:pan-y!important;}
+ html.touch-drawer-mode body>.sidebar-backdrop{visibility:hidden!important;pointer-events:none!important;touch-action:none!important;transition:none!important;}
+ html.touch-drawer-mode body>.sidebar-backdrop.open{visibility:visible!important;pointer-events:auto!important;}
+ html.touch-drawer-mode.sidebar-open .workspace>main{overflow-y:hidden!important;}
+}
+
 </style>
 
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="財務追蹤">
   <link rel="icon" href="./favicon-v49.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32-v49.png">
@@ -3118,7 +3133,12 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     document.documentElement.classList.toggle('desktop-sidebar-mode',!drawer);
     document.body.classList.toggle('touch-drawer-mode',drawer);
     document.body.classList.toggle('desktop-sidebar-mode',!drawer);
-    if(!drawer){
+    // Keep fixed drawer and backdrop as siblings outside the clipped workspace.
+    if(drawer){
+      if(sidebar.parentElement!==document.body)document.body.insertBefore(sidebar,sidebarBackdrop);
+    }else{
+      const shell=document.querySelector('.app-shell');
+      if(sidebar.parentElement!==shell)shell.prepend(sidebar);
       sidebar.classList.remove('open');
       sidebarBackdrop?.classList.remove('open');
       sidebarBackdrop?.setAttribute('aria-hidden','true');
@@ -3147,78 +3167,66 @@ window.INITIAL_FINANCE_DATA = {"meta":{"source":"空白範本","schemaVersion":4
     if(shouldOpen)lockPageForSidebar();else unlockPageForSidebar();
   }
   function toggleSidebar(){setSidebarOpen(!sidebar.classList.contains('open'));}
-  nav.addEventListener('click',e=>{
-    const btn=e.target.closest('[data-tab]');if(!btn)return;
-    const nextTab=btn.dataset.tab;if(!TABS.some(t=>t[0]===nextTab))return;
+  function selectSidebarTab(nextTab){
+    if(!TABS.some(t=>t[0]===nextTab))return;
     const changed=ui.tab!==nextTab;ui.tab=nextTab;setSidebarOpen(false);render();
     if(changed)requestAnimationFrame(()=>{
       main.scrollTo({top:0,left:0,behavior:'auto'});
       main.querySelectorAll('.table-wrap').forEach(w=>{w.scrollLeft=0;});
     });
+  }
+  nav.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-tab]');if(btn)selectSidebarTab(btn.dataset.tab);
   });
-  // iOS standalone/landscape can suppress the synthetic click after a tiny touch move.
-  // Treat a stationary touch as an explicit tab tap, while allowing normal vertical scrolling.
-  let navTouchTap=null;
-  nav.addEventListener('touchstart',e=>{
-    const btn=e.target.closest('[data-tab]');if(!btn||e.touches.length!==1){navTouchTap=null;return;}
-    const t=e.touches[0];navTouchTap={btn,x:t.clientX,y:t.clientY};
-  },{passive:true});
-  nav.addEventListener('touchmove',e=>{
-    if(!navTouchTap||e.touches.length!==1)return;
-    const t=e.touches[0];
-    if(Math.abs(t.clientX-navTouchTap.x)>12||Math.abs(t.clientY-navTouchTap.y)>12)navTouchTap=null;
-  },{passive:true});
-  nav.addEventListener('touchend',e=>{
-    if(!navTouchTap){return;}
-    const btn=navTouchTap.btn;navTouchTap=null;
-    e.preventDefault();btn.click();
-  },{passive:false});
-  nav.addEventListener('touchcancel',()=>{navTouchTap=null;},{passive:true});
   document.getElementById('menuBtn').addEventListener('click',toggleSidebar);
   sidebarBackdrop?.addEventListener('click',()=>setSidebarOpen(false));
-  drawerMedia.addEventListener?.('change',()=>{syncSidebarDeviceMode();setSidebarOpen(false);});
+  drawerMedia.addEventListener?.('change',()=>{sidebarGesture=null;syncSidebarDeviceMode();setSidebarOpen(false);});
 
+  // One touch sequence, one action. Never synthesize a click after a swipe.
   let sidebarGesture=null;
   document.addEventListener('touchstart',e=>{
-    if(!drawerMedia.matches||e.touches.length!==1)return;
-    const target=e.target instanceof Element?e.target:null;
-    const t=e.touches[0];
-    const alreadyOpen=sidebar.classList.contains('open');
-    // When the drawer is already open, always track the gesture first. This locks an additional
-    // right-swipe instead of letting iOS horizontally pan/rubber-band the drawer and page.
-    if(alreadyOpen){
-      sidebarGesture={x:t.clientX,y:t.clientY,open:true,canOpen:false,targetInSidebar:Boolean(target?.closest('.sidebar'))};
-      return;
-    }
-    if(target?.closest('button,a,input,select,textarea,label,[role="button"]')){sidebarGesture=null;return;}
-    const fromLeftEdge=t.clientX<=36;
-    const fromWorkspace=Boolean(target?.closest('.workspace'))&&!Boolean(target?.closest('.table-wrap,.toolbar,.asset-tabs,.tab-strip'));
-    sidebarGesture={x:t.clientX,y:t.clientY,open:false,canOpen:fromLeftEdge||fromWorkspace,targetInSidebar:false};
-  },{passive:true});
-  document.addEventListener('touchmove',e=>{
-    if(!drawerMedia.matches||!sidebarGesture||e.touches.length!==1)return;
-    const t=e.touches[0],dx=t.clientX-sidebarGesture.x,dy=t.clientY-sidebarGesture.y;
-    if(sidebarGesture.open){
-      // The open drawer is position-locked. Horizontal movement in either direction is consumed;
-      // vertical movement inside the drawer remains available for scrolling the nav list.
-      const horizontal=Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)*1.05;
-      if(!sidebarGesture.targetInSidebar||horizontal)e.preventDefault();
-      return;
-    }
-    if(sidebarGesture.canOpen&&dx>12&&Math.abs(dx)>Math.abs(dy)*1.15)e.preventDefault();
-  },{passive:false});
-  document.addEventListener('touchend',e=>{
-    if(!sidebarGesture||!drawerMedia.matches||e.changedTouches.length!==1){sidebarGesture=null;return;}
-    const t=e.changedTouches[0],dx=t.clientX-sidebarGesture.x,dy=t.clientY-sidebarGesture.y;
-    const horizontal=Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.15;
-    if(horizontal){
-      // Only a deliberate LEFT swipe may close an already-open drawer. A further right swipe is a no-op.
-      if(sidebarGesture.open&&dx<0)setSidebarOpen(false);
-      else if(!sidebarGesture.open&&sidebarGesture.canOpen&&dx>0)setSidebarOpen(true);
-    }
     sidebarGesture=null;
-  },{passive:true});
-  document.addEventListener('touchcancel',()=>{sidebarGesture=null;},{passive:true});
+    if(!drawerMedia.matches||e.touches.length!==1)return;
+    const target=e.target instanceof Element?e.target:null,t=e.touches[0];
+    const open=sidebar.classList.contains('open');
+    const inside=Boolean(target?.closest('.sidebar'));
+    const tab=open&&inside?target?.closest('[data-tab]')?.dataset.tab:null;
+    const backdrop=open&&Boolean(target?.closest('.sidebar-backdrop'));
+    const blocked=Boolean(target?.closest('button,a,input,select,textarea,label,[role="button"],.modal-backdrop,.table-wrap,.toolbar,.asset-tabs,.tab-strip'));
+    const canOpen=!open&&!blocked&&(t.clientX<=36||Boolean(target?.closest('.workspace')));
+    if(!open&&!canOpen)return;
+    sidebarGesture={id:t.identifier,x:t.clientX,y:t.clientY,open,inside,tab,backdrop,canOpen,moved:false,horizontal:false};
+  },{passive:true,capture:true});
+  document.addEventListener('touchmove',e=>{
+    const g=sidebarGesture;
+    if(!g)return;
+    if(e.touches.length!==1){sidebarGesture=null;return;}
+    const t=Array.from(e.touches).find(t=>t.identifier===g.id);if(!t)return;
+    const dx=t.clientX-g.x,dy=t.clientY-g.y;
+    if(Math.max(Math.abs(dx),Math.abs(dy))>12)g.moved=true;
+    if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.15)g.horizontal=true;
+    if(e.cancelable&&(g.backdrop||(g.open&&g.horizontal)||(g.canOpen&&g.horizontal&&dx>0)))e.preventDefault();
+  },{passive:false,capture:true});
+  document.addEventListener('touchend',e=>{
+    const g=sidebarGesture;sidebarGesture=null;
+    if(!g||!drawerMedia.matches)return;
+    const t=Array.from(e.changedTouches).find(t=>t.identifier===g.id);if(!t)return;
+    const dx=t.clientX-g.x,dy=t.clientY-g.y;
+    const swipe=Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.15;
+    const tap=!g.moved&&Math.abs(dx)<=12&&Math.abs(dy)<=12;
+    if(swipe&&(g.open||(g.canOpen&&dx>0))){
+      if(e.cancelable)e.preventDefault();
+      if(g.open&&dx<0)setSidebarOpen(false);
+      else if(!g.open&&dx>0)setSidebarOpen(true);
+      return;
+    }
+    if(g.open&&tap&&(g.tab||g.backdrop)){
+      if(e.cancelable)e.preventDefault();
+      if(g.tab)selectSidebarTab(g.tab);else setSidebarOpen(false);
+    }else if(g.open&&g.horizontal&&e.cancelable)e.preventDefault();
+  },{passive:false,capture:true});
+  document.addEventListener('touchcancel',()=>{sidebarGesture=null;},{passive:true,capture:true});
+  window.addEventListener('pagehide',()=>{sidebarGesture=null;setSidebarOpen(false);});
   let searchComposing=false;
   function handleSearchInput(){
     ui.search[ui.tab]=searchInput.value;

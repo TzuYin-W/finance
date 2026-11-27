@@ -1,4 +1,4 @@
-const CACHE='finance-tracker-20261127-v52-swedish-ui';
+const CACHE='finance-tracker-20261127-v53-drawer-chrome-fix';
 const ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-192-v49.png','./icon-512-v49.png','./apple-touch-icon-v49.png',
